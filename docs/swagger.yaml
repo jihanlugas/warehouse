@@ -1,0 +1,2771 @@
+definitions:
+  model.StockLogType:
+    enum:
+    - IN
+    - OUT
+    type: string
+    x-enum-varnames:
+    - StockLogTypeIn
+    - StockLogTypeOut
+  request.ChangePassword:
+    properties:
+      confirmPasswd:
+        maxLength: 200
+        type: string
+      currentPasswd:
+        maxLength: 200
+        type: string
+      passwd:
+        maxLength: 200
+        type: string
+    required:
+    - confirmPasswd
+    - currentPasswd
+    - passwd
+    type: object
+  request.CreateCustomer:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phoneNumber:
+        type: string
+    required:
+    - name
+    - phoneNumber
+    type: object
+  request.CreateOutbound:
+    properties:
+      driverName:
+        type: string
+      fromWarehouseId:
+        type: string
+      isNewVehiclerdriver:
+        type: boolean
+      nik:
+        type: string
+      phoneNumber:
+        type: string
+      plateNumber:
+        type: string
+      productId:
+        type: string
+      remark:
+        type: string
+      sentGrossQuantity:
+        type: number
+      sentNetQuantity:
+        type: number
+      sentTareQuantity:
+        type: number
+      sentTime:
+        type: string
+      toWarehouseId:
+        type: string
+      vehicleId:
+        type: string
+      vehicleName:
+        type: string
+    required:
+    - fromWarehouseId
+    - productId
+    - remark
+    - toWarehouseId
+    type: object
+  request.CreateProduct:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - description
+    - name
+    type: object
+  request.CreatePurchaseorder:
+    properties:
+      customerId:
+        type: string
+      customerName:
+        type: string
+      customerPhoneNumber:
+        type: string
+      isNewCustomer:
+        type: boolean
+      notes:
+        type: string
+      products:
+        items:
+          $ref: '#/definitions/request.PurchaseorderProduct'
+        type: array
+      totalAmount:
+        type: number
+    type: object
+  request.CreateRetail:
+    properties:
+      customerId:
+        type: string
+      customerName:
+        type: string
+      customerPhoneNumber:
+        type: string
+      isNewCustomer:
+        type: boolean
+      notes:
+        type: string
+      products:
+        items:
+          $ref: '#/definitions/request.RetailProduct'
+        type: array
+      totalAmount:
+        type: number
+    type: object
+  request.CreateRetailStockmovementvehicle:
+    properties:
+      driverName:
+        type: string
+      isNewVehiclerdriver:
+        type: boolean
+      nik:
+        type: string
+      phoneNumber:
+        type: string
+      plateNumber:
+        type: string
+      productId:
+        type: string
+      sentGrossQuantity:
+        type: number
+      sentNetQuantity:
+        type: number
+      sentTareQuantity:
+        type: number
+      stockmovementId:
+        type: string
+      vehicleId:
+        type: string
+      vehicleName:
+        type: string
+    required:
+    - productId
+    - sentGrossQuantity
+    - sentNetQuantity
+    - sentTareQuantity
+    - stockmovementId
+    - vehicleId
+    type: object
+  request.CreateStockin:
+    properties:
+      grossQuantity:
+        type: number
+      netQuantity:
+        type: number
+      productId:
+        type: string
+      remark:
+        type: string
+      tareQuantity:
+        type: number
+      warehouseId:
+        type: string
+    required:
+    - netQuantity
+    type: object
+  request.CreateUser:
+    properties:
+      address:
+        type: string
+      birthDt:
+        type: string
+      birthPlace:
+        type: string
+      email:
+        maxLength: 200
+        type: string
+      fullname:
+        maxLength: 80
+        type: string
+      passwd:
+        maxLength: 200
+        type: string
+      phoneNumber:
+        maxLength: 20
+        type: string
+      purchaseOrder:
+        type: boolean
+      retail:
+        type: boolean
+      stockIn:
+        type: boolean
+      transferIn:
+        type: boolean
+      transferOut:
+        type: boolean
+      username:
+        maxLength: 20
+        type: string
+      warehouseId:
+        type: string
+    required:
+    - email
+    - fullname
+    - passwd
+    - phoneNumber
+    - username
+    type: object
+  request.CreateVehicle:
+    properties:
+      description:
+        type: string
+      driverName:
+        type: string
+      name:
+        type: string
+      nik:
+        type: string
+      phoneNumber:
+        type: string
+      plateNumber:
+        type: string
+      warehouseId:
+        type: string
+    required:
+    - driverName
+    - name
+    - phoneNumber
+    - plateNumber
+    - warehouseId
+    type: object
+  request.CreateWarehouse:
+    properties:
+      location:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  request.PurchaseorderProduct:
+    properties:
+      productID:
+        type: string
+      unitPrice:
+        type: number
+    required:
+    - productID
+    - unitPrice
+    type: object
+  request.RetailProduct:
+    properties:
+      productID:
+        type: string
+      unitPrice:
+        type: number
+    required:
+    - productID
+    - unitPrice
+    type: object
+  request.Signin:
+    properties:
+      passwd:
+        example: "123456"
+        maxLength: 200
+        type: string
+      username:
+        example: admindemo
+        type: string
+    required:
+    - passwd
+    - username
+    type: object
+  request.UpdateCustomer:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phoneNumber:
+        type: string
+    required:
+    - name
+    - phoneNumber
+    type: object
+  request.UpdateInbound:
+    properties:
+      recivedGrossQuantity:
+        type: number
+      recivedNetQuantity:
+        type: number
+      recivedTareQuantity:
+        type: number
+    type: object
+  request.UpdateOutbound:
+    properties:
+      sentGrossQuantity:
+        type: number
+      sentNetQuantity:
+        type: number
+      sentTareQuantity:
+        type: number
+    type: object
+  request.UpdateProduct:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - description
+    - name
+    type: object
+  request.UpdatePurchaseorder:
+    properties:
+      notes:
+        type: string
+    type: object
+  request.UpdateRetail:
+    properties:
+      notes:
+        type: string
+    type: object
+  request.UpdateRetailStockmomentvehicle:
+    properties:
+      sentGrossQuantity:
+        type: number
+      sentNetQuantity:
+        type: number
+      sentTareQuantity:
+        type: number
+    type: object
+  request.UpdateUser:
+    properties:
+      address:
+        type: string
+      birthDt:
+        type: string
+      birthPlace:
+        type: string
+      email:
+        maxLength: 200
+        type: string
+      fullname:
+        maxLength: 80
+        type: string
+      phoneNumber:
+        maxLength: 20
+        type: string
+      username:
+        maxLength: 20
+        type: string
+    required:
+    - email
+    - fullname
+    - phoneNumber
+    - username
+    type: object
+  request.UpdateUserprivilege:
+    properties:
+      purchaseOrder:
+        type: boolean
+      retail:
+        type: boolean
+      stockIn:
+        type: boolean
+      transferIn:
+        type: boolean
+      transferOut:
+        type: boolean
+    type: object
+  request.UpdateVehicle:
+    properties:
+      description:
+        type: string
+      driverName:
+        type: string
+      name:
+        type: string
+      nik:
+        type: string
+      phoneNumber:
+        type: string
+      plateNumber:
+        type: string
+    required:
+    - driverName
+    - name
+    - phoneNumber
+    - plateNumber
+    type: object
+  request.UpdateWarehouse:
+    properties:
+      location:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  response.Response:
+    properties:
+      code:
+        type: integer
+      error:
+        type: string
+      message:
+        type: string
+      payload:
+        type: object
+      status:
+        type: boolean
+    type: object
+host: localhost:1323
+info:
+  contact: {}
+  description: This is a sample server celler server.
+  title: Swagger warehouse API
+  version: "1.0"
+paths:
+  /auth/init:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Authentication
+  /auth/refresh-token:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Authentication
+  /auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.Signin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      tags:
+      - Authentication
+  /auth/sign-out:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      tags:
+      - Authentication
+  /customer:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: address
+        type: string
+      - in: query
+        name: createName
+        type: string
+      - in: query
+        name: email
+        type: string
+      - in: query
+        name: endCreateDt
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - in: query
+        name: name
+        type: string
+      - example: 1
+        in: query
+        name: page
+        type: integer
+      - in: query
+        name: phoneNumber
+        type: string
+      - in: query
+        name: preloads
+        type: string
+      - example: ""
+        in: query
+        name: sortField
+        type: string
+      - example: ""
+        in: query
+        name: sortOrder
+        type: string
+      - in: query
+        name: startCreateDt
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Customer
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateCustomer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Customer
+  /customer/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Customer
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Customer
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateCustomer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Customer
+  /inbound:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: createName
+        type: string
+      - in: query
+        name: endRecivedGrossQuantity
+        type: number
+      - in: query
+        name: endRecivedNetQuantity
+        type: number
+      - in: query
+        name: endRecivedTareQuantity
+        type: number
+      - in: query
+        name: endRecivedTime
+        type: string
+      - in: query
+        name: endSentGrossQuantity
+        type: number
+      - in: query
+        name: endSentNetQuantity
+        type: number
+      - in: query
+        name: endSentTareQuantity
+        type: number
+      - in: query
+        name: endSentTime
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 1
+        in: query
+        name: page
+        type: integer
+      - in: query
+        name: preloads
+        type: string
+      - in: query
+        name: productId
+        type: string
+      - in: query
+        name: remark
+        type: string
+      - example: ""
+        in: query
+        name: sortField
+        type: string
+      - example: ""
+        in: query
+        name: sortOrder
+        type: string
+      - in: query
+        name: startRecivedGrossQuantity
+        type: number
+      - in: query
+        name: startRecivedNetQuantity
+        type: number
+      - in: query
+        name: startRecivedTareQuantity
+        type: number
+      - in: query
+        name: startRecivedTime
+        type: string
+      - in: query
+        name: startSentGrossQuantity
+        type: number
+      - in: query
+        name: startSentNetQuantity
+        type: number
+      - in: query
+        name: startSentTareQuantity
+        type: number
+      - in: query
+        name: startSentTime
+        type: string
+      - in: query
+        name: stockmovementId
+        type: string
+      - in: query
+        name: type
+        type: string
+      - in: query
+        name: vehicleId
+        type: string
+      - in: query
+        name: warehouseId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Inbound
+  /inbound/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Inbound
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateInbound'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Inbound
+  /inbound/{id}/generate-delivery-recipt:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Inbound
+  /inbound/{id}/set-recived:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Inbound
+  /outbound:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: createName
+        type: string
+      - in: query
+        name: endRecivedGrossQuantity
+        type: number
+      - in: query
+        name: endRecivedNetQuantity
+        type: number
+      - in: query
+        name: endRecivedTareQuantity
+        type: number
+      - in: query
+        name: endRecivedTime
+        type: string
+      - in: query
+        name: endSentGrossQuantity
+        type: number
+      - in: query
+        name: endSentNetQuantity
+        type: number
+      - in: query
+        name: endSentTareQuantity
+        type: number
+      - in: query
+        name: endSentTime
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 1
+        in: query
+        name: page
+        type: integer
+      - in: query
+        name: preloads
+        type: string
+      - in: query
+        name: productId
+        type: string
+      - in: query
+        name: remark
+        type: string
+      - example: ""
+        in: query
+        name: sortField
+        type: string
+      - example: ""
+        in: query
+        name: sortOrder
+        type: string
+      - in: query
+        name: startRecivedGrossQuantity
+        type: number
+      - in: query
+        name: startRecivedNetQuantity
+        type: number
+      - in: query
+        name: startRecivedTareQuantity
+        type: number
+      - in: query
+        name: startRecivedTime
+        type: string
+      - in: query
+        name: startSentGrossQuantity
+        type: number
+      - in: query
+        name: startSentNetQuantity
+        type: number
+      - in: query
+        name: startSentTareQuantity
+        type: number
+      - in: query
+        name: startSentTime
+        type: string
+      - in: query
+        name: stockmovementId
+        type: string
+      - in: query
+        name: type
+        type: string
+      - in: query
+        name: vehicleId
+        type: string
+      - in: query
+        name: warehouseId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Outbound
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateOutbound'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Outbound
+  /outbound/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Outbound
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateOutbound'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Outbound
+  /outbound/{id}/generate-delivery-order:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Outbound
+  /outbound/{id}/set-sent:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Outbound
+  /product:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: createName
+        type: string
+      - in: query
+        name: description
+        type: string
+      - in: query
+        name: endCreateDt
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - in: query
+        name: name
+        type: string
+      - example: 1
+        in: query
+        name: page
+        type: integer
+      - in: query
+        name: preloads
+        type: string
+      - example: ""
+        in: query
+        name: sortField
+        type: string
+      - example: ""
+        in: query
+        name: sortOrder
+        type: string
+      - in: query
+        name: startCreateDt
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Product
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateProduct'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Product
+  /product/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Product
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Product
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateProduct'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Product
+  /purchaseorder:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: createName
+        type: string
+      - in: query
+        name: customeId
+        type: string
+      - in: query
+        name: endCreateDt
+        type: string
+      - in: query
+        name: endTotalAmount
+        type: number
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - in: query
+        name: notes
+        type: string
+      - example: 1
+        in: query
+        name: page
+        type: integer
+      - in: query
+        name: preloads
+        type: string
+      - example: ""
+        in: query
+        name: sortField
+        type: string
+      - example: ""
+        in: query
+        name: sortOrder
+        type: string
+      - in: query
+        name: startCreateDt
+        type: string
+      - in: query
+        name: startTotalAmount
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Purchaseorder
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreatePurchaseorder'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Purchaseorder
+  /purchaseorder/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Purchaseorder
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Purchaseorder
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdatePurchaseorder'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Purchaseorder
+  /retail:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: createName
+        type: string
+      - in: query
+        name: customeId
+        type: string
+      - in: query
+        name: endCreateDt
+        type: string
+      - in: query
+        name: endTotalAmount
+        type: number
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - in: query
+        name: notes
+        type: string
+      - example: 1
+        in: query
+        name: page
+        type: integer
+      - in: query
+        name: preloads
+        type: string
+      - example: ""
+        in: query
+        name: sortField
+        type: string
+      - example: ""
+        in: query
+        name: sortOrder
+        type: string
+      - in: query
+        name: startCreateDt
+        type: string
+      - in: query
+        name: startTotalAmount
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Retail
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateRetail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Retail
+  /retail/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Retail
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Retail
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateRetail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Retail
+  /retail/{id}/stockmomentvehicle:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateRetailStockmovementvehicle'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Retail
+  /retail/{id}/stockmomentvehicle/{stockmevementvehicleId}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: StockmevementvehicleID
+        in: path
+        name: stockmevementvehicleId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Retail
+  /retail/{id}/stockmovementvehicle:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - in: query
+        name: createName
+        type: string
+      - in: query
+        name: endRecivedGrossQuantity
+        type: number
+      - in: query
+        name: endRecivedNetQuantity
+        type: number
+      - in: query
+        name: endRecivedTareQuantity
+        type: number
+      - in: query
+        name: endRecivedTime
+        type: string
+      - in: query
+        name: endSentGrossQuantity
+        type: number
+      - in: query
+        name: endSentNetQuantity
+        type: number
+      - in: query
+        name: endSentTareQuantity
+        type: number
+      - in: query
+        name: endSentTime
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 1
+        in: query
+        name: page
+        type: integer
+      - in: query
+        name: preloads
+        type: string
+      - in: query
+        name: productId
+        type: string
+      - example: ""
+        in: query
+        name: sortField
+        type: string
+      - example: ""
+        in: query
+        name: sortOrder
+        type: string
+      - in: query
+        name: startRecivedGrossQuantity
+        type: number
+      - in: query
+        name: startRecivedNetQuantity
+        type: number
+      - in: query
+        name: startRecivedTareQuantity
+        type: number
+      - in: query
+        name: startRecivedTime
+        type: string
+      - in: query
+        name: startSentGrossQuantity
+        type: number
+      - in: query
+        name: startSentNetQuantity
+        type: number
+      - in: query
+        name: startSentTareQuantity
+        type: number
+      - in: query
+        name: startSentTime
+        type: string
+      - in: query
+        name: stockmovementId
+        type: string
+      - in: query
+        name: vehicleId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Retail
+  /retail/{id}/stockmovementvehicle/{stockmovementvehicleId}:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: StockmovementvehicleID
+        in: path
+        name: stockmovementvehicleId
+        required: true
+        type: string
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateRetailStockmomentvehicle'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Retail
+  /retail/{id}/stockmovementvehicle/{stockmovementvehicleId}/generate-delivery-order:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: StockmovementvehicleID
+        in: path
+        name: stockmovementvehicleId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Retail
+  /stockin:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: createName
+        type: string
+      - in: query
+        name: endCreateDt
+        type: string
+      - in: query
+        name: endGrossQuantity
+        type: number
+      - in: query
+        name: endNetQuantity
+        type: number
+      - in: query
+        name: endTareQuantity
+        type: number
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 1
+        in: query
+        name: page
+        type: integer
+      - in: query
+        name: preloads
+        type: string
+      - in: query
+        name: productId
+        type: string
+      - in: query
+        name: remark
+        type: string
+      - example: ""
+        in: query
+        name: sortField
+        type: string
+      - example: ""
+        in: query
+        name: sortOrder
+        type: string
+      - in: query
+        name: startCreateDt
+        type: string
+      - in: query
+        name: startGrossQuantity
+        type: number
+      - in: query
+        name: startNetQuantity
+        type: number
+      - in: query
+        name: startTareQuantity
+        type: number
+      - in: query
+        name: warehouseId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Stockin
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateStockin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Stockin
+  /stockin/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Stockin
+  /stocklog:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: createName
+        type: string
+      - in: query
+        name: endCreateDt
+        type: string
+      - in: query
+        name: endGrossQuantity
+        type: number
+      - in: query
+        name: endNetQuantity
+        type: number
+      - in: query
+        name: endTareQuantity
+        type: number
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 1
+        in: query
+        name: page
+        type: integer
+      - in: query
+        name: preloads
+        type: string
+      - in: query
+        name: productId
+        type: string
+      - example: ""
+        in: query
+        name: sortField
+        type: string
+      - example: ""
+        in: query
+        name: sortOrder
+        type: string
+      - in: query
+        name: startCreateDt
+        type: string
+      - in: query
+        name: startGrossQuantity
+        type: number
+      - in: query
+        name: startNetQuantity
+        type: number
+      - in: query
+        name: startTareQuantity
+        type: number
+      - in: query
+        name: stockId
+        type: string
+      - in: query
+        name: stockmovementId
+        type: string
+      - in: query
+        name: stockmovementvehicleId
+        type: string
+      - enum:
+        - IN
+        - OUT
+        in: query
+        name: type
+        type: string
+        x-enum-varnames:
+        - StockLogTypeIn
+        - StockLogTypeOut
+      - in: query
+        name: vehicleId
+        type: string
+      - in: query
+        name: warehouseId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Stocklog
+  /stocklog/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Stocklog
+  /stockmovementvehicle:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: createName
+        type: string
+      - in: query
+        name: endRecivedGrossQuantity
+        type: number
+      - in: query
+        name: endRecivedNetQuantity
+        type: number
+      - in: query
+        name: endRecivedTareQuantity
+        type: number
+      - in: query
+        name: endRecivedTime
+        type: string
+      - in: query
+        name: endSentGrossQuantity
+        type: number
+      - in: query
+        name: endSentNetQuantity
+        type: number
+      - in: query
+        name: endSentTareQuantity
+        type: number
+      - in: query
+        name: endSentTime
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 1
+        in: query
+        name: page
+        type: integer
+      - in: query
+        name: preloads
+        type: string
+      - in: query
+        name: productId
+        type: string
+      - example: ""
+        in: query
+        name: sortField
+        type: string
+      - example: ""
+        in: query
+        name: sortOrder
+        type: string
+      - in: query
+        name: startRecivedGrossQuantity
+        type: number
+      - in: query
+        name: startRecivedNetQuantity
+        type: number
+      - in: query
+        name: startRecivedTareQuantity
+        type: number
+      - in: query
+        name: startRecivedTime
+        type: string
+      - in: query
+        name: startSentGrossQuantity
+        type: number
+      - in: query
+        name: startSentNetQuantity
+        type: number
+      - in: query
+        name: startSentTareQuantity
+        type: number
+      - in: query
+        name: startSentTime
+        type: string
+      - in: query
+        name: stockmovementId
+        type: string
+      - in: query
+        name: vehicleId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Stockmovementvehicle
+  /stockmovementvehicle/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Stockmovementvehicle
+  /user:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: address
+        type: string
+      - in: query
+        name: birthPlace
+        type: string
+      - in: query
+        name: createName
+        type: string
+      - in: query
+        name: email
+        type: string
+      - in: query
+        name: endCreateDt
+        type: string
+      - in: query
+        name: fullname
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - example: 1
+        in: query
+        name: page
+        type: integer
+      - in: query
+        name: phoneNumber
+        type: string
+      - in: query
+        name: preloads
+        type: string
+      - in: query
+        name: role
+        type: string
+      - example: ""
+        in: query
+        name: sortField
+        type: string
+      - example: ""
+        in: query
+        name: sortOrder
+        type: string
+      - in: query
+        name: startCreateDt
+        type: string
+      - in: query
+        name: username
+        type: string
+      - in: query
+        name: warehouseId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - User
+  /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - User
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - User
+  /user/{id}/privilege:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateUserprivilege'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - User
+  /user/change-password:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.ChangePassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - User
+  /vehicle:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: createName
+        type: string
+      - in: query
+        name: description
+        type: string
+      - in: query
+        name: driverName
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - in: query
+        name: name
+        type: string
+      - in: query
+        name: nik
+        type: string
+      - example: 1
+        in: query
+        name: page
+        type: integer
+      - in: query
+        name: phoneNumber
+        type: string
+      - in: query
+        name: plateNumber
+        type: string
+      - in: query
+        name: preloads
+        type: string
+      - example: ""
+        in: query
+        name: sortField
+        type: string
+      - example: ""
+        in: query
+        name: sortOrder
+        type: string
+      - in: query
+        name: warehouseId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Vehicle
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateVehicle'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Vehicle
+  /vehicle/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Vehicle
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Vehicle
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateVehicle'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Vehicle
+  /warehouse:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: createName
+        type: string
+      - in: query
+        name: isStock
+        type: boolean
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - in: query
+        name: location
+        type: string
+      - in: query
+        name: name
+        type: string
+      - example: 1
+        in: query
+        name: page
+        type: integer
+      - in: query
+        name: preloads
+        type: string
+      - example: ""
+        in: query
+        name: sortField
+        type: string
+      - example: ""
+        in: query
+        name: sortOrder
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Warehouse
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateWarehouse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Warehouse
+  /warehouse/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Warehouse
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Warehouse
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateWarehouse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Warehouse
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -14,10 +14,12 @@ type Repository interface {
 	GetTableByName(conn *gorm.DB, name string) (tStockmovement model.Stockmovement, err error)
 	GetTableByFromWarehouseIDAndProductID(conn *gorm.DB, fromWarehouseId, productId string, preloads ...string) (tStockmovement model.Stockmovement, err error)
 	GetTableByRelatedIDAndProductID(conn *gorm.DB, relatedId, productId string, preloads ...string) (tStockmovement model.Stockmovement, err error)
+	GetTableByFromWarehouseIDAndRelatedIDAndProductID(conn *gorm.DB, fromWarehouseId, relatedId, productId string, preloads ...string) (tStockmovement model.Stockmovement, err error)
 	GetViewById(conn *gorm.DB, id string, preloads ...string) (vStockmovement model.StockmovementView, err error)
 	GetViewByName(conn *gorm.DB, name string) (vStockmovement model.StockmovementView, err error)
 	GetViewByFromWarehouseIDAndProductID(conn *gorm.DB, fromWarehouseId, productId string, preloads ...string) (vStockmovement model.StockmovementView, err error)
 	GetViewByRelatedIDAndProductID(conn *gorm.DB, relatedId, productId string, preloads ...string) (vStockmovement model.StockmovementView, err error)
+	GetViewByFromWarehouseIDAndRelatedIDAndProductID(conn *gorm.DB, fromWarehouseId, relatedId, productId string, preloads ...string) (vStockmovement model.StockmovementView, err error)
 	Create(conn *gorm.DB, tStockmovement model.Stockmovement) error
 	Update(conn *gorm.DB, tStockmovement model.Stockmovement) error
 	Save(conn *gorm.DB, tStockmovement model.Stockmovement) error
@@ -64,6 +66,19 @@ func (r repository) GetTableByRelatedIDAndProductID(conn *gorm.DB, relatedId, pr
 	return tStockmovement, err
 }
 
+func (r repository) GetTableByFromWarehouseIDAndRelatedIDAndProductID(conn *gorm.DB, fromWarehouseId, relatedId, productId string, preloads ...string) (tStockmovement model.Stockmovement, err error) {
+	for _, preload := range preloads {
+		conn = conn.Preload(preload)
+	}
+
+	err = conn.
+		Where("from_warehouse_id = ? ", fromWarehouseId).
+		Where("related_id = ? ", relatedId).
+		Where("product_id = ? ", productId).
+		First(&tStockmovement).Error
+	return tStockmovement, err
+}
+
 func (r repository) GetViewById(conn *gorm.DB, id string, preloads ...string) (vStockmovement model.StockmovementView, err error) {
 	for _, preload := range preloads {
 		conn = conn.Preload(preload)
@@ -93,6 +108,19 @@ func (r repository) GetViewByRelatedIDAndProductID(conn *gorm.DB, relatedId, pro
 	}
 
 	err = conn.Where("related_id = ? ", relatedId).Where("product_id = ? ", productId).First(&vStockmovement).Error
+	return vStockmovement, err
+}
+
+func (r repository) GetViewByFromWarehouseIDAndRelatedIDAndProductID(conn *gorm.DB, fromWarehouseId, relatedId, productId string, preloads ...string) (vStockmovement model.StockmovementView, err error) {
+	for _, preload := range preloads {
+		conn = conn.Preload(preload)
+	}
+
+	err = conn.
+		Where("from_warehouse_id = ? ", fromWarehouseId).
+		Where("related_id = ? ", relatedId).
+		Where("product_id = ? ", productId).
+		First(&vStockmovement).Error
 	return vStockmovement, err
 }
 

@@ -105,11 +105,29 @@ func (r repository) Page(conn *gorm.DB, req request.PageRetail) (vRetails []mode
 	if req.Notes != "" {
 		query = query.Where("notes ILIKE ?", "%"+req.Notes+"%")
 	}
-	if req.StartTotalAmount != nil {
-		query = query.Where("total_amount >= ?", req.StartTotalAmount)
+	if req.Number != "" {
+		query = query.Where("number ILIKE ?", "%"+req.Number+"%")
 	}
-	if req.EndTotalAmount != nil {
-		query = query.Where("total_amount <= ?", req.EndTotalAmount)
+	if req.Status != nil {
+		query = query.Where("status = ?", req.Status)
+	}
+	if req.StartTotalPrice != nil {
+		query = query.Where("total_price >= ?", req.StartTotalPrice)
+	}
+	if req.EndTotalPrice != nil {
+		query = query.Where("total_price <= ?", req.EndTotalPrice)
+	}
+	if req.StartTotalPayment != nil {
+		query = query.Where("total_payment >= ?", req.StartTotalPayment)
+	}
+	if req.EndTotalPayment != nil {
+		query = query.Where("total_payment <= ?", req.EndTotalPayment)
+	}
+	if req.StartOutstanding != nil {
+		query = query.Where("outstanding >= ?", req.StartOutstanding)
+	}
+	if req.EndOutstanding != nil {
+		query = query.Where("outstanding <= ?", req.EndOutstanding)
 	}
 	if req.StartCreateDt != nil {
 		query = query.Where("create_dt >= ?", req.StartCreateDt)

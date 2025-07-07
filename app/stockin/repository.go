@@ -9,11 +9,16 @@ import (
 )
 
 type Repository interface {
+	Name() string
 	GetViewById(conn *gorm.DB, id string, preloads ...string) (vStockin model.StockinView, err error)
 	Page(conn *gorm.DB, req request.PageStockin) (vStockins []model.StockinView, count int64, err error)
 }
 
 type repository struct {
+}
+
+func (r repository) Name() string {
+	return "stockin"
 }
 
 func (r repository) GetViewById(conn *gorm.DB, id string, preloads ...string) (vStockin model.StockinView, err error) {

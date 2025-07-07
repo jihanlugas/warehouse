@@ -9,11 +9,16 @@ import (
 )
 
 type Repository interface {
+	Name() string
 	GetViewById(conn *gorm.DB, id string, preloads ...string) (vInbound model.InboundView, err error)
 	Page(conn *gorm.DB, req request.PageInbound) (vInbounds []model.InboundView, count int64, err error)
 }
 
 type repository struct {
+}
+
+func (r repository) Name() string {
+	return "inbound"
 }
 
 func (r repository) GetViewById(conn *gorm.DB, id string, preloads ...string) (vInbound model.InboundView, err error) {

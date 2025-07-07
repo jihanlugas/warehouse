@@ -83,20 +83,21 @@ func (CustomerView) TableName() string {
 }
 
 type RetailView struct {
-	ID          string         `json:"id"`
-	CustomerID  string         `json:"customerId"`
-	TotalAmount float64        `json:"totalAmount"`
-	Number      string         `json:"number"`
-	Notes       string         `json:"notes"`
-	CreateBy    string         `json:"createBy"`
-	CreateDt    time.Time      `json:"createDt"`
-	UpdateBy    string         `json:"updateBy"`
-	UpdateDt    time.Time      `json:"updateDt"`
-	DeleteDt    gorm.DeletedAt `json:"deleteDt"`
-	CreateName  string         `json:"createName"`
-	UpdateName  string         `json:"updateName"`
+	ID         string         `json:"id"`
+	CustomerID string         `json:"customerId"`
+	Number     string         `json:"number"`
+	Notes      string         `json:"notes"`
+	Status     RetailStatus   `json:"status"`
+	CreateBy   string         `json:"createBy"`
+	CreateDt   time.Time      `json:"createDt"`
+	UpdateBy   string         `json:"updateBy"`
+	UpdateDt   time.Time      `json:"updateDt"`
+	DeleteDt   gorm.DeletedAt `json:"deleteDt"`
+	CreateName string         `json:"createName"`
+	UpdateName string         `json:"updateName"`
 
 	Customer       *CustomerView       `json:"customer,omitempty"`
+	Retailproducts []RetailproductView `json:"retailproducts,omitempty" gorm:"foreignKey:RetailID"`
 	Transactions   []TransactionView   `json:"transactions,omitempty" gorm:"foreignKey:RelatedID"`
 	Stockmovements []StockmovementView `json:"stockmovements,omitempty" gorm:"foreignKey:RelatedID"`
 }
@@ -105,32 +106,77 @@ func (RetailView) TableName() string {
 	return VIEW_RETAIL
 }
 
-type PurchaseorderView struct {
-	ID          string         `json:"id"`
-	CustomerID  string         `json:"customerId"`
-	TotalAmount float64        `json:"totalAmount"`
-	Number      string         `json:"number"`
-	Notes       string         `json:"notes"`
-	CreateBy    string         `json:"createBy"`
-	CreateDt    time.Time      `json:"createDt"`
-	UpdateBy    string         `json:"updateBy"`
-	UpdateDt    time.Time      `json:"updateDt"`
-	DeleteDt    gorm.DeletedAt `json:"deleteDt"`
-	CreateName  string         `json:"createName"`
-	UpdateName  string         `json:"updateName"`
+type RetailproductView struct {
+	ID         string         `json:"id"`
+	RetailID   string         `json:"retailId"`
+	ProductID  string         `json:"productId"`
+	UnitPrice  float64        `json:"unitPrice"`
+	CreateBy   string         `json:"createBy"`
+	CreateDt   time.Time      `json:"createDt"`
+	UpdateBy   string         `json:"updateBy"`
+	UpdateDt   time.Time      `json:"updateDt"`
+	DeleteDt   gorm.DeletedAt `json:"deleteDt"`
+	CreateName string         `json:"createName"`
+	UpdateName string         `json:"updateName"`
 
-	Customer       *CustomerView       `json:"customer,omitempty"`
-	Transactions   []TransactionView   `json:"transactions,omitempty" gorm:"foreignKey:RelatedID"`
-	Stockmovements []StockmovementView `json:"stockmovements,omitempty" gorm:"foreignKey:RelatedID"`
+	Retail  *RetailView  `json:"retail,omitempty"`
+	Product *ProductView `json:"product,omitempty"`
+}
+
+func (RetailproductView) TableName() string {
+	return VIEW_RETAILPRODUCT
+}
+
+type PurchaseorderView struct {
+	ID           string              `json:"id"`
+	CustomerID   string              `json:"customerId"`
+	TotalPrice   float64             `json:"totalPrice"`
+	TotalPayment float64             `json:"totalPayment"`
+	Outstanding  float64             `json:"outstanding"`
+	Number       string              `json:"number"`
+	Notes        string              `json:"notes"`
+	Status       PurchaseorderStatus `json:"status"`
+	CreateBy     string              `json:"createBy"`
+	CreateDt     time.Time           `json:"createDt"`
+	UpdateBy     string              `json:"updateBy"`
+	UpdateDt     time.Time           `json:"updateDt"`
+	DeleteDt     gorm.DeletedAt      `json:"deleteDt"`
+	CreateName   string              `json:"createName"`
+	UpdateName   string              `json:"updateName"`
+
+	Customer              *CustomerView              `json:"customer,omitempty"`
+	Purchaseorderproducts []PurchaseorderproductView `json:"purchaseorderproducts,omitempty" gorm:"foreignKey:PurchaseorderID"`
+	Transactions          []TransactionView          `json:"transactions,omitempty" gorm:"foreignKey:RelatedID"`
+	Stockmovements        []StockmovementView        `json:"stockmovements,omitempty" gorm:"foreignKey:RelatedID"`
 }
 
 func (PurchaseorderView) TableName() string {
 	return VIEW_PURCHASEORDER
 }
 
+type PurchaseorderproductView struct {
+	ID              string         `json:"id"`
+	PurchaseorderID string         `json:"purchaseorderId"`
+	ProductID       string         `json:"productId"`
+	UnitPrice       float64        `json:"unitPrice"`
+	CreateBy        string         `json:"createBy"`
+	CreateDt        time.Time      `json:"createDt"`
+	UpdateBy        string         `json:"updateBy"`
+	UpdateDt        time.Time      `json:"updateDt"`
+	DeleteDt        gorm.DeletedAt `json:"deleteDt"`
+	CreateName      string         `json:"createName"`
+	UpdateName      string         `json:"updateName"`
+
+	Purchaseorder *PurchaseorderView `json:"purchaseorder,omitempty"`
+	Product       *ProductView       `json:"product,omitempty"`
+}
+
+func (PurchaseorderproductView) TableName() string {
+	return VIEW_PURCHASEORDERPRODUCT
+}
+
 type TransactionView struct {
 	ID          string                 `json:"id"`
-	CustomerID  string                 `json:"customerId"`
 	RelatedID   string                 `json:"RelatedId"`
 	RelatedType TransactionRelatedType `json:"relatedType"`
 	Type        TransactionType        `json:"type"`
@@ -145,7 +191,6 @@ type TransactionView struct {
 	CreateName  string                 `json:"createName"`
 	UpdateName  string                 `json:"updateName"`
 
-	Customer      *CustomerView      `json:"customer,omitempty"`
 	Retail        *RetailView        `json:"retail,omitempty" gorm:"foreignKey:RelatedID;references:ID"`
 	Purchaseorder *PurchaseorderView `json:"purchaseorder,omitempty" gorm:"foreignKey:RelatedID;references:ID"`
 }
@@ -289,9 +334,11 @@ type StockmovementView struct {
 	CreateName      string            `json:"createName"`
 	UpdateName      string            `json:"updateName"`
 
-	FromWarehouse *WarehouseView `json:"fromWarehouse,omitempty" gorm:"foreignKey:FromWarehouseID;references:ID"`
-	ToWarehouse   *WarehouseView `json:"toWarehouse,omitempty" gorm:"foreignKey:ToWarehouseID;references:ID"`
-	Product       *ProductView   `json:"product,omitempty"`
+	FromWarehouse *WarehouseView     `json:"fromWarehouse,omitempty" gorm:"foreignKey:FromWarehouseID;references:ID"`
+	ToWarehouse   *WarehouseView     `json:"toWarehouse,omitempty" gorm:"foreignKey:ToWarehouseID;references:ID"`
+	Purchaseorder *PurchaseorderView `json:"purchaseorder,omitempty" gorm:"foreignKey:RelatedID;references:ID"`
+	Retail        *RetailView        `json:"retail,omitempty" gorm:"foreignKey:RelatedID;references:ID"`
+	Product       *ProductView       `json:"product,omitempty"`
 }
 
 func (StockmovementView) TableName() string {
@@ -303,7 +350,9 @@ type StockmovementvehicleView struct {
 	StockmovementID      string            `json:"stockmovementId"`
 	FromWarehouseID      string            `json:"fromWarehouseId"`
 	ToWarehouseID        string            `json:"toWarehouseId"`
+	RelatedID            string            `json:"relatedId"`
 	Type                 StockMovementType `json:"type"`
+	UnitPrice            float64           `json:"unitPrice"`
 	ProductID            string            `json:"productId"`
 	VehicleID            string            `json:"vehicleId"`
 	SentGrossQuantity    float64           `json:"sentGrossQuantity"`
@@ -324,9 +373,11 @@ type StockmovementvehicleView struct {
 	CreateName           string            `json:"createName"`
 	UpdateName           string            `json:"updateName"`
 
-	Vehicle              *VehicleView              `json:"vehicle,omitempty"`
-	Stockmovement        *StockmovementView        `json:"stockmovement,omitempty"`
-	Stockmovementvehicle *StockmovementvehicleView `json:"stockmovementvehicle,omitempty" gorm:"foreignKey:ID;references:ID"`
+	Product       *ProductView       `json:"product,omitempty"`
+	Vehicle       *VehicleView       `json:"vehicle,omitempty"`
+	Stockmovement *StockmovementView `json:"stockmovement,omitempty"`
+	Retail        *RetailView        `json:"retail,omitempty" gorm:"foreignKey:RelatedID;references:ID"`
+	Purchaseorder *PurchaseorderView `json:"purchaseorder,omitempty" gorm:"foreignKey:RelatedID;references:ID"`
 }
 
 func (StockmovementvehicleView) TableName() string {

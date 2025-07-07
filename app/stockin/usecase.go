@@ -48,7 +48,7 @@ func (u usecase) GetById(loginUser jwt.UserLogin, id string, preloads ...string)
 
 	vStockin, err = u.stockinRepository.GetViewById(conn, id, preloads...)
 	if err != nil {
-		return vStockin, errors.New(fmt.Sprint("failed to get stockin: ", err))
+		return vStockin, errors.New(fmt.Sprintf("failed to get %s: %v", u.stockinRepository.Name(), err))
 	}
 
 	if jwt.IsSaveWarehouseIDOR(loginUser, vStockin.WarehouseID) {
@@ -72,7 +72,7 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateStockin) erro
 
 	vWarehouse, err = u.warehouseRepository.GetViewById(conn, req.WarehouseID)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to get warehouse: ", err))
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.warehouseRepository.Name(), err))
 	}
 
 	if !vWarehouse.IsStockin {
@@ -82,7 +82,7 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateStockin) erro
 	tStock, err = u.stockRepository.GetTableByWarehouseIdAndProductId(tx, req.WarehouseID, req.ProductID)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New(fmt.Sprintf("failed to get stock %s: %v", u.stockRepository.Name(), err))
+			return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockRepository.Name(), err))
 		}
 		tStock = model.Stock{
 			ID:          utils.GetUniqueID(),
@@ -109,7 +109,7 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateStockin) erro
 	}
 	err = u.stockmovementRepository.Create(tx, tStockmovement)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to create stockmovement: ", err))
+		return errors.New(fmt.Sprintf("failed to create %s: %v", u.stockmovementRepository.Name(), err))
 	}
 
 	CurrentQuantity := 0.0
@@ -118,7 +118,7 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateStockin) erro
 	tStock.UpdateBy = loginUser.UserID
 	err = u.stockRepository.Save(tx, tStock)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to update stock: ", err))
+		return errors.New(fmt.Sprintf("failed to update %s: %v", u.stockRepository.Name(), err))
 	}
 
 	tStocklog = model.Stocklog{
@@ -136,7 +136,7 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateStockin) erro
 	}
 	err = u.stocklogRepository.Create(tx, tStocklog)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to create stocklog: ", err))
+		return errors.New(fmt.Sprintf("failed to create %s: %v", u.stocklogRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error

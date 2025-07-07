@@ -1441,7 +1441,17 @@ const docTemplate = `{
                     },
                     {
                         "type": "number",
-                        "name": "endTotalAmount",
+                        "name": "endOutstanding",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "name": "endTotalPayment",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "name": "endTotalPrice",
                         "in": "query"
                     },
                     {
@@ -1453,6 +1463,11 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "name": "notes",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "number",
                         "in": "query"
                     },
                     {
@@ -1485,7 +1500,22 @@ const docTemplate = `{
                     },
                     {
                         "type": "number",
-                        "name": "startTotalAmount",
+                        "name": "startOutstanding",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "name": "startTotalPayment",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "name": "startTotalPrice",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "status",
                         "in": "query"
                     }
                 ],
@@ -1674,6 +1704,88 @@ const docTemplate = `{
                 }
             }
         },
+        "/purchaseorder/{id}/set-status-close": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Purchaseorder"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/purchaseorder/{id}/set-status-open": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Purchaseorder"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/retail": {
             "get": {
                 "security": [
@@ -1708,7 +1820,17 @@ const docTemplate = `{
                     },
                     {
                         "type": "number",
-                        "name": "endTotalAmount",
+                        "name": "endOutstanding",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "name": "endTotalPayment",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "name": "endTotalPrice",
                         "in": "query"
                     },
                     {
@@ -1720,6 +1842,11 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "name": "notes",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "number",
                         "in": "query"
                     },
                     {
@@ -1752,7 +1879,22 @@ const docTemplate = `{
                     },
                     {
                         "type": "number",
-                        "name": "startTotalAmount",
+                        "name": "startOutstanding",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "name": "startTotalPayment",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "name": "startTotalPrice",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "status",
                         "in": "query"
                     }
                 ],
@@ -1921,379 +2063,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "ID",
                         "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/retail/{id}/stockmomentvehicle": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Retail"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "json req body",
-                        "name": "req",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.CreateRetailStockmovementvehicle"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/retail/{id}/stockmomentvehicle/{stockmevementvehicleId}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Retail"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "StockmevementvehicleID",
-                        "name": "stockmevementvehicleId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/retail/{id}/stockmovementvehicle": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Retail"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "name": "createName",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "name": "endRecivedGrossQuantity",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "name": "endRecivedNetQuantity",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "name": "endRecivedTareQuantity",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "endRecivedTime",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "name": "endSentGrossQuantity",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "name": "endSentNetQuantity",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "name": "endSentTareQuantity",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "endSentTime",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "example": 10,
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "example": 1,
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "preloads",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "productId",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "example": "",
-                        "name": "sortField",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "example": "",
-                        "name": "sortOrder",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "name": "startRecivedGrossQuantity",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "name": "startRecivedNetQuantity",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "name": "startRecivedTareQuantity",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "startRecivedTime",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "name": "startSentGrossQuantity",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "name": "startSentNetQuantity",
-                        "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "name": "startSentTareQuantity",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "startSentTime",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "stockmovementId",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "vehicleId",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/retail/{id}/stockmovementvehicle/{stockmovementvehicleId}": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Retail"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "StockmovementvehicleID",
-                        "name": "stockmovementvehicleId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "json req body",
-                        "name": "req",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.UpdateRetailStockmomentvehicle"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/retail/{id}/stockmovementvehicle/{stockmovementvehicleId}/generate-delivery-order": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Retail"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "StockmovementvehicleID",
-                        "name": "stockmovementvehicleId",
                         "in": "path",
                         "required": true
                     }
@@ -2774,6 +2543,11 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "name": "fromWarehouseId",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "example": 10,
                         "name": "limit",
@@ -2793,6 +2567,11 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "name": "productId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "relatedId",
                         "in": "query"
                     },
                     {
@@ -2854,8 +2633,123 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "name": "toWarehouseId",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "TRANSFER",
+                            "IN",
+                            "PURCHASE_ORDER",
+                            "RETAIL"
+                        ],
+                        "type": "string",
+                        "x-enum-varnames": [
+                            "StockMovementTypeTransfer",
+                            "StockMovementTypeIn",
+                            "StockMovementTypePurchaseOrder",
+                            "StockMovementTypeRetail"
+                        ],
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "name": "vehicleId",
                         "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/stockmovementvehicle/purchaseorder": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stockmovementvehicle"
+                ],
+                "parameters": [
+                    {
+                        "description": "json req body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateStockmovementvehiclePurchaseorder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/stockmovementvehicle/purchaseorder/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stockmovementvehicle"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "json req body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateStockmovementvehiclePurchaseorder"
+                        }
                     }
                 ],
                 "responses": {
@@ -2889,6 +2783,404 @@ const docTemplate = `{
                 ],
                 "tags": [
                     "Stockmovementvehicle"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stockmovementvehicle"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/stockmovementvehicle/{id}/generate-delivery-order": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stockmovementvehicle"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/stockmovementvehicle/{id}/set-sent": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stockmovementvehicle"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/transaction": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "createName",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "customerId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "name": "endAmount",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "endCreateDt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "notes",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 1,
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "preloads",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "relatedId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "relatedType",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "example": "",
+                        "name": "sortField",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "example": "",
+                        "name": "sortOrder",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "name": "startAmount",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "startCreateDt",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "parameters": [
+                    {
+                        "description": "json req body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateTransaction"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/transaction/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "json req body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateTransaction"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
                 ],
                 "parameters": [
                     {
@@ -3832,6 +4124,21 @@ const docTemplate = `{
                 "StockLogTypeOut"
             ]
         },
+        "model.StockMovementType": {
+            "type": "string",
+            "enum": [
+                "TRANSFER",
+                "IN",
+                "PURCHASE_ORDER",
+                "RETAIL"
+            ],
+            "x-enum-varnames": [
+                "StockMovementTypeTransfer",
+                "StockMovementTypeIn",
+                "StockMovementTypePurchaseOrder",
+                "StockMovementTypeRetail"
+            ]
+        },
         "request.ChangePassword": {
             "type": "object",
             "required": [
@@ -3880,7 +4187,6 @@ const docTemplate = `{
             "required": [
                 "fromWarehouseId",
                 "productId",
-                "remark",
                 "toWarehouseId"
             ],
             "properties": {
@@ -3969,9 +4275,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/request.PurchaseorderProduct"
                     }
-                },
-                "totalAmount": {
-                    "type": "number"
                 }
             }
         },
@@ -3998,58 +4301,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/request.RetailProduct"
                     }
-                },
-                "totalAmount": {
-                    "type": "number"
-                }
-            }
-        },
-        "request.CreateRetailStockmovementvehicle": {
-            "type": "object",
-            "required": [
-                "productId",
-                "sentGrossQuantity",
-                "sentNetQuantity",
-                "sentTareQuantity",
-                "stockmovementId",
-                "vehicleId"
-            ],
-            "properties": {
-                "driverName": {
-                    "type": "string"
-                },
-                "isNewVehiclerdriver": {
-                    "type": "boolean"
-                },
-                "nik": {
-                    "type": "string"
-                },
-                "phoneNumber": {
-                    "type": "string"
-                },
-                "plateNumber": {
-                    "type": "string"
-                },
-                "productId": {
-                    "type": "string"
-                },
-                "sentGrossQuantity": {
-                    "type": "number"
-                },
-                "sentNetQuantity": {
-                    "type": "number"
-                },
-                "sentTareQuantity": {
-                    "type": "number"
-                },
-                "stockmovementId": {
-                    "type": "string"
-                },
-                "vehicleId": {
-                    "type": "string"
-                },
-                "vehicleName": {
-                    "type": "string"
                 }
             }
         },
@@ -4075,6 +4326,81 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "warehouseId": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateStockmovementvehiclePurchaseorder": {
+            "type": "object",
+            "required": [
+                "fromWarehouseId",
+                "productId",
+                "purchaseorderId"
+            ],
+            "properties": {
+                "driverName": {
+                    "type": "string"
+                },
+                "fromWarehouseId": {
+                    "type": "string"
+                },
+                "isNewVehiclerdriver": {
+                    "type": "boolean"
+                },
+                "nik": {
+                    "type": "string"
+                },
+                "phoneNumber": {
+                    "type": "string"
+                },
+                "plateNumber": {
+                    "type": "string"
+                },
+                "productId": {
+                    "type": "string"
+                },
+                "purchaseorderId": {
+                    "type": "string"
+                },
+                "sentGrossQuantity": {
+                    "type": "number"
+                },
+                "sentNetQuantity": {
+                    "type": "number"
+                },
+                "sentTareQuantity": {
+                    "type": "number"
+                },
+                "vehicleId": {
+                    "type": "string"
+                },
+                "vehicleName": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateTransaction": {
+            "type": "object",
+            "required": [
+                "amount",
+                "relatedId",
+                "relatedType",
+                "type"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "relatedId": {
+                    "type": "string"
+                },
+                "relatedType": {
+                    "type": "string"
+                },
+                "type": {
                     "type": "string"
                 }
             }
@@ -4313,7 +4639,7 @@ const docTemplate = `{
                 }
             }
         },
-        "request.UpdateRetailStockmomentvehicle": {
+        "request.UpdateStockmovementvehiclePurchaseorder": {
             "type": "object",
             "properties": {
                 "sentGrossQuantity": {
@@ -4324,6 +4650,14 @@ const docTemplate = `{
                 },
                 "sentTareQuantity": {
                     "type": "number"
+                }
+            }
+        },
+        "request.UpdateTransaction": {
+            "type": "object",
+            "properties": {
+                "notes": {
+                    "type": "string"
                 }
             }
         },

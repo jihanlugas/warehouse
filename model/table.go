@@ -10,6 +10,10 @@ type StockMovementType string
 type StockLogType string
 type TransactionType string
 type TransactionRelatedType string
+type RetailStatus string
+type PurchaseorderStatus string
+
+type TransactionStatus string
 
 const (
 	UserRoleAdmin    UserRole = "ADMIN"
@@ -34,8 +38,17 @@ const (
 )
 
 const (
-	TransactionRelatedTypeRetail TransactionRelatedType = "RETAIL"
-	TransactionRelatedTypePO     TransactionRelatedType = "PO"
+	TransactionRelatedTypeRetail        TransactionRelatedType = "RETAIL"
+	TransactionRelatedTypePurchaseOrder TransactionRelatedType = "PURCHASE_ORDER"
+)
+
+const (
+	RetailStatusOpen  RetailStatus = "OPEN"
+	RetailStatusClose RetailStatus = "CLOSE"
+)
+const (
+	PurchaseorderStatusOpen  PurchaseorderStatus = "OPEN"
+	PurchaseorderStatusClose PurchaseorderStatus = "CLOSE"
 )
 
 type Photo struct {
@@ -116,34 +129,57 @@ type Customer struct {
 }
 
 type Retail struct {
-	ID          string         `gorm:"primaryKey"`
-	CustomerID  string         `gorm:"not null"`
-	TotalAmount float64        `gorm:"not null"`
-	Notes       string         `gorm:"not null"`
-	Number      string         `gorm:"not null"`
-	CreateBy    string         `gorm:"not null"`
-	CreateDt    time.Time      `gorm:"not null"`
-	UpdateBy    string         `gorm:"not null"`
-	UpdateDt    time.Time      `gorm:"not null"`
-	DeleteDt    gorm.DeletedAt `gorm:"null"`
+	ID         string         `gorm:"primaryKey"`
+	CustomerID string         `gorm:"not null"`
+	Notes      string         `gorm:"not null"`
+	Number     string         `gorm:"not null"`
+	Status     RetailStatus   `gorm:"not null"`
+	CreateBy   string         `gorm:"not null"`
+	CreateDt   time.Time      `gorm:"not null"`
+	UpdateBy   string         `gorm:"not null"`
+	UpdateDt   time.Time      `gorm:"not null"`
+	DeleteDt   gorm.DeletedAt `gorm:"null"`
+}
+
+type Retailproduct struct {
+	ID        string         `gorm:"primaryKey"`
+	RetailID  string         `gorm:"not null"`
+	ProductID string         `gorm:"not null"`
+	UnitPrice float64        `gorm:"not null"`
+	CreateBy  string         `gorm:"not null"`
+	CreateDt  time.Time      `gorm:"not null"`
+	UpdateBy  string         `gorm:"not null"`
+	UpdateDt  time.Time      `gorm:"not null"`
+	DeleteDt  gorm.DeletedAt `gorm:"null"`
 }
 
 type Purchaseorder struct {
-	ID          string         `gorm:"primaryKey"`
-	CustomerID  string         `gorm:"not null"`
-	TotalAmount float64        `gorm:"not null"`
-	Notes       string         `gorm:"not null"`
-	Number      string         `gorm:"not null"`
-	CreateBy    string         `gorm:"not null"`
-	CreateDt    time.Time      `gorm:"not null"`
-	UpdateBy    string         `gorm:"not null"`
-	UpdateDt    time.Time      `gorm:"not null"`
-	DeleteDt    gorm.DeletedAt `gorm:"null"`
+	ID         string              `gorm:"primaryKey"`
+	CustomerID string              `gorm:"not null"`
+	Notes      string              `gorm:"not null"`
+	Number     string              `gorm:"not null"`
+	Status     PurchaseorderStatus `gorm:"not null"`
+	CreateBy   string              `gorm:"not null"`
+	CreateDt   time.Time           `gorm:"not null"`
+	UpdateBy   string              `gorm:"not null"`
+	UpdateDt   time.Time           `gorm:"not null"`
+	DeleteDt   gorm.DeletedAt      `gorm:"null"`
+}
+
+type Purchaseorderproduct struct {
+	ID              string         `gorm:"primaryKey"`
+	PurchaseorderID string         `gorm:"not null"`
+	ProductID       string         `gorm:"not null"`
+	UnitPrice       float64        `gorm:"not null"`
+	CreateBy        string         `gorm:"not null"`
+	CreateDt        time.Time      `gorm:"not null"`
+	UpdateBy        string         `gorm:"not null"`
+	UpdateDt        time.Time      `gorm:"not null"`
+	DeleteDt        gorm.DeletedAt `gorm:"null"`
 }
 
 type Transaction struct {
 	ID          string                 `gorm:"primaryKey"`
-	CustomerID  string                 `gorm:"not null"`
 	RelatedID   string                 `gorm:"not null"`
 	RelatedType TransactionRelatedType `gorm:"not null"`
 	Type        TransactionType        `gorm:"not null"`

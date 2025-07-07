@@ -59,7 +59,7 @@ func (u usecase) GetById(loginUser jwt.UserLogin, id string, preloads ...string)
 
 	vInbound, err = u.inboundRepository.GetViewById(conn, id, preloads...)
 	if err != nil {
-		return vInbound, errors.New(fmt.Sprint("failed to get inbound: ", err))
+		return vInbound, errors.New(fmt.Sprintf("failed to get %s: %v", u.inboundRepository.Name(), err))
 	}
 
 	if jwt.IsSaveWarehouseIDOR(loginUser, vInbound.WarehouseID) {
@@ -79,7 +79,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateIn
 
 	vInbound, err = u.inboundRepository.GetViewById(conn, id, "Warehouse", "Stockmovement")
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to get inbound: ", err))
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.inboundRepository.Name(), err))
 	}
 
 	if vInbound.Warehouse != nil && !vInbound.Warehouse.IsInbound {
@@ -88,7 +88,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateIn
 
 	tStockmovementvehicle, err = u.stockmovementvehicleRepository.GetTableById(conn, id)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to get stockmovementvehicle: ", err))
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
 	if jwt.IsSaveWarehouseIDOR(loginUser, vInbound.WarehouseID) {
@@ -108,7 +108,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateIn
 
 	err = u.stockmovementvehicleRepository.Save(tx, tStockmovementvehicle)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to update stockmovementvehicle: ", err))
+		return errors.New(fmt.Sprintf("failed to update %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
@@ -133,7 +133,7 @@ func (u usecase) SetRecived(loginUser jwt.UserLogin, id string) error {
 
 	vInbound, err = u.inboundRepository.GetViewById(conn, id, "Warehouse", "Stockmovement")
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to get inbound: ", err))
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.inboundRepository.Name(), err))
 	}
 
 	if vInbound.Warehouse != nil && !vInbound.Warehouse.IsInbound {
@@ -142,7 +142,7 @@ func (u usecase) SetRecived(loginUser jwt.UserLogin, id string) error {
 
 	tStockmovementvehicle, err = u.stockmovementvehicleRepository.GetTableById(conn, id)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to get stockmovementvehicle: ", err))
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
 	if jwt.IsSaveWarehouseIDOR(loginUser, vInbound.WarehouseID) {
@@ -160,7 +160,7 @@ func (u usecase) SetRecived(loginUser jwt.UserLogin, id string) error {
 	tStock, err = u.stockRepository.GetTableByWarehouseIdAndProductId(tx, vInbound.WarehouseID, vInbound.ProductID)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New(fmt.Sprintf("failed to get stock %s: %v", u.stockRepository.Name(), err))
+			return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockRepository.Name(), err))
 		}
 		tStock = model.Stock{
 			ID:          utils.GetUniqueID(),
@@ -191,7 +191,7 @@ func (u usecase) SetRecived(loginUser jwt.UserLogin, id string) error {
 	tStock.UpdateBy = loginUser.UserID
 	err = u.stockRepository.Save(tx, tStock)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to update stock: ", err))
+		return errors.New(fmt.Sprintf("failed to update %s: %v", u.stockRepository.Name(), err))
 	}
 
 	tStocklog = model.Stocklog{
@@ -269,7 +269,7 @@ func (u usecase) SetRecived(loginUser jwt.UserLogin, id string) error {
 
 	err = u.stockmovementvehicleRepository.Save(tx, tStockmovementvehicle)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to update stockmovementvehicle: ", err))
+		return errors.New(fmt.Sprintf("failed to update %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
@@ -286,7 +286,7 @@ func (u usecase) GenerateDeliveryRecipt(loginUser jwt.UserLogin, id string) (pdf
 
 	vInbound, err = u.inboundRepository.GetViewById(conn, id, "Warehouse", "Stockmovement")
 	if err != nil {
-		return pdfBytes, vInbound, errors.New(fmt.Sprint("failed to get inbound: ", err))
+		return pdfBytes, vInbound, errors.New(fmt.Sprintf("failed to get %s: %v", u.inboundRepository.Name(), err))
 	}
 
 	if vInbound.Warehouse == nil {
@@ -328,7 +328,7 @@ func (u usecase) generateDeliveryRecipt(vInbound model.InboundView) (pdfBytes []
 	})
 
 	// Parse template setelah fungsi didaftarkan
-	tmpl, err = tmpl.ParseFiles("assets/template/delivery-order.html")
+	tmpl, err = tmpl.ParseFiles("assets/template/delivery-recipt.html")
 	if err != nil {
 		return pdfBytes, err
 	}

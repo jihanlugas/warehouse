@@ -8,7 +8,6 @@ type CreateRetail struct {
 	CustomerName        string          `json:"customerName" form:"customerName" query:"customerName" validate:""`
 	CustomerPhoneNumber string          `json:"customerPhoneNumber" form:"customerPhoneNumber" query:"customerPhoneNumber" validate:""`
 	Notes               string          `json:"notes" form:"notes" query:"notes" validate:""`
-	TotalAmount         float64         `json:"totalAmount" form:"totalAmount" query:"totalAmount" validate:""`
 	Products            []RetailProduct `json:"products" form:"products" query:"products" validate:""`
 }
 
@@ -44,12 +43,18 @@ type UpdateRetailStockmomentvehicle struct {
 
 type PageRetail struct {
 	Paging
-	CustomerID       string     `json:"customeId" form:"customeId" query:"customeId"`
-	Notes            string     `json:"notes" form:"notes" query:"notes"`
-	CreateName       string     `json:"createName" form:"createName" query:"createName"`
-	StartTotalAmount *float64   `json:"startTotalAmount" form:"startTotalAmount" query:"startTotalAmount"`
-	EndTotalAmount   *float64   `json:"endTotalAmount" form:"endTotalAmount" query:"endTotalAmount"`
-	StartCreateDt    *time.Time `json:"startCreateDt" form:"startCreateDt" query:"startCreateDt"`
-	EndCreateDt      *time.Time `json:"endCreateDt" form:"endCreateDt" query:"endCreateDt"`
-	Preloads         string     `json:"preloads" form:"preloads" query:"preloads"`
+	CustomerID        string     `json:"customeId" form:"customeId" query:"customeId"`
+	Notes             string     `json:"notes" form:"notes" query:"notes"`
+	Number            string     `json:"number" form:"number" query:"number"`
+	Status            *string    `json:"status" form:"status" query:"status"`
+	CreateName        string     `json:"createName" form:"createName" query:"createName"`
+	StartTotalPrice   *float64   `json:"startTotalPrice" form:"startTotalPrice" query:"startTotalPrice"`
+	EndTotalPrice     *float64   `json:"endTotalPrice" form:"endTotalPrice" query:"endTotalPrice"`
+	StartTotalPayment *float64   `json:"startTotalPayment" form:"startTotalPayment" query:"startTotalPayment"`
+	EndTotalPayment   *float64   `json:"endTotalPayment" form:"endTotalPayment" query:"endTotalPayment"`
+	StartOutstanding  *float64   `json:"startOutstanding" form:"startOutstanding" query:"startOutstanding"`
+	EndOutstanding    *float64   `json:"endOutstanding" form:"endOutstanding" query:"endOutstanding"`
+	StartCreateDt     *time.Time `json:"startCreateDt" form:"startCreateDt" query:"startCreateDt"`
+	EndCreateDt       *time.Time `json:"endCreateDt" form:"endCreateDt" query:"endCreateDt"`
+	Preloads          string     `json:"preloads" form:"preloads" query:"preloads"`
 }

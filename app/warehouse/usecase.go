@@ -19,14 +19,14 @@ type Usecase interface {
 }
 
 type usecase struct {
-	repository Repository
+	customerRepository Repository
 }
 
 func (u usecase) Page(loginUser jwt.UserLogin, req request.PageWarehouse) (vWarehouses []model.WarehouseView, count int64, err error) {
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	vWarehouses, count, err = u.repository.Page(conn, req)
+	vWarehouses, count, err = u.customerRepository.Page(conn, req)
 	if err != nil {
 		return vWarehouses, count, err
 	}
@@ -38,9 +38,9 @@ func (u usecase) GetById(loginUser jwt.UserLogin, id string, preloads ...string)
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	vWarehouse, err = u.repository.GetViewById(conn, id, preloads...)
+	vWarehouse, err = u.customerRepository.GetViewById(conn, id, preloads...)
 	if err != nil {
-		return vWarehouse, errors.New(fmt.Sprint("failed to get customer: ", err))
+		return vWarehouse, errors.New(fmt.Sprintf("failed to get %s: %v", u.customerRepository.Name(), err))
 	}
 
 	return vWarehouse, err
@@ -68,9 +68,9 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateWarehouse) er
 		UpdateBy:        loginUser.UserID,
 	}
 
-	err = u.repository.Create(tx, tWarehouse)
+	err = u.customerRepository.Create(tx, tWarehouse)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to create customer: ", err))
+		return errors.New(fmt.Sprintf("failed to create %s: %v", u.customerRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
@@ -88,9 +88,9 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateWa
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	tWarehouse, err = u.repository.GetTableById(conn, id)
+	tWarehouse, err = u.customerRepository.GetTableById(conn, id)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to get customer: ", err))
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.customerRepository.Name(), err))
 	}
 
 	tx := conn.Begin()
@@ -98,9 +98,9 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateWa
 	tWarehouse.Name = req.Name
 	tWarehouse.Location = req.Location
 	tWarehouse.UpdateBy = loginUser.UserID
-	err = u.repository.Save(tx, tWarehouse)
+	err = u.customerRepository.Save(tx, tWarehouse)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to update customer: ", err))
+		return errors.New(fmt.Sprintf("failed to update %s: %v", u.customerRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
@@ -118,16 +118,16 @@ func (u usecase) Delete(loginUser jwt.UserLogin, id string) error {
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	tWarehouse, err = u.repository.GetTableById(conn, id)
+	tWarehouse, err = u.customerRepository.GetTableById(conn, id)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to get customer: ", err))
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.customerRepository.Name(), err))
 	}
 
 	tx := conn.Begin()
 
-	err = u.repository.Delete(tx, tWarehouse)
+	err = u.customerRepository.Delete(tx, tWarehouse)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to delete customer: ", err))
+		return errors.New(fmt.Sprintf("failed to delete %s: %v", u.customerRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
@@ -138,8 +138,8 @@ func (u usecase) Delete(loginUser jwt.UserLogin, id string) error {
 	return err
 }
 
-func NewUsecase(repository Repository) Usecase {
+func NewUsecase(customerRepository Repository) Usecase {
 	return &usecase{
-		repository: repository,
+		customerRepository: customerRepository,
 	}
 }

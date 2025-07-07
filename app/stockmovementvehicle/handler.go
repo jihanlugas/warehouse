@@ -1,6 +1,7 @@
 package stockmovementvehicle
 
 import (
+	"fmt"
 	"github.com/jihanlugas/warehouse/jwt"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/response"
@@ -8,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type Handler struct {
@@ -92,4 +94,185 @@ func (h Handler) GetById(c echo.Context) error {
 	}
 
 	return response.Success(http.StatusOK, response.SuccessHandler, vStockmovementvehicle).SendJSON(c)
+}
+
+// Delete
+// @Tags Stockmovementvehicle
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "ID"
+// @Success      200  {object}	response.Response
+// @Failure      500  {object}  response.Response
+// @Router /stockmovementvehicle/{id} [delete]
+func (h Handler) Delete(c echo.Context) error {
+	var err error
+
+	loginUser, err := jwt.GetUserLoginInfo(c)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
+	}
+
+	err = h.usecase.Delete(loginUser, id)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
+	}
+
+	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
+}
+
+// SetSent
+// @Tags Stockmovementvehicle
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "ID"
+// @Success      200  {object}	response.Response
+// @Failure      500  {object}  response.Response
+// @Router /stockmovementvehicle/{id}/set-sent [get]
+func (h Handler) SetSent(c echo.Context) error {
+	var err error
+
+	loginUser, err := jwt.GetUserLoginInfo(c)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
+	}
+
+	err = h.usecase.SetSent(loginUser, id)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
+	}
+
+	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
+}
+
+// GenerateDeliveryOrder
+// @Tags Stockmovementvehicle
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "ID"
+// @Query preloads query string false "preloads"
+// @Success      200  {object}	response.Response
+// @Failure      500  {object}  response.Response
+// @Router /stockmovementvehicle/{id}/generate-delivery-order [get]
+func (h Handler) GenerateDeliveryOrder(c echo.Context) error {
+	var err error
+
+	loginUser, err := jwt.GetUserLoginInfo(c)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
+	}
+
+	pdfBytes, vStockmovementvehicle, err := h.usecase.GenerateDeliveryOrder(loginUser, id)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
+	}
+
+	fmt.Print(fmt.Sprintf("Delivery Order %s %s.pdf", vStockmovementvehicle.ID, utils.DisplayDate(time.Now())))
+
+	filename := fmt.Sprintf("Delivery Order %s %s.pdf", vStockmovementvehicle.ID, utils.DisplayDate(time.Now()))
+	c.Response().Header().Set("Content-Disposition", "attachment; filename="+filename)
+
+	// Kirimkan PDF sebagai respons
+	return c.Blob(http.StatusOK, "application/pdf", pdfBytes)
+}
+
+// Create
+// @Tags Stockmovementvehicle
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param req body request.CreateStockmovementvehiclePurchaseorder true "json req body"
+// @Success      200  {object}	response.Response
+// @Failure      500  {object}  response.Response
+// @Router /stockmovementvehicle/purchaseorder [post]
+func (h Handler) CreatePurchaseorder(c echo.Context) error {
+	var err error
+
+	loginUser, err := jwt.GetUserLoginInfo(c)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
+	}
+
+	req := new(request.CreateStockmovementvehiclePurchaseorder)
+	if err = c.Bind(req); err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerBind, err, nil).SendJSON(c)
+	}
+
+	utils.TrimWhitespace(req)
+
+	err = c.Validate(req)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerFailedValidation, err, response.ValidationError(err)).SendJSON(c)
+	}
+
+	if jwt.IsSaveWarehouseIDOR(loginUser, req.FromWarehouseID) {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerIDOR, err, nil).SendJSON(c)
+	}
+
+	err = h.usecase.CreatePurchaseorder(loginUser, *req)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
+	}
+
+	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
+}
+
+// Update
+// @Tags Stockmovementvehicle
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "ID"
+// @Param req body request.UpdateStockmovementvehiclePurchaseorder true "json req body"
+// @Success      200  {object}	response.Response
+// @Failure      500  {object}  response.Response
+// @Router /stockmovementvehicle/purchaseorder/{id} [put]
+func (h Handler) UpdatePurchaseorder(c echo.Context) error {
+	var err error
+
+	loginUser, err := jwt.GetUserLoginInfo(c)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
+	}
+
+	req := new(request.UpdateStockmovementvehiclePurchaseorder)
+	if err = c.Bind(req); err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerBind, err, nil).SendJSON(c)
+	}
+
+	utils.TrimWhitespace(req)
+
+	err = c.Validate(req)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerFailedValidation, err, response.ValidationError(err)).SendJSON(c)
+	}
+
+	err = h.usecase.UpdatePurchaseorder(loginUser, id, *req)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
+	}
+
+	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
 }

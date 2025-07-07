@@ -20,6 +20,7 @@ import (
 	"gorm.io/gorm"
 	"html/template"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -60,7 +61,7 @@ func (u usecase) GetById(loginUser jwt.UserLogin, id string, preloads ...string)
 
 	vOutbound, err = u.outboundRepository.GetViewById(conn, id, preloads...)
 	if err != nil {
-		return vOutbound, errors.New(fmt.Sprint("failed to get outbound: ", err))
+		return vOutbound, errors.New(fmt.Sprintf("failed to get %s: %v", u.outboundRepository.Name(), err))
 	}
 
 	if jwt.IsSaveWarehouseIDOR(loginUser, vOutbound.WarehouseID) {
@@ -84,7 +85,7 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateOutbound) err
 
 	vWarehouse, err = u.warehouseRepository.GetViewById(conn, req.FromWarehouseID)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to get warehouse: ", err))
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.warehouseRepository.Name(), err))
 	}
 
 	if !vWarehouse.IsOutbound {
@@ -95,7 +96,7 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateOutbound) err
 		tVehicle = model.Vehicle{
 			ID:          utils.GetUniqueID(),
 			WarehouseID: req.FromWarehouseID,
-			PlateNumber: req.PlateNumber,
+			PlateNumber: strings.ToUpper(req.PlateNumber),
 			Name:        req.VehicleName,
 			NIK:         req.NIK,
 			DriverName:  req.DriverName,
@@ -105,12 +106,12 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateOutbound) err
 		}
 		err = u.vehicleRepository.Create(tx, tVehicle)
 		if err != nil {
-			return errors.New(fmt.Sprint("failed to create vehicle: ", err))
+			return errors.New(fmt.Sprintf("failed to create %s: %v", u.vehicleRepository.Name(), err))
 		}
 	} else {
 		tVehicle, err = u.vehicleRepository.GetTableById(conn, req.VehicleID)
 		if err != nil {
-			return errors.New(fmt.Sprint("failed to create vehicle : ", err))
+			return errors.New(fmt.Sprintf("failed to get %s: %v", u.vehicleRepository.Name(), err))
 		}
 	}
 
@@ -126,7 +127,7 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateOutbound) err
 	}
 	err = u.stockmovementRepository.Create(tx, tStockmovement)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to create stockmovement: ", err))
+		return errors.New(fmt.Sprintf("failed to create %s: %v", u.stockmovementRepository.Name(), err))
 	}
 
 	tStockmovementvehicle = model.Stockmovementvehicle{
@@ -162,7 +163,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateOu
 
 	vOutbound, err = u.outboundRepository.GetViewById(conn, id, "Warehouse")
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to get outbound: ", err))
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.outboundRepository.Name(), err))
 	}
 
 	if vOutbound.Warehouse != nil && !vOutbound.Warehouse.IsOutbound {
@@ -175,7 +176,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateOu
 
 	tStockmovementvehicle, err = u.stockmovementvehicleRepository.GetTableById(conn, id)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to get stockmovementvehicle: ", err))
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
 	if jwt.IsSaveWarehouseIDOR(loginUser, vOutbound.WarehouseID) {
@@ -190,7 +191,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateOu
 	tStockmovementvehicle.UpdateBy = loginUser.UserID
 	err = u.stockmovementvehicleRepository.Save(tx, tStockmovementvehicle)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to update stockmovementvehicle: ", err))
+		return errors.New(fmt.Sprintf("failed to update %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
@@ -213,7 +214,7 @@ func (u usecase) SetSent(loginUser jwt.UserLogin, id string) error {
 
 	vOutbound, err = u.outboundRepository.GetViewById(conn, id, "Warehouse")
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to get outbound: ", err))
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.outboundRepository.Name(), err))
 	}
 
 	if vOutbound.SentTime != nil {
@@ -226,10 +227,10 @@ func (u usecase) SetSent(loginUser jwt.UserLogin, id string) error {
 
 	tStockmovementvehicle, err = u.stockmovementvehicleRepository.GetTableById(conn, id)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to get stockmovementvehicle: ", err))
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
-	if tStockmovementvehicle.SentNetQuantity == 0 && tStockmovementvehicle.SentGrossQuantity == 0 {
+	if tStockmovementvehicle.SentNetQuantity <= 0 && tStockmovementvehicle.SentGrossQuantity <= 0 {
 		return errors.New("data gross or net quantity is zero")
 	}
 
@@ -239,7 +240,7 @@ func (u usecase) SetSent(loginUser jwt.UserLogin, id string) error {
 	tStock, err = u.stockRepository.GetTableByWarehouseIdAndProductId(tx, vOutbound.WarehouseID, vOutbound.ProductID)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New(fmt.Sprintf("failed to get stock %s: %v", u.stockRepository.Name(), err))
+			return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockRepository.Name(), err))
 		}
 		tStock = model.Stock{
 			ID:          utils.GetUniqueID(),
@@ -259,7 +260,7 @@ func (u usecase) SetSent(loginUser jwt.UserLogin, id string) error {
 	tStockmovementvehicle.UpdateBy = loginUser.UserID
 	err = u.stockmovementvehicleRepository.Save(tx, tStockmovementvehicle)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to update stockmovementvehicle: ", err))
+		return errors.New(fmt.Sprintf("failed to update %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
 	CurrentQuantity := 0.0
@@ -269,7 +270,7 @@ func (u usecase) SetSent(loginUser jwt.UserLogin, id string) error {
 		tStock.UpdateBy = loginUser.UserID
 		err = u.stockRepository.Save(tx, tStock)
 		if err != nil {
-			return errors.New(fmt.Sprint("failed to update stock: ", err))
+			return errors.New(fmt.Sprintf("failed to update %s: %v", u.stockRepository.Name(), err))
 		}
 
 		tStocklog = model.Stocklog{
@@ -289,7 +290,7 @@ func (u usecase) SetSent(loginUser jwt.UserLogin, id string) error {
 		}
 		err = u.stocklogRepository.Create(tx, tStocklog)
 		if err != nil {
-			return errors.New(fmt.Sprint("failed to create stocklog: ", err))
+			return errors.New(fmt.Sprintf("failed to create %s: %v", u.stocklogRepository.Name(), err))
 		}
 	}
 
@@ -307,7 +308,7 @@ func (u usecase) GenerateDeliveryOrder(loginUser jwt.UserLogin, id string) (pdfB
 
 	vOutbound, err = u.outboundRepository.GetViewById(conn, id, "Warehouse", "Stockmovement")
 	if err != nil {
-		return pdfBytes, vOutbound, errors.New(fmt.Sprint("failed to get outbound: ", err))
+		return pdfBytes, vOutbound, errors.New(fmt.Sprintf("failed to get %s: %v", u.outboundRepository.Name(), err))
 	}
 
 	if vOutbound.Warehouse == nil {

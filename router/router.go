@@ -9,12 +9,15 @@ import (
 	"github.com/jihanlugas/warehouse/app/outbound"
 	"github.com/jihanlugas/warehouse/app/product"
 	"github.com/jihanlugas/warehouse/app/purchaseorder"
+	"github.com/jihanlugas/warehouse/app/purchaseorderproduct"
 	"github.com/jihanlugas/warehouse/app/retail"
+	"github.com/jihanlugas/warehouse/app/retailproduct"
 	"github.com/jihanlugas/warehouse/app/stock"
 	"github.com/jihanlugas/warehouse/app/stockin"
 	"github.com/jihanlugas/warehouse/app/stocklog"
 	"github.com/jihanlugas/warehouse/app/stockmovement"
 	"github.com/jihanlugas/warehouse/app/stockmovementvehicle"
+	"github.com/jihanlugas/warehouse/app/transaction"
 	"github.com/jihanlugas/warehouse/app/user"
 	"github.com/jihanlugas/warehouse/app/userprivilege"
 	"github.com/jihanlugas/warehouse/app/vehicle"
@@ -37,11 +40,14 @@ func Init() *echo.Echo {
 	userRepository := user.NewRepository()
 	userprivilegeRepository := userprivilege.NewRepository()
 	warehouseRepository := warehouse.NewRepository()
+	transactionRepository := transaction.NewRepository()
 	vehicleRepository := vehicle.NewRepository()
 	customerRepository := customer.NewRepository()
 	productRepository := product.NewRepository()
 	retailRepository := retail.NewRepository()
+	retailproductRepository := retailproduct.NewRepository()
 	purchaseorderRepository := purchaseorder.NewRepository()
+	purchaseorderproductRepository := purchaseorderproduct.NewRepository()
 	outboundRepository := outbound.NewRepository()
 	inboundRepository := inbound.NewRepository()
 	stockinRepository := stockin.NewRepository()
@@ -54,13 +60,14 @@ func Init() *echo.Echo {
 	authUsecase := auth.NewUsecase(userRepository, warehouseRepository)
 	userUsecase := user.NewUsecase(userRepository, userprivilegeRepository)
 	warehouseUsecase := warehouse.NewUsecase(warehouseRepository)
+	transactionUsecase := transaction.NewUsecase(transactionRepository)
 	stocklogUsecase := stocklog.NewUsecase(stocklogRepository)
-	stockmovementvehicleUsecase := stockmovementvehicle.NewUsecase(stockmovementvehicleRepository)
+	stockmovementvehicleUsecase := stockmovementvehicle.NewUsecase(stockmovementvehicleRepository, warehouseRepository, vehicleRepository, stockmovementRepository, stockRepository, stocklogRepository, purchaseorderRepository, retailRepository)
 	vehicleUsecase := vehicle.NewUsecase(vehicleRepository)
 	customerUsecase := customer.NewUsecase(customerRepository)
 	productUsecase := product.NewUsecase(productRepository)
-	retailUsecase := retail.NewUsecase(retailRepository, stockRepository, stocklogRepository, customerRepository, warehouseRepository, vehicleRepository, stockmovementRepository, stockmovementvehicleRepository)
-	purchaseorderUsecase := purchaseorder.NewUsecase(purchaseorderRepository, stockRepository, stocklogRepository, customerRepository, warehouseRepository, vehicleRepository, stockmovementRepository, stockmovementvehicleRepository)
+	retailUsecase := retail.NewUsecase(retailRepository, retailproductRepository, stockRepository, stocklogRepository, customerRepository, warehouseRepository, vehicleRepository)
+	purchaseorderUsecase := purchaseorder.NewUsecase(purchaseorderRepository, purchaseorderproductRepository, stockRepository, stocklogRepository, customerRepository, warehouseRepository, vehicleRepository)
 	outboundUsecase := outbound.NewUsecase(outboundRepository, warehouseRepository, vehicleRepository, stockRepository, stocklogRepository, stockmovementRepository, stockmovementvehicleRepository)
 	inboundUsecase := inbound.NewUsecase(inboundRepository, warehouseRepository, vehicleRepository, stockRepository, stocklogRepository, stockmovementRepository, stockmovementvehicleRepository)
 	stockinUsecase := stockin.NewUsecase(stockinRepository, warehouseRepository, stockRepository, stocklogRepository, stockmovementRepository)
@@ -69,6 +76,7 @@ func Init() *echo.Echo {
 	authHandler := auth.NewHandler(authUsecase)
 	userHandler := user.NewHandler(userUsecase)
 	warehouseHandler := warehouse.NewHandler(warehouseUsecase)
+	transactionHandler := transaction.NewHandler(transactionUsecase)
 	stocklogHandler := stocklog.NewHandler(stocklogUsecase)
 	stockmovementvehicleHandler := stockmovementvehicle.NewHandler(stockmovementvehicleUsecase)
 	vehicleHandler := vehicle.NewHandler(vehicleUsecase)
@@ -109,6 +117,13 @@ func Init() *echo.Echo {
 	routerWarehouse.PUT("/:id", warehouseHandler.Update, checkTokenMiddlewareAdmin)
 	routerWarehouse.DELETE("/:id", warehouseHandler.Delete, checkTokenMiddlewareAdmin)
 
+	routerTransaction := router.Group("/transaction", checkTokenMiddlewareAdmin)
+	routerTransaction.GET("", transactionHandler.Page)
+	routerTransaction.POST("", transactionHandler.Create)
+	routerTransaction.GET("/:id", transactionHandler.GetById)
+	routerTransaction.PUT("/:id", transactionHandler.Update)
+	routerTransaction.DELETE("/:id", transactionHandler.Delete)
+
 	routerStocklog := router.Group("/stocklog")
 	routerStocklog.GET("", stocklogHandler.Page, checkTokenMiddleware)
 	routerStocklog.GET("/:id", stocklogHandler.GetById, checkTokenMiddleware)
@@ -116,6 +131,13 @@ func Init() *echo.Echo {
 	routerStockmovementvehicle := router.Group("/stockmovementvehicle")
 	routerStockmovementvehicle.GET("", stockmovementvehicleHandler.Page, checkTokenMiddleware)
 	routerStockmovementvehicle.GET("/:id", stockmovementvehicleHandler.GetById, checkTokenMiddleware)
+	routerStockmovementvehicle.DELETE("/:id", stockmovementvehicleHandler.Delete, checkTokenMiddleware)
+	routerStockmovementvehicle.GET("/:id/set-sent", stockmovementvehicleHandler.SetSent, checkTokenMiddleware)
+	routerStockmovementvehicle.GET("/:id/generate-delivery-order", stockmovementvehicleHandler.GenerateDeliveryOrder, checkTokenMiddleware)
+
+	routerStockmovementvehiclePurchaseorder := routerStockmovementvehicle.Group("/purchaseorder")
+	routerStockmovementvehiclePurchaseorder.POST("", stockmovementvehicleHandler.CreatePurchaseorder, checkTokenMiddleware)
+	routerStockmovementvehiclePurchaseorder.PUT("/:id", stockmovementvehicleHandler.UpdatePurchaseorder, checkTokenMiddleware)
 
 	routerProduct := router.Group("/product")
 	routerProduct.GET("", productHandler.Page, checkTokenMiddleware)
@@ -130,12 +152,6 @@ func Init() *echo.Echo {
 	routerRetail.GET("/:id", retailHandler.GetById)
 	routerRetail.PUT("/:id", retailHandler.Update)
 	//routerRetail.DELETE("/:id", retailHandler.Delete)
-	routerRetail.GET("/:id/stockmovementvehicle", func(c echo.Context) error { return nil })
-	routerRetail.POST("/:id/stockmovementvehicle", func(c echo.Context) error { return nil })
-	routerRetail.PUT("/:id/stockmovementvehicle/:stockmovementvehicleId", func(c echo.Context) error { return nil })
-	routerRetail.GET("/:id/stockmovementvehicle/:stockmovementvehicleId/generate-delivery-order", func(c echo.Context) error { return nil })
-	routerRetail.POST("/:id/transaction", func(c echo.Context) error { return nil })
-	routerRetail.GET("/:id/generate-invoice", func(c echo.Context) error { return nil })
 
 	routerPurchaseorder := router.Group("/purchaseorder", checkTokenMiddleware)
 	routerPurchaseorder.GET("", purchaseorderHandler.Page)
@@ -143,12 +159,8 @@ func Init() *echo.Echo {
 	routerPurchaseorder.GET("/:id", purchaseorderHandler.GetById)
 	routerPurchaseorder.PUT("/:id", purchaseorderHandler.Update)
 	//routerPurchaseorder.DELETE("/:id", purchaseorderHandler.Delete)
-	routerPurchaseorder.GET("/:id/stockmovementvehicle", func(c echo.Context) error { return nil })
-	routerPurchaseorder.POST("/:id/stockmovementvehicle", func(c echo.Context) error { return nil })
-	routerPurchaseorder.PUT("/:id/stockmovementvehicle/:stockmovementvehicleId", func(c echo.Context) error { return nil })
-	routerPurchaseorder.GET("/:id/stockmovementvehicle/:stockmovementvehicleId/generate-delivery-order", func(c echo.Context) error { return nil })
-	routerPurchaseorder.POST("/:id/transaction", func(c echo.Context) error { return nil })
-	routerPurchaseorder.GET("/:id/generate-invoice", func(c echo.Context) error { return nil })
+	routerPurchaseorder.GET("/:id/set-status-open", purchaseorderHandler.SetStatusOpen)
+	routerPurchaseorder.GET("/:id/set-status-close", purchaseorderHandler.SetStatusClose)
 
 	routerUser := router.Group("/user")
 	routerUser.GET("", userHandler.Page, checkTokenMiddlewareAdmin)

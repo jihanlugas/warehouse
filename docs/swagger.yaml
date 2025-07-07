@@ -7,6 +7,18 @@ definitions:
     x-enum-varnames:
     - StockLogTypeIn
     - StockLogTypeOut
+  model.StockMovementType:
+    enum:
+    - TRANSFER
+    - IN
+    - PURCHASE_ORDER
+    - RETAIL
+    type: string
+    x-enum-varnames:
+    - StockMovementTypeTransfer
+    - StockMovementTypeIn
+    - StockMovementTypePurchaseOrder
+    - StockMovementTypeRetail
   request.ChangePassword:
     properties:
       confirmPasswd:
@@ -72,7 +84,6 @@ definitions:
     required:
     - fromWarehouseId
     - productId
-    - remark
     - toWarehouseId
     type: object
   request.CreateProduct:
@@ -101,8 +112,6 @@ definitions:
         items:
           $ref: '#/definitions/request.PurchaseorderProduct'
         type: array
-      totalAmount:
-        type: number
     type: object
   request.CreateRetail:
     properties:
@@ -120,42 +129,6 @@ definitions:
         items:
           $ref: '#/definitions/request.RetailProduct'
         type: array
-      totalAmount:
-        type: number
-    type: object
-  request.CreateRetailStockmovementvehicle:
-    properties:
-      driverName:
-        type: string
-      isNewVehiclerdriver:
-        type: boolean
-      nik:
-        type: string
-      phoneNumber:
-        type: string
-      plateNumber:
-        type: string
-      productId:
-        type: string
-      sentGrossQuantity:
-        type: number
-      sentNetQuantity:
-        type: number
-      sentTareQuantity:
-        type: number
-      stockmovementId:
-        type: string
-      vehicleId:
-        type: string
-      vehicleName:
-        type: string
-    required:
-    - productId
-    - sentGrossQuantity
-    - sentNetQuantity
-    - sentTareQuantity
-    - stockmovementId
-    - vehicleId
     type: object
   request.CreateStockin:
     properties:
@@ -173,6 +146,57 @@ definitions:
         type: string
     required:
     - netQuantity
+    type: object
+  request.CreateStockmovementvehiclePurchaseorder:
+    properties:
+      driverName:
+        type: string
+      fromWarehouseId:
+        type: string
+      isNewVehiclerdriver:
+        type: boolean
+      nik:
+        type: string
+      phoneNumber:
+        type: string
+      plateNumber:
+        type: string
+      productId:
+        type: string
+      purchaseorderId:
+        type: string
+      sentGrossQuantity:
+        type: number
+      sentNetQuantity:
+        type: number
+      sentTareQuantity:
+        type: number
+      vehicleId:
+        type: string
+      vehicleName:
+        type: string
+    required:
+    - fromWarehouseId
+    - productId
+    - purchaseorderId
+    type: object
+  request.CreateTransaction:
+    properties:
+      amount:
+        type: number
+      notes:
+        type: string
+      relatedId:
+        type: string
+      relatedType:
+        type: string
+      type:
+        type: string
+    required:
+    - amount
+    - relatedId
+    - relatedType
+    - type
     type: object
   request.CreateUser:
     properties:
@@ -333,7 +357,7 @@ definitions:
       notes:
         type: string
     type: object
-  request.UpdateRetailStockmomentvehicle:
+  request.UpdateStockmovementvehiclePurchaseorder:
     properties:
       sentGrossQuantity:
         type: number
@@ -341,6 +365,11 @@ definitions:
         type: number
       sentTareQuantity:
         type: number
+    type: object
+  request.UpdateTransaction:
+    properties:
+      notes:
+        type: string
     type: object
   request.UpdateUser:
     properties:
@@ -1297,7 +1326,13 @@ paths:
         name: endCreateDt
         type: string
       - in: query
-        name: endTotalAmount
+        name: endOutstanding
+        type: number
+      - in: query
+        name: endTotalPayment
+        type: number
+      - in: query
+        name: endTotalPrice
         type: number
       - example: 10
         in: query
@@ -1305,6 +1340,9 @@ paths:
         type: integer
       - in: query
         name: notes
+        type: string
+      - in: query
+        name: number
         type: string
       - example: 1
         in: query
@@ -1325,8 +1363,17 @@ paths:
         name: startCreateDt
         type: string
       - in: query
-        name: startTotalAmount
+        name: startOutstanding
         type: number
+      - in: query
+        name: startTotalPayment
+        type: number
+      - in: query
+        name: startTotalPrice
+        type: number
+      - in: query
+        name: status
+        type: string
       produces:
       - application/json
       responses:
@@ -1446,6 +1493,56 @@ paths:
       - BearerAuth: []
       tags:
       - Purchaseorder
+  /purchaseorder/{id}/set-status-close:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Purchaseorder
+  /purchaseorder/{id}/set-status-open:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Purchaseorder
   /retail:
     get:
       consumes:
@@ -1461,7 +1558,13 @@ paths:
         name: endCreateDt
         type: string
       - in: query
-        name: endTotalAmount
+        name: endOutstanding
+        type: number
+      - in: query
+        name: endTotalPayment
+        type: number
+      - in: query
+        name: endTotalPrice
         type: number
       - example: 10
         in: query
@@ -1469,6 +1572,9 @@ paths:
         type: integer
       - in: query
         name: notes
+        type: string
+      - in: query
+        name: number
         type: string
       - example: 1
         in: query
@@ -1489,8 +1595,17 @@ paths:
         name: startCreateDt
         type: string
       - in: query
-        name: startTotalAmount
+        name: startOutstanding
         type: number
+      - in: query
+        name: startTotalPayment
+        type: number
+      - in: query
+        name: startTotalPrice
+        type: number
+      - in: query
+        name: status
+        type: string
       produces:
       - application/json
       responses:
@@ -1595,237 +1710,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/request.UpdateRetail'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - BearerAuth: []
-      tags:
-      - Retail
-  /retail/{id}/stockmomentvehicle:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: json req body
-        in: body
-        name: req
-        required: true
-        schema:
-          $ref: '#/definitions/request.CreateRetailStockmovementvehicle'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - BearerAuth: []
-      tags:
-      - Retail
-  /retail/{id}/stockmomentvehicle/{stockmevementvehicleId}:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: StockmevementvehicleID
-        in: path
-        name: stockmevementvehicleId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - BearerAuth: []
-      tags:
-      - Retail
-  /retail/{id}/stockmovementvehicle:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - in: query
-        name: createName
-        type: string
-      - in: query
-        name: endRecivedGrossQuantity
-        type: number
-      - in: query
-        name: endRecivedNetQuantity
-        type: number
-      - in: query
-        name: endRecivedTareQuantity
-        type: number
-      - in: query
-        name: endRecivedTime
-        type: string
-      - in: query
-        name: endSentGrossQuantity
-        type: number
-      - in: query
-        name: endSentNetQuantity
-        type: number
-      - in: query
-        name: endSentTareQuantity
-        type: number
-      - in: query
-        name: endSentTime
-        type: string
-      - example: 10
-        in: query
-        name: limit
-        type: integer
-      - example: 1
-        in: query
-        name: page
-        type: integer
-      - in: query
-        name: preloads
-        type: string
-      - in: query
-        name: productId
-        type: string
-      - example: ""
-        in: query
-        name: sortField
-        type: string
-      - example: ""
-        in: query
-        name: sortOrder
-        type: string
-      - in: query
-        name: startRecivedGrossQuantity
-        type: number
-      - in: query
-        name: startRecivedNetQuantity
-        type: number
-      - in: query
-        name: startRecivedTareQuantity
-        type: number
-      - in: query
-        name: startRecivedTime
-        type: string
-      - in: query
-        name: startSentGrossQuantity
-        type: number
-      - in: query
-        name: startSentNetQuantity
-        type: number
-      - in: query
-        name: startSentTareQuantity
-        type: number
-      - in: query
-        name: startSentTime
-        type: string
-      - in: query
-        name: stockmovementId
-        type: string
-      - in: query
-        name: vehicleId
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - BearerAuth: []
-      tags:
-      - Retail
-  /retail/{id}/stockmovementvehicle/{stockmovementvehicleId}:
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: StockmovementvehicleID
-        in: path
-        name: stockmovementvehicleId
-        required: true
-        type: string
-      - description: json req body
-        in: body
-        name: req
-        required: true
-        schema:
-          $ref: '#/definitions/request.UpdateRetailStockmomentvehicle'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - BearerAuth: []
-      tags:
-      - Retail
-  /retail/{id}/stockmovementvehicle/{stockmovementvehicleId}/generate-delivery-order:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: StockmovementvehicleID
-        in: path
-        name: stockmovementvehicleId
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -2116,6 +2000,9 @@ paths:
       - in: query
         name: endSentTime
         type: string
+      - in: query
+        name: fromWarehouseId
+        type: string
       - example: 10
         in: query
         name: limit
@@ -2129,6 +2016,9 @@ paths:
         type: string
       - in: query
         name: productId
+        type: string
+      - in: query
+        name: relatedId
         type: string
       - example: ""
         in: query
@@ -2166,6 +2056,22 @@ paths:
         name: stockmovementId
         type: string
       - in: query
+        name: toWarehouseId
+        type: string
+      - enum:
+        - TRANSFER
+        - IN
+        - PURCHASE_ORDER
+        - RETAIL
+        in: query
+        name: type
+        type: string
+        x-enum-varnames:
+        - StockMovementTypeTransfer
+        - StockMovementTypeIn
+        - StockMovementTypePurchaseOrder
+        - StockMovementTypeRetail
+      - in: query
         name: vehicleId
         type: string
       produces:
@@ -2184,6 +2090,30 @@ paths:
       tags:
       - Stockmovementvehicle
   /stockmovementvehicle/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Stockmovementvehicle
     get:
       consumes:
       - application/json
@@ -2208,6 +2138,283 @@ paths:
       - BearerAuth: []
       tags:
       - Stockmovementvehicle
+  /stockmovementvehicle/{id}/generate-delivery-order:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Stockmovementvehicle
+  /stockmovementvehicle/{id}/set-sent:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Stockmovementvehicle
+  /stockmovementvehicle/purchaseorder:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateStockmovementvehiclePurchaseorder'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Stockmovementvehicle
+  /stockmovementvehicle/purchaseorder/{id}:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateStockmovementvehiclePurchaseorder'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Stockmovementvehicle
+  /transaction:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        name: createName
+        type: string
+      - in: query
+        name: customerId
+        type: string
+      - in: query
+        name: endAmount
+        type: number
+      - in: query
+        name: endCreateDt
+        type: string
+      - example: 10
+        in: query
+        name: limit
+        type: integer
+      - in: query
+        name: notes
+        type: string
+      - example: 1
+        in: query
+        name: page
+        type: integer
+      - in: query
+        name: preloads
+        type: string
+      - in: query
+        name: relatedId
+        type: string
+      - in: query
+        name: relatedType
+        type: string
+      - example: ""
+        in: query
+        name: sortField
+        type: string
+      - example: ""
+        in: query
+        name: sortOrder
+        type: string
+      - in: query
+        name: startAmount
+        type: number
+      - in: query
+        name: startCreateDt
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Transaction
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateTransaction'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Transaction
+  /transaction/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Transaction
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Transaction
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateTransaction'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Transaction
   /user:
     get:
       consumes:

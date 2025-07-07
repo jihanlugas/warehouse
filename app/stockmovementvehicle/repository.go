@@ -101,14 +101,26 @@ func (r repository) Page(conn *gorm.DB, req request.PageStockmovementvehicle) (v
 		}
 	}
 
+	if req.FromWarehouseID != "" {
+		query = query.Where("from_warehouse_id = ?", req.FromWarehouseID)
+	}
+	if req.ToWarehouseID != "" {
+		query = query.Where("to_warehouse_id = ?", req.ToWarehouseID)
+	}
 	if req.StockmovementID != "" {
 		query = query.Where("stockmovement_id = ?", req.StockmovementID)
 	}
 	if req.ProductID != "" {
 		query = query.Where("product_id = ?", req.ProductID)
 	}
+	if req.RelatedID != "" {
+		query = query.Where("related_id = ?", req.RelatedID)
+	}
 	if req.VehicleID != "" {
 		query = query.Where("vehicle_id = ?", req.VehicleID)
+	}
+	if req.Type != "" {
+		query = query.Where("type = ?", req.Type)
 	}
 	if req.StartSentGrossQuantity != nil {
 		query = query.Where("sent_gross_quantity >= ?", req.StartSentGrossQuantity)

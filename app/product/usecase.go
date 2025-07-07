@@ -40,7 +40,7 @@ func (u usecase) GetById(loginUser jwt.UserLogin, id string, preloads ...string)
 
 	vProduct, err = u.productRepository.GetViewById(conn, id, preloads...)
 	if err != nil {
-		return vProduct, errors.New(fmt.Sprint("failed to get product: ", err))
+		return vProduct, errors.New(fmt.Sprintf("failed to get %s: %v", u.productRepository.Name(), err))
 	}
 
 	return vProduct, err
@@ -65,7 +65,7 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateProduct) erro
 
 	err = u.productRepository.Create(tx, tProduct)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to create product: ", err))
+		return errors.New(fmt.Sprintf("failed to create %s: %v", u.productRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
@@ -85,7 +85,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdatePr
 
 	tProduct, err = u.productRepository.GetTableById(conn, id)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to get product: ", err))
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.productRepository.Name(), err))
 	}
 
 	tx := conn.Begin()
@@ -94,7 +94,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdatePr
 	tProduct.UpdateBy = loginUser.UserID
 	err = u.productRepository.Save(tx, tProduct)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to update product: ", err))
+		return errors.New(fmt.Sprintf("failed to update %s: %v", u.productRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
@@ -114,14 +114,14 @@ func (u usecase) Delete(loginUser jwt.UserLogin, id string) error {
 
 	tProduct, err = u.productRepository.GetTableById(conn, id)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to get product: ", err))
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.productRepository.Name(), err))
 	}
 
 	tx := conn.Begin()
 
 	err = u.productRepository.Delete(tx, tProduct)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to delete product: ", err))
+		return errors.New(fmt.Sprintf("failed to delete %s: %v", u.productRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error

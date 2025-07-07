@@ -1,4 +1,4 @@
-package purchaseorder
+package transaction
 
 import (
 	"github.com/jihanlugas/warehouse/jwt"
@@ -21,14 +21,14 @@ func NewHandler(usecase Usecase) Handler {
 }
 
 // Page
-// @Tags Purchaseorder
+// @Tags Transaction
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param req query request.PagePurchaseorder false "url query string"
+// @Param req query request.PageTransaction false "url query string"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /purchaseorder [get]
+// @Router /transaction [get]
 func (h Handler) Page(c echo.Context) error {
 	var err error
 
@@ -37,7 +37,7 @@ func (h Handler) Page(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
 	}
 
-	req := new(request.PagePurchaseorder)
+	req := new(request.PageTransaction)
 	if err = c.Bind(req); err != nil {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerBind, err, nil).SendJSON(c)
 	}
@@ -58,7 +58,7 @@ func (h Handler) Page(c echo.Context) error {
 }
 
 // GetById
-// @Tags Purchaseorder
+// @Tags Transaction
 // @Security BearerAuth
 // @Accept json
 // @Produce json
@@ -66,7 +66,7 @@ func (h Handler) Page(c echo.Context) error {
 // @Query preloads query string false "preloads"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /purchaseorder/{id} [get]
+// @Router /transaction/{id} [get]
 func (h Handler) GetById(c echo.Context) error {
 	var err error
 
@@ -86,23 +86,23 @@ func (h Handler) GetById(c echo.Context) error {
 		preloadSlice = strings.Split(preloads, ",")
 	}
 
-	vPurchaseorder, err := h.usecase.GetById(loginUser, id, preloadSlice...)
+	vTransaction, err := h.usecase.GetById(loginUser, id, preloadSlice...)
 	if err != nil {
 		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
 	}
 
-	return response.Success(http.StatusOK, response.SuccessHandler, vPurchaseorder).SendJSON(c)
+	return response.Success(http.StatusOK, response.SuccessHandler, vTransaction).SendJSON(c)
 }
 
 // Create
-// @Tags Purchaseorder
+// @Tags Transaction
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param req body request.CreatePurchaseorder true "json req body"
+// @Param req body request.CreateTransaction true "json req body"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /purchaseorder [post]
+// @Router /transaction [post]
 func (h Handler) Create(c echo.Context) error {
 	var err error
 
@@ -111,7 +111,7 @@ func (h Handler) Create(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
 	}
 
-	req := new(request.CreatePurchaseorder)
+	req := new(request.CreateTransaction)
 	if err = c.Bind(req); err != nil {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerBind, err, nil).SendJSON(c)
 	}
@@ -132,15 +132,15 @@ func (h Handler) Create(c echo.Context) error {
 }
 
 // Update
-// @Tags Purchaseorder
+// @Tags Transaction
 // @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path string true "ID"
-// @Param req body request.UpdatePurchaseorder true "json req body"
+// @Param req body request.UpdateTransaction true "json req body"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /purchaseorder/{id} [put]
+// @Router /transaction/{id} [put]
 func (h Handler) Update(c echo.Context) error {
 	var err error
 
@@ -154,7 +154,7 @@ func (h Handler) Update(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
 	}
 
-	req := new(request.UpdatePurchaseorder)
+	req := new(request.UpdateTransaction)
 	if err = c.Bind(req); err != nil {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerBind, err, nil).SendJSON(c)
 	}
@@ -175,14 +175,14 @@ func (h Handler) Update(c echo.Context) error {
 }
 
 // Delete
-// @Tags Purchaseorder
+// @Tags Transaction
 // @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path string true "ID"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /purchaseorder/{id} [delete]
+// @Router /transaction/{id} [delete]
 func (h Handler) Delete(c echo.Context) error {
 	var err error
 
@@ -197,66 +197,6 @@ func (h Handler) Delete(c echo.Context) error {
 	}
 
 	err = h.usecase.Delete(loginUser, id)
-	if err != nil {
-		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
-	}
-
-	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
-}
-
-// SetStatusOpen
-// @Tags Purchaseorder
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param id path string true "ID"
-// @Success      200  {object}	response.Response
-// @Failure      500  {object}  response.Response
-// @Router /purchaseorder/{id}/set-status-open [get]
-func (h Handler) SetStatusOpen(c echo.Context) error {
-	var err error
-
-	loginUser, err := jwt.GetUserLoginInfo(c)
-	if err != nil {
-		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
-	}
-
-	id := c.Param("id")
-	if id == "" {
-		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
-	}
-
-	err = h.usecase.SetStatusOpen(loginUser, id)
-	if err != nil {
-		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
-	}
-
-	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
-}
-
-// SetStatusClose
-// @Tags Purchaseorder
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param id path string true "ID"
-// @Success      200  {object}	response.Response
-// @Failure      500  {object}  response.Response
-// @Router /purchaseorder/{id}/set-status-close [get]
-func (h Handler) SetStatusClose(c echo.Context) error {
-	var err error
-
-	loginUser, err := jwt.GetUserLoginInfo(c)
-	if err != nil {
-		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
-	}
-
-	id := c.Param("id")
-	if id == "" {
-		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
-	}
-
-	err = h.usecase.SetStatusClose(loginUser, id)
 	if err != nil {
 		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
 	}

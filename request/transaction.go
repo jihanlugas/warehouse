@@ -3,7 +3,6 @@ package request
 import "time"
 
 type CreateTransaction struct {
-	CustomerID  string  `json:"customerId" form:"customerId" query:"customerId" validate:"required"`
 	RelatedID   string  `json:"relatedId" form:"relatedId" query:"relatedId" validate:"required"`
 	RelatedType string  `json:"relatedType" form:"relatedType" query:"relatedType" validate:"required"`
 	Type        string  `json:"type" form:"type" query:"type" validate:"required"`
@@ -17,7 +16,7 @@ type UpdateTransaction struct {
 
 type PageTransaction struct {
 	Paging
-	CustomerID    string     `json:"name" form:"name" query:"name"`
+	CustomerID    string     `json:"customerId" form:"customerId" query:"customerId"`
 	RelatedID     string     `json:"relatedId" form:"relatedId" query:"relatedId"`
 	RelatedType   string     `json:"relatedType" form:"relatedType" query:"relatedType"`
 	CreateName    string     `json:"createName" form:"createName" query:"createName"`

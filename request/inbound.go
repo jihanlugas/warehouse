@@ -11,7 +11,7 @@ type CreateInbound struct {
 	PhoneNumber         string     `json:"phoneNumber" from:"phoneNumber" query:"phoneNumber" validate:""`
 	FromWarehouseID     string     `json:"fromWarehouseId" form:"fromWarehouseId" query:"fromWarehouseId" validate:"required"`
 	ToWarehouseID       string     `json:"toWarehouseId" form:"toWarehouseId" query:"toWarehouseId" validate:"required"`
-	Remark              string     `json:"remark" form:"remark" query:"remark" validate:"required"`
+	Remark              string     `json:"remark" form:"remark" query:"remark" validate:""`
 	ProductID           string     `json:"productId" form:"productId" query:"productId" validate:"required"`
 	VehicleID           string     `json:"vehicleId" form:"vehicleId" query:"vehicleId" validate:""`
 	SentGrossQuantity   float64    `json:"sentGrossQuantity" form:"sentGrossQuantity" query:"sentGrossQuantity" validate:""`

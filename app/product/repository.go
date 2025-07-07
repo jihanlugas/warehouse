@@ -23,7 +23,7 @@ type repository struct {
 }
 
 func (r repository) Name() string {
-	return "retail"
+	return "product"
 }
 
 func (r repository) GetTableById(conn *gorm.DB, id string, preloads ...string) (tProduct model.Product, err error) {

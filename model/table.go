@@ -196,6 +196,7 @@ type Warehouse struct {
 	ID              string         `gorm:"primaryKey"`
 	Name            string         `gorm:"not null"`
 	Location        string         `gorm:"not null"`
+	PhoneNumber     string         `gorm:"not null"`
 	IsStockin       bool           `gorm:"not null"`
 	IsInbound       bool           `gorm:"not null"`
 	IsOutbound      bool           `gorm:"not null"`

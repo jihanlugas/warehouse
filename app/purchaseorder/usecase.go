@@ -1,6 +1,7 @@
 package purchaseorder
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"github.com/jihanlugas/warehouse/app/customer"
@@ -14,6 +15,8 @@ import (
 	"github.com/jihanlugas/warehouse/model"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/utils"
+	"html/template"
+	"os"
 )
 
 type Usecase interface {
@@ -24,6 +27,7 @@ type Usecase interface {
 	Delete(loginUser jwt.UserLogin, id string) error
 	SetStatusOpen(loginUser jwt.UserLogin, id string) error
 	SetStatusClose(loginUser jwt.UserLogin, id string) error
+	GenerateInvoice(loginUser jwt.UserLogin, id string) (pdfBytes []byte, vPurchaseorder model.PurchaseorderView, err error)
 }
 
 type usecase struct {
@@ -244,6 +248,58 @@ func (u usecase) SetStatusClose(loginUser jwt.UserLogin, id string) error {
 	}
 
 	return err
+}
+
+func (u usecase) GenerateInvoice(loginUser jwt.UserLogin, id string) (pdfBytes []byte, vPurchaseorder model.PurchaseorderView, err error) {
+	conn, closeConn := db.GetConnection()
+	defer closeConn()
+
+	vPurchaseorder, err = u.purchaseorderRepository.GetViewById(conn, id, "Customer", "Stockmovementvehicles", "Stockmovementvehicles.Stockmovement", "Stockmovementvehicles.Product", "Transactions")
+	if err != nil {
+		return pdfBytes, vPurchaseorder, errors.New(fmt.Sprintf("failed to get %s: %v", u.purchaseorderRepository.Name(), err))
+	}
+
+	pdfBytes, err = u.generateInvoice(vPurchaseorder)
+
+	return pdfBytes, vPurchaseorder, err
+}
+
+func (u usecase) generateInvoice(vPurchaseorder model.PurchaseorderView) (pdfBytes []byte, err error) {
+	tmpl := template.New("purchaseorder-invoice.html").Funcs(template.FuncMap{
+		"displayNumberMinus": func(a, b float64) string {
+			return utils.DisplayNumber(a - b)
+		},
+		"displayMoneyMultiple": func(a, b float64) string {
+			return utils.DisplayMoney(a * b)
+		},
+		"displayImagePhotoId": utils.GetPhotoUrlById,
+		"displayDate":         utils.DisplayDate,
+		"displayDatetime":     utils.DisplayDatetime,
+		"displayNumber":       utils.DisplayNumber,
+		"displayMoney":        utils.DisplayMoney,
+		"displayPhoneNumber":  utils.DisplayPhoneNumber,
+	})
+
+	// Parse template setelah fungsi didaftarkan
+	tmpl, err = tmpl.ParseFiles("assets/template/purchaseorder-invoice.html")
+	if err != nil {
+		return pdfBytes, err
+	}
+
+	// Render template ke buffer
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, vPurchaseorder); err != nil {
+		return pdfBytes, err
+	}
+
+	// Simpan HTML render ke file sementara
+	tempHTMLFile := "temp.html"
+	if err := os.WriteFile(tempHTMLFile, buf.Bytes(), 0644); err != nil {
+		return pdfBytes, err
+	}
+	defer os.Remove(tempHTMLFile)
+
+	return utils.GeneratePDFWithChromedp(tempHTMLFile)
 }
 
 func NewUsecase(purchaseorderRepository Repository, purchaseorderproductRepository purchaseorderproduct.Repository, stockRepository stock.Repository, stocklogRepository stocklog.Repository, customerRepository customer.Repository, warehouseRepository warehouse.Repository, vehicleRepository vehicle.Repository) Usecase {

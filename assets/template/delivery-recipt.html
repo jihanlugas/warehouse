@@ -7,7 +7,7 @@
     <title>Delivery Order</title>
     <style>
         html {
-            font-size: 13px;
+            /*font-size: 13px;*/
         }
         body,
         pre {
@@ -27,12 +27,109 @@
 </head>
 <body>
 <div class="page p-8">
-    <div class="mb-4">
-        <div class="text-lg">PT. MAJU JAYA ABADI</div>
-        <div class="">Jl. Tambang Raya No. 88, Kalimantan Selatan</div>
-        <div class="">Telp. (0511) 12345678 | Email: info@majujaya.co.id</div>
+    <div class="mb-4 grid grid-cols-3 gap-4">
+        <div class="col-span-2 flex">
+            <div class="flex-none w-24 h-24 bg-red-200 rounded-full mr-4">
+            </div>
+            <div class="flex-1">
+                <div class="text-xl font-bold">PT. MAJU JAYA ABADI</div>
+                <div class="">Jl. Tambang Raya No. 88, Kalimantan Selatan</div>
+                <div class="">Telp. (0511) 12345678</div>
+                <div class="">Email: info@majujaya.co.id</div>
+            </div>
+        </div>
+        <div class="w-full text-center">
+            <div class="border-2 p-2 mb-4">{{ .Number }}</div>
+            <div class="text-3xl font-bold uppercase">Surat Jalan</div>
+        </div>
     </div>
-    <hr class="border-2">
+    <hr class="border my-4" />
+    <div class="mb-8">
+        <div class="text-xl font-bold">Tujuan</div>
+        <div>{{ .Stockmovement.ToWarehouse.Name }}</div>
+        <div class="">{{ .Stockmovement.ToWarehouse.Location }}</div>
+        <div class="">{{ displayPhoneNumber .Stockmovement.ToWarehouse.PhoneNumber }}</div>
+    </div>
+    <div class='mb-8'>
+        <div class='mb-4'>Rincian Pengiriman:</div>
+        <table class="w-full table-auto">
+            <thead>
+            <tr class="text-left border-y-2 border-gray-400">
+                <th class="px-2 py-4 w-16">No</th>
+                <th class='px-2 py-4'>Product</th>
+                <th class='px-2 py-4'>Tara</th>
+                <th class='px-2 py-4'>Broto</th>
+                <th class='px-2 py-4'>Netto</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class='border-b border-gray-400'>
+                <td class='p-2'>1</td>
+                <td class='p-2'>{{ .Product.Name }}</td>
+                <td class='p-2'>{{ displayNumber .SentTareQuantity }}</td>
+                <td class='p-2'>{{ displayNumber .SentGrossQuantity }}</td>
+                <td class='p-2'>{{ displayNumber .SentNetQuantity }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class='mb-8'>
+        <div class='mb-4'>Rincian Penerimaan:</div>
+        <table class="w-full table-auto">
+            <thead>
+            <tr class="text-left border-y-2 border-gray-400">
+                <th class="px-2 py-4 w-16">No</th>
+                <th class='px-2 py-4'>Product</th>
+                <th class='px-2 py-4'>Tara</th>
+                <th class='px-2 py-4'>Broto</th>
+                <th class='px-2 py-4'>Netto</th>
+                <th class='px-2 py-4'>Selisih</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class='border-b border-gray-400'>
+                <td class='p-2'>1</td>
+                <td class='p-2'>{{ .Product.Name }}</td>
+                <td class='p-2'>{{ displayNumber .RecivedTareQuantity }}</td>
+                <td class='p-2'>{{ displayNumber .RecivedGrossQuantity }}</td>
+                <td class='p-2'>{{ displayNumber .RecivedNetQuantity }}</td>
+                <td class='p-2'>{{ displayNumberMinus .SentGrossQuantity .RecivedGrossQuantity }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class='mb-8'>
+        <div class='mb-4'>Kendaraan:</div>
+        <table class='mb-4'>
+            <tr class=''>
+                <td class='pr-4'>Jenis Kendaraan</td>
+                <td class=''>{{ .Vehicle.Name }}</td>
+            </tr>
+            <tr class=''>
+                <td class='pr-4'>Nomor Kendaraan</td>
+                <td class='uppercase'>{{ .Vehicle.PlateNumber }}</td>
+            </tr>
+            <tr class=''>
+                <td class='pr-4'>Pengemudi</td>
+                <td class=''>{{ .Vehicle.DriverName }}</td>
+            </tr>
+            <tr class=''>
+                <td class='pr-4'>Nomor Handphone</td>
+                <td class=''>{{ displayPhoneNumber .Vehicle.PhoneNumber }}</td>
+            </tr>
+        </table>
+        <div class='flex'>
+            <div class='mr-4'>Tanggal Berangkat:</div>
+            <div class='mr-4 font-bold'>{{ displayDate .SentTime }}</div>
+        </div>
+    </div>
+    <div class='mb-8 flex justify-end'>
+        <div class='text-center'>
+            <div>Mengetahui, ..................</div>
+            <div class='h-20'></div>
+            <div>.....................</div>
+        </div>
+    </div>
 </div>
 </body>
 </html>

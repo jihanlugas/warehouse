@@ -130,11 +130,11 @@ func DisplayPhoneNumber(value string) string {
 	return value
 }
 
-func DisplayNumber(value int64) string {
-	return formatNumberWithSeparator(value, getThousandSeparator("id-ID"))
+func DisplayNumber(value float64) string {
+	return formatNumberWithSeparator(int64(value), getThousandSeparator("id-ID"))
 }
 
-func DisplayMoney(value int64) string {
+func DisplayMoney(value float64) string {
 	return "Rp " + DisplayNumber(value)
 }
 

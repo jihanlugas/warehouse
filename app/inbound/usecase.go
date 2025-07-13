@@ -284,7 +284,7 @@ func (u usecase) GenerateDeliveryRecipt(loginUser jwt.UserLogin, id string) (pdf
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	vInbound, err = u.inboundRepository.GetViewById(conn, id, "Warehouse", "Stockmovement")
+	vInbound, err = u.inboundRepository.GetViewById(conn, id, "Warehouse", "Vehicle", "Stockmovement", "Stockmovement.FromWarehouse", "Stockmovement.ToWarehouse", "Product")
 	if err != nil {
 		return pdfBytes, vInbound, errors.New(fmt.Sprintf("failed to get %s: %v", u.inboundRepository.Name(), err))
 	}
@@ -309,14 +309,8 @@ func (u usecase) GenerateDeliveryRecipt(loginUser jwt.UserLogin, id string) (pdf
 
 func (u usecase) generateDeliveryRecipt(vInbound model.InboundView) (pdfBytes []byte, err error) {
 	tmpl := template.New("delivery-recipt.html").Funcs(template.FuncMap{
-		"displayLembar": func(lembar int64) string {
-			return fmt.Sprintf("%s Lembar", utils.DisplayNumber(lembar))
-		},
-		"displayDuplex": func(isDuplex bool) string {
-			if isDuplex {
-				return "2 Muka"
-			}
-			return "1 Muka"
+		"displayNumberMinus": func(a, b float64) string {
+			return utils.DisplayNumber(a - b)
 		},
 		"displayImagePhotoId": utils.GetPhotoUrlById,
 		"displayDate":         utils.DisplayDate,

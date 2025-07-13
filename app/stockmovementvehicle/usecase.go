@@ -33,6 +33,8 @@ type Usecase interface {
 	GenerateDeliveryOrder(loginUser jwt.UserLogin, id string) (pdfBytes []byte, vStockmovementvehicle model.StockmovementvehicleView, err error)
 	CreatePurchaseorder(loginUser jwt.UserLogin, req request.CreateStockmovementvehiclePurchaseorder) error
 	UpdatePurchaseorder(loginUser jwt.UserLogin, id string, req request.UpdateStockmovementvehiclePurchaseorder) error
+	CreateRetail(loginUser jwt.UserLogin, req request.CreateStockmovementvehicleRetail) error
+	UpdateRetail(loginUser jwt.UserLogin, id string, req request.UpdateStockmovementvehicleRetail) error
 }
 
 type usecase struct {
@@ -240,15 +242,6 @@ func (u usecase) GenerateDeliveryOrder(loginUser jwt.UserLogin, id string) (pdfB
 
 func (u usecase) generatePurchaseorderDeliveryOrder(vStockmovementvehicle model.StockmovementvehicleView) (pdfBytes []byte, err error) {
 	tmpl := template.New("purchaseorder-delivery-order.html").Funcs(template.FuncMap{
-		"displayLembar": func(lembar int64) string {
-			return fmt.Sprintf("%s Lembar", utils.DisplayNumber(lembar))
-		},
-		"displayDuplex": func(isDuplex bool) string {
-			if isDuplex {
-				return "2 Muka"
-			}
-			return "1 Muka"
-		},
 		"displayImagePhotoId": utils.GetPhotoUrlById,
 		"displayDate":         utils.DisplayDate,
 		"displayDatetime":     utils.DisplayDatetime,
@@ -282,15 +275,6 @@ func (u usecase) generatePurchaseorderDeliveryOrder(vStockmovementvehicle model.
 
 func (u usecase) generateRetailDeliveryOrder(vStockmovementvehicle model.StockmovementvehicleView) (pdfBytes []byte, err error) {
 	tmpl := template.New("retail-delivery-order.html").Funcs(template.FuncMap{
-		"displayLembar": func(lembar int64) string {
-			return fmt.Sprintf("%s Lembar", utils.DisplayNumber(lembar))
-		},
-		"displayDuplex": func(isDuplex bool) string {
-			if isDuplex {
-				return "2 Muka"
-			}
-			return "1 Muka"
-		},
 		"displayImagePhotoId": utils.GetPhotoUrlById,
 		"displayDate":         utils.DisplayDate,
 		"displayDatetime":     utils.DisplayDatetime,
@@ -324,15 +308,6 @@ func (u usecase) generateRetailDeliveryOrder(vStockmovementvehicle model.Stockmo
 
 func (u usecase) generateTransferDeliveryOrder(vStockmovementvehicle model.StockmovementvehicleView) (pdfBytes []byte, err error) {
 	tmpl := template.New("delivery-order.html").Funcs(template.FuncMap{
-		"displayLembar": func(lembar int64) string {
-			return fmt.Sprintf("%s Lembar", utils.DisplayNumber(lembar))
-		},
-		"displayDuplex": func(isDuplex bool) string {
-			if isDuplex {
-				return "2 Muka"
-			}
-			return "1 Muka"
-		},
 		"displayImagePhotoId": utils.GetPhotoUrlById,
 		"displayDate":         utils.DisplayDate,
 		"displayDatetime":     utils.DisplayDatetime,
@@ -378,6 +353,10 @@ func (u usecase) CreatePurchaseorder(loginUser jwt.UserLogin, req request.Create
 	vPurchaseorder, err = u.purchaseorderRepository.GetViewById(conn, req.PurchaseorderID, "Purchaseorderproducts")
 	if err != nil {
 		return errors.New(fmt.Sprintf("failed to get %s: %v", u.purchaseorderRepository.Name(), err))
+	}
+
+	if vPurchaseorder.Status != model.PurchaseorderStatusOpen {
+		return errors.New("purchase order is not open")
 	}
 
 	vWarehouse, err = u.warehouseRepository.GetViewById(conn, req.FromWarehouseID)
@@ -484,6 +463,174 @@ func (u usecase) CreatePurchaseorder(loginUser jwt.UserLogin, req request.Create
 }
 
 func (u usecase) UpdatePurchaseorder(loginUser jwt.UserLogin, id string, req request.UpdateStockmovementvehiclePurchaseorder) error {
+	var err error
+	var vStockmovementvehicle model.StockmovementvehicleView
+	var tStockmovementvehicle model.Stockmovementvehicle
+
+	conn, closeConn := db.GetConnection()
+	defer closeConn()
+
+	vStockmovementvehicle, err = u.stockmovementvehicleRepository.GetViewById(conn, id)
+	if err != nil {
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementvehicleRepository.Name(), err))
+	}
+
+	if vStockmovementvehicle.SentTime != nil {
+		return errors.New("this vehicle already sent")
+	}
+
+	tStockmovementvehicle, err = u.stockmovementvehicleRepository.GetTableById(conn, id)
+	if err != nil {
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementvehicleRepository.Name(), err))
+	}
+
+	if jwt.IsSaveWarehouseIDOR(loginUser, vStockmovementvehicle.FromWarehouseID) {
+		return errors.New(response.ErrorHandlerIDOR)
+	}
+
+	tx := conn.Begin()
+
+	tStockmovementvehicle.SentGrossQuantity = req.SentGrossQuantity
+	tStockmovementvehicle.SentTareQuantity = req.SentTareQuantity
+	tStockmovementvehicle.SentNetQuantity = req.SentNetQuantity
+	tStockmovementvehicle.UpdateBy = loginUser.UserID
+	err = u.stockmovementvehicleRepository.Save(tx, tStockmovementvehicle)
+	if err != nil {
+		return errors.New(fmt.Sprintf("failed to update %s: %v", u.stockmovementvehicleRepository.Name(), err))
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (u usecase) CreateRetail(loginUser jwt.UserLogin, req request.CreateStockmovementvehicleRetail) error {
+	var err error
+	var vRetail model.RetailView
+	var vWarehouse model.WarehouseView
+	var tVehicle model.Vehicle
+	var vStockmovement model.StockmovementView
+	var tStockmovementvehicle model.Stockmovementvehicle
+
+	conn, closeConn := db.GetConnection()
+	defer closeConn()
+
+	vRetail, err = u.retailRepository.GetViewById(conn, req.RetailID, "Retailproducts")
+	if err != nil {
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.retailRepository.Name(), err))
+	}
+
+	if vRetail.Status != model.RetailStatusOpen {
+		return errors.New("retail is not open")
+	}
+
+	vWarehouse, err = u.warehouseRepository.GetViewById(conn, req.FromWarehouseID)
+	if err != nil {
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.warehouseRepository.Name(), err))
+	}
+
+	if !vWarehouse.IsRetail {
+		return errors.New(fmt.Sprint("this warehouse is not allowed to create retail"))
+	}
+
+	tx := conn.Begin()
+
+	vStockmovement, err = u.stockmovementRepository.GetViewByFromWarehouseIDAndRelatedIDAndProductID(tx, vWarehouse.ID, req.RetailID, req.ProductID)
+	if err != nil {
+		var vRetailproduct model.RetailproductView
+		found := false
+		for _, retailproduct := range vRetail.Retailproducts {
+			if retailproduct.ProductID == req.ProductID {
+				vRetailproduct = retailproduct
+				found = true
+				break
+			}
+		}
+		if !found {
+			return errors.New(fmt.Sprintf("failed to get retail product %s: %v", req.ProductID, err))
+		}
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			tStockmovement := model.Stockmovement{
+				ID:              utils.GetUniqueID(),
+				FromWarehouseID: vWarehouse.ID,
+				ProductID:       req.ProductID,
+				RelatedID:       req.RetailID,
+				Type:            model.StockMovementTypeRetail,
+				UnitPrice:       vRetailproduct.UnitPrice,
+				Remark:          "",
+				CreateBy:        "",
+				CreateDt:        time.Time{},
+				UpdateBy:        "",
+				UpdateDt:        time.Time{},
+				DeleteDt:        gorm.DeletedAt{},
+			}
+			err = u.stockmovementRepository.Create(tx, tStockmovement)
+			if err != nil {
+				return errors.New(fmt.Sprintf("failed to create %s: %v", u.stockmovementRepository.Name(), err))
+			}
+
+			vStockmovement, err = u.stockmovementRepository.GetViewByFromWarehouseIDAndRelatedIDAndProductID(tx, vWarehouse.ID, req.RetailID, req.ProductID)
+			if err != nil {
+				return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementRepository.Name(), err))
+			}
+		} else {
+			return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementRepository.Name(), err))
+		}
+	}
+
+	// todo: check retail still open
+
+	if req.IsNewVehiclerdriver {
+		tVehicle = model.Vehicle{
+			ID:          utils.GetUniqueID(),
+			WarehouseID: req.FromWarehouseID,
+			PlateNumber: strings.ToUpper(req.PlateNumber),
+			Name:        req.VehicleName,
+			NIK:         req.NIK,
+			DriverName:  req.DriverName,
+			PhoneNumber: utils.FormatPhoneTo62(req.PhoneNumber),
+			CreateBy:    loginUser.UserID,
+			UpdateBy:    loginUser.UserID,
+		}
+		err = u.vehicleRepository.Create(tx, tVehicle)
+		if err != nil {
+			return errors.New(fmt.Sprintf("failed to create %s: %v", u.vehicleRepository.Name(), err))
+		}
+	} else {
+		tVehicle, err = u.vehicleRepository.GetTableById(conn, req.VehicleID)
+		if err != nil {
+			return errors.New(fmt.Sprintf("failed to get %s: %v", u.vehicleRepository.Name(), err))
+		}
+	}
+
+	tStockmovementvehicle = model.Stockmovementvehicle{
+		StockmovementID:   vStockmovement.ID,
+		ProductID:         req.ProductID,
+		VehicleID:         tVehicle.ID,
+		SentGrossQuantity: req.SentGrossQuantity,
+		SentTareQuantity:  req.SentTareQuantity,
+		SentNetQuantity:   req.SentNetQuantity,
+		CreateBy:          loginUser.UserID,
+		UpdateBy:          loginUser.UserID,
+	}
+	err = u.stockmovementvehicleRepository.Create(tx, tStockmovementvehicle)
+	if err != nil {
+		return errors.New(fmt.Sprint("failed to create stockmovement vehicle: ", err))
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (u usecase) UpdateRetail(loginUser jwt.UserLogin, id string, req request.UpdateStockmovementvehicleRetail) error {
 	var err error
 	var vStockmovementvehicle model.StockmovementvehicleView
 	var tStockmovementvehicle model.Stockmovementvehicle

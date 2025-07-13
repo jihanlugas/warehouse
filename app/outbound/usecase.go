@@ -306,7 +306,7 @@ func (u usecase) GenerateDeliveryOrder(loginUser jwt.UserLogin, id string) (pdfB
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	vOutbound, err = u.outboundRepository.GetViewById(conn, id, "Warehouse", "Stockmovement")
+	vOutbound, err = u.outboundRepository.GetViewById(conn, id, "Warehouse", "Vehicle", "Stockmovement", "Stockmovement.FromWarehouse", "Stockmovement.ToWarehouse", "Product")
 	if err != nil {
 		return pdfBytes, vOutbound, errors.New(fmt.Sprintf("failed to get %s: %v", u.outboundRepository.Name(), err))
 	}
@@ -327,22 +327,11 @@ func (u usecase) GenerateDeliveryOrder(loginUser jwt.UserLogin, id string) (pdfB
 
 func (u usecase) generateDeliveryOrder(vOutbound model.OutboundView) (pdfBytes []byte, err error) {
 	tmpl := template.New("delivery-order.html").Funcs(template.FuncMap{
-		"displayLembar": func(lembar int64) string {
-			return fmt.Sprintf("%s Lembar", utils.DisplayNumber(lembar))
-		},
-		"displayDuplex": func(isDuplex bool) string {
-			if isDuplex {
-				return "2 Muka"
-			}
-			return "1 Muka"
-		},
-		"displayImagePhotoId": utils.GetPhotoUrlById,
-		"displayDate":         utils.DisplayDate,
-		"displayDatetime":     utils.DisplayDatetime,
-		"displayNumber":       utils.DisplayNumber,
-		"displayMoney":        utils.DisplayMoney,
-		"displayPhoneNumber":  utils.DisplayPhoneNumber,
-		"displaySpkNumber":    utils.DisplaySpkNumber,
+		"displayDate":        utils.DisplayDate,
+		"displayDatetime":    utils.DisplayDatetime,
+		"displayNumber":      utils.DisplayNumber,
+		"displayMoney":       utils.DisplayMoney,
+		"displayPhoneNumber": utils.DisplayPhoneNumber,
 	})
 
 	// Parse template setelah fungsi didaftarkan

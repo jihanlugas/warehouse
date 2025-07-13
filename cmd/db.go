@@ -143,7 +143,25 @@ func dbUpView() {
 		panic(err)
 	}
 	vRetail := conn.Model(&model.Retail{}).Unscoped().
-		Select("retails.*, u1.fullname as create_name, u2.fullname as update_name").
+		Select("retails.*" +
+			", coalesce(stockmovementvehicles.total_price, 0) as total_price" +
+			", coalesce(transactions.total_payment, 0) as total_payment" +
+			", coalesce((total_price - coalesce(total_payment, 0)), 0) as outstanding " +
+			", u1.fullname as create_name, u2.fullname as update_name").
+		Joins("left join ( " +
+			"select stockmovements.related_id, coalesce(sum(stockmovements.unit_price * stockmovementvehicles.sent_net_quantity), 0) as total_price " +
+			"from stockmovementvehicles stockmovementvehicles " +
+			"join stockmovements stockmovements on stockmovements.id = stockmovementvehicles.stockmovement_id " +
+			"where stockmovementvehicles.delete_dt is null " +
+			"and stockmovementvehicles.sent_time is not null " +
+			"group by stockmovements.related_id " +
+			" ) as stockmovementvehicles on stockmovementvehicles.related_id = retails.id").
+		Joins("left join ( " +
+			"select transactions.related_id, coalesce(sum(transactions.amount), 0) as total_payment " +
+			"from transactions transactions join retails on retails.id = transactions.related_id " +
+			"where retails.delete_dt is null " +
+			"group by transactions.related_id " +
+			") as transactions on transactions.related_id = retails.id").
 		Joins("left join users u1 on u1.id = retails.create_by").
 		Joins("left join users u2 on u2.id = retails.update_by")
 	err = conn.Migrator().CreateView(model.VIEW_RETAIL, gorm.ViewOption{
@@ -241,7 +259,29 @@ func dbUpView() {
 		panic(err)
 	}
 	vWarehouse := conn.Model(&model.Warehouse{}).Unscoped().
-		Select("warehouses.*, '' as photo_url, u1.fullname as create_name, u2.fullname as update_name").
+		Select("warehouses.*, coalesce(outbounds.total_running_outbound, 0) as total_running_outbound, coalesce(inbounds.total_running_inbound, 0) as total_running_inbound, '' as photo_url, u1.fullname as create_name, u2.fullname as update_name").
+		Joins("left join ( " +
+			"select warehouses.id, count(warehouses.id) as total_running_outbound " +
+			"from stockmovementvehicles stockmovementvehicles " +
+			"join stockmovements stockmovements on stockmovements.id = stockmovementvehicles.stockmovement_id " +
+			"join warehouses warehouses on warehouses.id = stockmovements.from_warehouse_id " +
+			"where stockmovementvehicles.recived_time is null " +
+			"and stockmovementvehicles.delete_dt is null " +
+			"and stockmovements.type = 'TRANSFER' " +
+			"and stockmovements.delete_dt is null " +
+			"group by warehouses.id " +
+			") as outbounds on outbounds.id = warehouses.id").
+		Joins("left join ( " +
+			"select warehouses.id, count(warehouses.id) as total_running_inbound " +
+			"from stockmovementvehicles stockmovementvehicles " +
+			"join stockmovements stockmovements on stockmovements.id = stockmovementvehicles.stockmovement_id " +
+			"join warehouses warehouses on warehouses.id = stockmovements.to_warehouse_id " +
+			"where stockmovementvehicles.recived_time is null " +
+			"and stockmovementvehicles.delete_dt is null " +
+			"and stockmovements.type = 'TRANSFER' " +
+			"and stockmovements.delete_dt is null " +
+			"group by warehouses.id " +
+			") as inbounds on inbounds.id = warehouses.id").
 		Joins("left join users u1 on u1.id = warehouses.create_by").
 		Joins("left join users u2 on u2.id = warehouses.update_by")
 	err = conn.Migrator().CreateView(model.VIEW_WAREHOUSE, gorm.ViewOption{
@@ -438,42 +478,6 @@ func dbUpView() {
 		panic(err)
 	}
 
-	err = conn.Migrator().DropView(model.VIEW_DELIVERYRETAIL)
-	if err != nil {
-		panic(err)
-	}
-	vDeliveryretail := conn.Model(&model.Stockmovementvehicle{}).Unscoped().
-		Select("stockmovementvehicles.*, stockmovements.from_warehouse_id as warehouse_id, stockmovements.type, stockmovements.remark,  u1.fullname as create_name, u2.fullname as update_name").
-		Joins("join stockmovements stockmovements on stockmovements.id = stockmovementvehicles.stockmovement_id").
-		Joins("left join users u1 on u1.id = stockmovementvehicles.create_by").
-		Joins("left join users u2 on u2.id = stockmovementvehicles.update_by").
-		Where("stockmovements.type = ?", model.StockMovementTypeRetail)
-	err = conn.Migrator().CreateView(model.VIEW_DELIVERYRETAIL, gorm.ViewOption{
-		Replace: true,
-		Query:   vDeliveryretail,
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	err = conn.Migrator().DropView(model.VIEW_DELIVERYPURCHASEORDER)
-	if err != nil {
-		panic(err)
-	}
-	vDeliverypurchaseorder := conn.Model(&model.Stockmovementvehicle{}).Unscoped().
-		Select("stockmovementvehicles.*, stockmovements.from_warehouse_id as warehouse_id, stockmovements.type, stockmovements.remark,  u1.fullname as create_name, u2.fullname as update_name").
-		Joins("join stockmovements stockmovements on stockmovements.id = stockmovementvehicles.stockmovement_id").
-		Joins("left join users u1 on u1.id = stockmovementvehicles.create_by").
-		Joins("left join users u2 on u2.id = stockmovementvehicles.update_by").
-		Where("stockmovements.type = ?", model.StockMovementTypePurchaseOrder)
-	err = conn.Migrator().CreateView(model.VIEW_DELIVERYPURCHASEORDER, gorm.ViewOption{
-		Replace: true,
-		Query:   vDeliverypurchaseorder,
-	})
-	if err != nil {
-		panic(err)
-	}
-
 }
 
 func dbDown() {
@@ -521,10 +525,13 @@ func dbSeed() {
 	purwakarta := "3aa54082-1f90-49df-b9fa-55b9e85135d2"
 
 	admin := "7aee971f-4e84-4636-aaa2-8dc5fbde2d6b"
+	opkalimantan := "5c777011-3f7f-478b-93ed-2d9ecd804c46"
 	opkalimantan1 := "44427418-9e89-48e4-8ae9-2dabcb56fd84"
 	opkalimantan2 := "0db5826f-9640-4324-95ef-5036043ec92a"
+	opmarunda := "27833752-8855-4d73-a4fe-f8d58876ecda"
 	opmarunda1 := "b8171dc6-b9eb-425e-ab75-bf627c7f04d1"
 	opmarunda2 := "feb566ea-783e-4fa4-97c6-ea1fa47f8a94"
+	oppurwakarta := "a4f5c345-8862-4fc8-842f-87194c2cbfcc"
 	oppurwakarta1 := "fad26e34-502b-4b28-9b41-05e81d742b42"
 	oppurwakarta2 := "29d834ae-ea1e-4058-8cb1-8ede37424f76"
 
@@ -550,18 +557,21 @@ func dbSeed() {
 	tx.Create(&users)
 
 	userprivileges := []model.Userprivilege{
-		{UserID: opkalimantan1, StockIn: true, TransferOut: true, TransferIn: true, PurchaseOrder: true, Retail: true},
+		{UserID: opkalimantan, StockIn: true, TransferOut: true, TransferIn: true, PurchaseOrder: true, Retail: true},
+		{UserID: opkalimantan1, StockIn: true, TransferOut: false, TransferIn: false, PurchaseOrder: false, Retail: false},
 		{UserID: opkalimantan2, StockIn: false, TransferOut: true, TransferIn: false, PurchaseOrder: false, Retail: false},
-		{UserID: opmarunda1, StockIn: true, TransferOut: true, TransferIn: true, PurchaseOrder: true, Retail: true},
+		{UserID: opmarunda, StockIn: true, TransferOut: true, TransferIn: true, PurchaseOrder: true, Retail: true},
+		{UserID: opmarunda1, StockIn: false, TransferOut: true, TransferIn: false, PurchaseOrder: false, Retail: false},
 		{UserID: opmarunda2, StockIn: false, TransferOut: true, TransferIn: false, PurchaseOrder: true, Retail: true},
-		{UserID: oppurwakarta1, StockIn: true, TransferOut: true, TransferIn: true, PurchaseOrder: true, Retail: true},
-		{UserID: oppurwakarta2, StockIn: false, TransferOut: false, TransferIn: true, PurchaseOrder: true, Retail: true},
+		{UserID: oppurwakarta, StockIn: true, TransferOut: true, TransferIn: true, PurchaseOrder: true, Retail: true},
+		{UserID: oppurwakarta1, StockIn: false, TransferOut: false, TransferIn: true, PurchaseOrder: false, Retail: false},
+		{UserID: oppurwakarta2, StockIn: false, TransferOut: false, TransferIn: true, PurchaseOrder: false, Retail: false},
 	}
 	tx.Create(&userprivileges)
 
 	warehouses := []model.Warehouse{
 		{ID: kalimantan, Name: "Kalimantan", Location: "Kalimantan", IsStockin: true, IsInbound: false, IsOutbound: true, IsRetail: false, IsPurchaseorder: false},
-		{ID: marunda, Name: "Marunda", Location: "Marunda", IsStockin: false, IsInbound: true, IsOutbound: true, IsRetail: false, IsPurchaseorder: false},
+		{ID: marunda, Name: "Marunda", Location: "Marunda", IsStockin: false, IsInbound: true, IsOutbound: true, IsRetail: true, IsPurchaseorder: true},
 		{ID: purwakarta, Name: "Purwakarta", Location: "Purwakarta", IsStockin: false, IsInbound: true, IsOutbound: false, IsRetail: true, IsPurchaseorder: true},
 	}
 	tx.Create(&warehouses)

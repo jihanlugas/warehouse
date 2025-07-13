@@ -180,6 +180,39 @@ definitions:
     - productId
     - purchaseorderId
     type: object
+  request.CreateStockmovementvehicleRetail:
+    properties:
+      driverName:
+        type: string
+      fromWarehouseId:
+        type: string
+      isNewVehiclerdriver:
+        type: boolean
+      nik:
+        type: string
+      phoneNumber:
+        type: string
+      plateNumber:
+        type: string
+      productId:
+        type: string
+      retailId:
+        type: string
+      sentGrossQuantity:
+        type: number
+      sentNetQuantity:
+        type: number
+      sentTareQuantity:
+        type: number
+      vehicleId:
+        type: string
+      vehicleName:
+        type: string
+    required:
+    - fromWarehouseId
+    - productId
+    - retailId
+    type: object
   request.CreateTransaction:
     properties:
       amount:
@@ -358,6 +391,15 @@ definitions:
         type: string
     type: object
   request.UpdateStockmovementvehiclePurchaseorder:
+    properties:
+      sentGrossQuantity:
+        type: number
+      sentNetQuantity:
+        type: number
+      sentTareQuantity:
+        type: number
+    type: object
+  request.UpdateStockmovementvehicleRetail:
     properties:
       sentGrossQuantity:
         type: number
@@ -1493,6 +1535,31 @@ paths:
       - BearerAuth: []
       tags:
       - Purchaseorder
+  /purchaseorder/{id}/generate-invoice:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Purchaseorder
   /purchaseorder/{id}/set-status-close:
     get:
       consumes:
@@ -1710,6 +1777,81 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/request.UpdateRetail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Retail
+  /retail/{id}/generate-invoice:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Retail
+  /retail/{id}/set-status-close:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Retail
+  /retail/{id}/set-status-open:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -2230,6 +2372,63 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/request.UpdateStockmovementvehiclePurchaseorder'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Stockmovementvehicle
+  /stockmovementvehicle/retail:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateStockmovementvehicleRetail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      tags:
+      - Stockmovementvehicle
+  /stockmovementvehicle/retail/{id}:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: json req body
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateStockmovementvehicleRetail'
       produces:
       - application/json
       responses:

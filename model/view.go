@@ -83,18 +83,21 @@ func (CustomerView) TableName() string {
 }
 
 type RetailView struct {
-	ID         string         `json:"id"`
-	CustomerID string         `json:"customerId"`
-	Number     string         `json:"number"`
-	Notes      string         `json:"notes"`
-	Status     RetailStatus   `json:"status"`
-	CreateBy   string         `json:"createBy"`
-	CreateDt   time.Time      `json:"createDt"`
-	UpdateBy   string         `json:"updateBy"`
-	UpdateDt   time.Time      `json:"updateDt"`
-	DeleteDt   gorm.DeletedAt `json:"deleteDt"`
-	CreateName string         `json:"createName"`
-	UpdateName string         `json:"updateName"`
+	ID           string         `json:"id"`
+	CustomerID   string         `json:"customerId"`
+	TotalPrice   float64        `json:"totalPrice"`
+	TotalPayment float64        `json:"totalPayment"`
+	Outstanding  float64        `json:"outstanding"`
+	Number       string         `json:"number"`
+	Notes        string         `json:"notes"`
+	Status       RetailStatus   `json:"status"`
+	CreateBy     string         `json:"createBy"`
+	CreateDt     time.Time      `json:"createDt"`
+	UpdateBy     string         `json:"updateBy"`
+	UpdateDt     time.Time      `json:"updateDt"`
+	DeleteDt     gorm.DeletedAt `json:"deleteDt"`
+	CreateName   string         `json:"createName"`
+	UpdateName   string         `json:"updateName"`
 
 	Customer       *CustomerView       `json:"customer,omitempty"`
 	Retailproducts []RetailproductView `json:"retailproducts,omitempty" gorm:"foreignKey:RetailID"`
@@ -148,6 +151,7 @@ type PurchaseorderView struct {
 	Purchaseorderproducts []PurchaseorderproductView `json:"purchaseorderproducts,omitempty" gorm:"foreignKey:PurchaseorderID"`
 	Transactions          []TransactionView          `json:"transactions,omitempty" gorm:"foreignKey:RelatedID"`
 	Stockmovements        []StockmovementView        `json:"stockmovements,omitempty" gorm:"foreignKey:RelatedID"`
+	Stockmovementvehicles []StockmovementvehicleView `json:"stockmovementvehicles,omitempty" gorm:"foreignKey:RelatedID"`
 }
 
 func (PurchaseorderView) TableName() string {
@@ -200,23 +204,26 @@ func (TransactionView) TableName() string {
 }
 
 type WarehouseView struct {
-	ID              string         `json:"id"`
-	Name            string         `json:"name"`
-	Description     string         `json:"description"`
-	IsStockin       bool           `json:"isStockin"`
-	IsInbound       bool           `json:"isInbound"`
-	IsOutbound      bool           `json:"isOutbound"`
-	IsRetail        bool           `json:"isRetail"`
-	IsPurchaseorder bool           `json:"isPurchaseorder"`
-	PhotoID         string         `json:"photoId"`
-	PhotoUrl        string         `json:"photoUrl"`
-	CreateBy        string         `json:"createBy"`
-	CreateDt        time.Time      `json:"createDt"`
-	UpdateBy        string         `json:"updateBy"`
-	UpdateDt        time.Time      `json:"updateDt"`
-	DeleteDt        gorm.DeletedAt `json:"deleteDt"`
-	CreateName      string         `json:"createName"`
-	UpdateName      string         `json:"updateName"`
+	ID                   string         `json:"id"`
+	Name                 string         `json:"name"`
+	Location             string         `json:"location"`
+	PhoneNumber          string         `json:"phoneNumber"`
+	IsStockin            bool           `json:"isStockin"`
+	IsInbound            bool           `json:"isInbound"`
+	IsOutbound           bool           `json:"isOutbound"`
+	IsRetail             bool           `json:"isRetail"`
+	IsPurchaseorder      bool           `json:"isPurchaseorder"`
+	PhotoID              string         `json:"photoId"`
+	PhotoUrl             string         `json:"photoUrl"`
+	CreateBy             string         `json:"createBy"`
+	CreateDt             time.Time      `json:"createDt"`
+	UpdateBy             string         `json:"updateBy"`
+	UpdateDt             time.Time      `json:"updateDt"`
+	DeleteDt             gorm.DeletedAt `json:"deleteDt"`
+	TotalRunningOutbound float64        `json:"totalRunningOutbound"`
+	TotalRunningInbound  float64        `json:"totalRunningInbound"`
+	CreateName           string         `json:"createName"`
+	UpdateName           string         `json:"updateName"`
 
 	Stocks    []StockView    `json:"stocks,omitempty" gorm:"foreignKey:WarehouseID"`
 	Stocklogs []StocklogView `json:"stocklogs,omitempty" gorm:"foreignKey:WarehouseID"`
@@ -413,6 +420,7 @@ type InboundView struct {
 	Warehouse     *WarehouseView     `json:"warehouse,omitempty"`
 	Vehicle       *VehicleView       `json:"vehicle,omitempty"`
 	Stockmovement *StockmovementView `json:"stockmovement,omitempty"`
+	Product       *ProductView       `json:"product,omitempty"`
 }
 
 func (InboundView) TableName() string {
@@ -448,6 +456,7 @@ type OutboundView struct {
 	Warehouse     *WarehouseView     `json:"warehouse,omitempty"`
 	Vehicle       *VehicleView       `json:"vehicle,omitempty"`
 	Stockmovement *StockmovementView `json:"stockmovement,omitempty"`
+	Product       *ProductView       `json:"product,omitempty"`
 }
 
 func (OutboundView) TableName() string {

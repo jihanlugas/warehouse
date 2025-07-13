@@ -1,6 +1,7 @@
 package retail
 
 import (
+	"fmt"
 	"github.com/jihanlugas/warehouse/jwt"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/response"
@@ -8,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type Handler struct {
@@ -202,4 +204,101 @@ func (h Handler) Delete(c echo.Context) error {
 	}
 
 	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
+}
+
+// SetStatusOpen
+// @Tags Retail
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "ID"
+// @Success      200  {object}	response.Response
+// @Failure      500  {object}  response.Response
+// @Router /retail/{id}/set-status-open [get]
+func (h Handler) SetStatusOpen(c echo.Context) error {
+	var err error
+
+	loginUser, err := jwt.GetUserLoginInfo(c)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
+	}
+
+	err = h.usecase.SetStatusOpen(loginUser, id)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
+	}
+
+	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
+}
+
+// SetStatusClose
+// @Tags Retail
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "ID"
+// @Success      200  {object}	response.Response
+// @Failure      500  {object}  response.Response
+// @Router /retail/{id}/set-status-close [get]
+func (h Handler) SetStatusClose(c echo.Context) error {
+	var err error
+
+	loginUser, err := jwt.GetUserLoginInfo(c)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
+	}
+
+	err = h.usecase.SetStatusClose(loginUser, id)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
+	}
+
+	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
+}
+
+// GenerateInvoice
+// @Tags Retail
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "ID"
+// @Query preloads query string false "preloads"
+// @Success      200  {object}	response.Response
+// @Failure      500  {object}  response.Response
+// @Router /retail/{id}/generate-invoice [get]
+func (h Handler) GenerateInvoice(c echo.Context) error {
+	var err error
+
+	loginUser, err := jwt.GetUserLoginInfo(c)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
+	}
+
+	pdfBytes, vRetail, err := h.usecase.GenerateInvoice(loginUser, id)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
+	}
+
+	fmt.Print(fmt.Sprintf("Retail Invoice %s %s.pdf", vRetail.ID, utils.DisplayDate(time.Now())))
+
+	filename := fmt.Sprintf("Retail Invoice %s %s.pdf", vRetail.ID, utils.DisplayDate(time.Now()))
+	c.Response().Header().Set("Content-Disposition", "attachment; filename="+filename)
+
+	// Kirimkan PDF sebagai respons
+	return c.Blob(http.StatusOK, "application/pdf", pdfBytes)
 }

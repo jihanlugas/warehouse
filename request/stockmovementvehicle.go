@@ -27,6 +27,28 @@ type UpdateStockmovementvehiclePurchaseorder struct {
 	SentNetQuantity   float64 `json:"sentNetQuantity" form:"sentNetQuantity" query:"sentNetQuantity" validate:""`
 }
 
+type CreateStockmovementvehicleRetail struct {
+	FromWarehouseID     string  `json:"fromWarehouseId" form:"fromWarehouseId" query:"fromWarehouseId" validate:"required"`
+	RetailID            string  `json:"retailId" form:"retailId" query:"retailId" validate:"required"`
+	ProductID           string  `json:"productId" form:"productId" query:"productId" validate:"required"`
+	IsNewVehiclerdriver bool    `json:"isNewVehiclerdriver" from:"isNewVehiclerdriver" query:"isNewVehiclerdriver" validate:""`
+	PlateNumber         string  `json:"plateNumber" from:"plateNumber" query:"plateNumber" validate:""`
+	VehicleID           string  `json:"vehicleId" form:"vehicleId" query:"vehicleId" validate:""`
+	VehicleName         string  `json:"vehicleName" from:"vehicleName" query:"vehicleName" validate:""`
+	NIK                 string  `json:"nik" from:"nik" query:"nik" validate:""`
+	DriverName          string  `json:"driverName" from:"driverName" query:"driverName" validate:""`
+	PhoneNumber         string  `json:"phoneNumber" from:"phoneNumber" query:"phoneNumber" validate:""`
+	SentGrossQuantity   float64 `json:"sentGrossQuantity" form:"sentGrossQuantity" query:"sentGrossQuantity" validate:""`
+	SentTareQuantity    float64 `json:"sentTareQuantity" form:"sentTareQuantity" query:"sentTareQuantity" validate:""`
+	SentNetQuantity     float64 `json:"sentNetQuantity" form:"sentNetQuantity" query:"sentNetQuantity" validate:""`
+}
+
+type UpdateStockmovementvehicleRetail struct {
+	SentGrossQuantity float64 `json:"sentGrossQuantity" form:"sentGrossQuantity" query:"sentGrossQuantity" validate:""`
+	SentTareQuantity  float64 `json:"sentTareQuantity" form:"sentTareQuantity" query:"sentTareQuantity" validate:""`
+	SentNetQuantity   float64 `json:"sentNetQuantity" form:"sentNetQuantity" query:"sentNetQuantity" validate:""`
+}
+
 type PageStockmovementvehicle struct {
 	Paging
 	FromWarehouseID           string                  `json:"fromWarehouseId" form:"fromWarehouseId" query:"fromWarehouseId"`

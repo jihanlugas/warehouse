@@ -1704,6 +1704,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/purchaseorder/{id}/generate-invoice": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Purchaseorder"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/purchaseorder/{id}/set-status-close": {
             "get": {
                 "security": [
@@ -2044,6 +2085,129 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Retail"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/retail/{id}/generate-invoice": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Retail"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/retail/{id}/set-status-close": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Retail"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/retail/{id}/set-status-open": {
+            "get": {
                 "security": [
                     {
                         "BearerAuth": []
@@ -2749,6 +2913,99 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/request.UpdateStockmovementvehiclePurchaseorder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/stockmovementvehicle/retail": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stockmovementvehicle"
+                ],
+                "parameters": [
+                    {
+                        "description": "json req body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateStockmovementvehicleRetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/stockmovementvehicle/retail/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stockmovementvehicle"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "json req body",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateStockmovementvehicleRetail"
                         }
                     }
                 ],
@@ -4379,6 +4636,55 @@ const docTemplate = `{
                 }
             }
         },
+        "request.CreateStockmovementvehicleRetail": {
+            "type": "object",
+            "required": [
+                "fromWarehouseId",
+                "productId",
+                "retailId"
+            ],
+            "properties": {
+                "driverName": {
+                    "type": "string"
+                },
+                "fromWarehouseId": {
+                    "type": "string"
+                },
+                "isNewVehiclerdriver": {
+                    "type": "boolean"
+                },
+                "nik": {
+                    "type": "string"
+                },
+                "phoneNumber": {
+                    "type": "string"
+                },
+                "plateNumber": {
+                    "type": "string"
+                },
+                "productId": {
+                    "type": "string"
+                },
+                "retailId": {
+                    "type": "string"
+                },
+                "sentGrossQuantity": {
+                    "type": "number"
+                },
+                "sentNetQuantity": {
+                    "type": "number"
+                },
+                "sentTareQuantity": {
+                    "type": "number"
+                },
+                "vehicleId": {
+                    "type": "string"
+                },
+                "vehicleName": {
+                    "type": "string"
+                }
+            }
+        },
         "request.CreateTransaction": {
             "type": "object",
             "required": [
@@ -4640,6 +4946,20 @@ const docTemplate = `{
             }
         },
         "request.UpdateStockmovementvehiclePurchaseorder": {
+            "type": "object",
+            "properties": {
+                "sentGrossQuantity": {
+                    "type": "number"
+                },
+                "sentNetQuantity": {
+                    "type": "number"
+                },
+                "sentTareQuantity": {
+                    "type": "number"
+                }
+            }
+        },
+        "request.UpdateStockmovementvehicleRetail": {
             "type": "object",
             "properties": {
                 "sentGrossQuantity": {

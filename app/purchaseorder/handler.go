@@ -1,6 +1,7 @@
 package purchaseorder
 
 import (
+	"fmt"
 	"github.com/jihanlugas/warehouse/jwt"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/response"
@@ -8,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type Handler struct {
@@ -262,4 +264,41 @@ func (h Handler) SetStatusClose(c echo.Context) error {
 	}
 
 	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
+}
+
+// GenerateInvoice
+// @Tags Purchaseorder
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "ID"
+// @Query preloads query string false "preloads"
+// @Success      200  {object}	response.Response
+// @Failure      500  {object}  response.Response
+// @Router /purchaseorder/{id}/generate-invoice [get]
+func (h Handler) GenerateInvoice(c echo.Context) error {
+	var err error
+
+	loginUser, err := jwt.GetUserLoginInfo(c)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
+	}
+
+	pdfBytes, vPurchaseorder, err := h.usecase.GenerateInvoice(loginUser, id)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
+	}
+
+	fmt.Print(fmt.Sprintf("Purchaseorder Invoice %s %s.pdf", vPurchaseorder.ID, utils.DisplayDate(time.Now())))
+
+	filename := fmt.Sprintf("Purchaseorder Invoice %s %s.pdf", vPurchaseorder.ID, utils.DisplayDate(time.Now()))
+	c.Response().Header().Set("Content-Disposition", "attachment; filename="+filename)
+
+	// Kirimkan PDF sebagai respons
+	return c.Blob(http.StatusOK, "application/pdf", pdfBytes)
 }

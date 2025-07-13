@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <title>Delivery Order</title>
+    <style>
+        html {
+            /*font-size: 13px;*/
+        }
+        body,
+        pre {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .page {
+            /* page-break-after: always; Ensure each div is treated as a new page */
+            width: 210mm;
+            height: 297mm;
+            margin: 0 auto;
+            box-sizing: border-box;
+            /*border: 1px solid #ccc;*/
+        }
+    </style>
+</head>
+<body>
+<div class="page p-8">
+    <div class="mb-4 grid grid-cols-3 gap-4">
+        <div class="col-span-2 flex">
+            <div class="flex-none w-24 h-24 bg-red-200 rounded-full mr-4">
+            </div>
+            <div class="flex-1">
+                <div class="text-xl font-bold">PT. MAJU JAYA ABADI</div>
+                <div class="">Jl. Tambang Raya No. 88, Kalimantan Selatan</div>
+                <div class="">Telp. (0511) 12345678</div>
+                <div class="">Email: info@majujaya.co.id</div>
+            </div>
+        </div>
+        <div class="w-full text-center">
+            <div class="border-2 p-2 mb-4">{{ .Number }}</div>
+            <div class="text-3xl font-bold uppercase">Invoice</div>
+        </div>
+    </div>
+    <hr class="border my-4" />
+    <div class="mb-8">
+        <div class="text-xl font-bold">Tujuan</div>
+        <div>{{ .Customer.Name }}</div>
+        <div class="">{{ displayPhoneNumber .Customer.PhoneNumber }}</div>
+    </div>
+    <div class='mb-8'>
+        <div class='mb-4'>Rincian Pengiriman:</div>
+        <table class="w-full table-auto ">
+            <thead>
+            <tr class="text-left border-y-2 border-gray-400">
+                <th class='px-2 py-4'>Sent Time</th>
+                <th class='px-2 py-4'>Product</th>
+                <th class='px-2 py-4'>Unit Price</th>
+                <th class='px-2 py-4'>Net</th>
+                <th class='px-2 py-4'>Price</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{range $stockmovementvehicle := .Stockmovementvehicles}}
+            {{ if $stockmovementvehicle.SentTime }}
+            <tr class='border-b border-gray-400'>
+                <td class='p-2'>{{ displayDate $stockmovementvehicle.SentTime }}</td>
+                <td class='p-2'>{{ $stockmovementvehicle.Product.Name }}</td>
+                <td class='p-2'>{{ displayMoney $stockmovementvehicle.Stockmovement.UnitPrice }}</td>
+                <td class='p-2'>{{ displayNumber $stockmovementvehicle.SentNetQuantity }}</td>
+                <td class='p-2'>{{ displayMoneyMultiple $stockmovementvehicle.SentNetQuantity $stockmovementvehicle.Stockmovement.UnitPrice }}</td>
+            </tr>
+            {{ else }}
+            <tr class='border-b border-gray-400'>
+                <td class='p-2'>-</td>
+                <td class='p-2'>{{ $stockmovementvehicle.Product.Name }}</td>
+                <td class='p-2'>{{ displayMoney $stockmovementvehicle.Stockmovement.UnitPrice }}</td>
+                <td class='p-2'>-</td>
+                <td class='p-2'>-</td>
+            </tr>
+            {{ end }}
+            {{end}}
+            </tbody>
+        </table>
+    </div>
+    <div class='mb-8'>
+        <div class="mb-4 grid grid-cols-2 gap-4">
+            <div class=""></div>
+            <div class="">
+                <div class="flex justify-between items-center mb-2 font-bold">
+                    <div>Total Price</div>
+                    <div>{{ displayMoney .TotalPrice }}</div>
+                </div>
+                <hr class='border-1 border-gray-100 my-2' />
+                {{range $transaction := .Transactions}}
+                {{ if $transaction.Notes }}
+                <div class="flex justify-between items-center mb-2">
+                    <div>{{ displayDate .CreateDt }} | DP</div>
+                    <div>{{ displayMoney $transaction.Amount }}</div>
+                </div>
+                {{ else }}
+                <div class="flex justify-between items-center mb-2">
+                    <div>{{ displayDate .CreateDt }}</div>
+                    <div>{{ displayMoney $transaction.Amount }}</div>
+                </div>
+                {{ end }}
+                {{end}}
+                <div class="flex justify-between items-center mb-2 font-bold text-green-500">
+                    <div>Total Payment</div>
+                    <div>{{ displayMoney .TotalPayment }}</div>
+                </div>
+                <hr class='border-1 border-gray-100 my-2' />
+                {{if gt .Outstanding 0.0 }}
+                <div class="flex justify-between items-center mb-2 font-bold text-red-500">
+                    <div>Outstanding</div>
+                    <div>{{ displayMoney .Outstanding }}</div>
+                </div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+    <div class='mb-8 flex justify-end'>
+        <div class='text-center'>
+            <div>Mengetahui, ..................</div>
+            <div class='h-20'></div>
+            <div>.....................</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

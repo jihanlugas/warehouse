@@ -157,6 +157,7 @@ func Init() *echo.Echo {
 	routerRetail.PUT("/:id", retailHandler.Update)
 	//routerRetail.DELETE("/:id", retailHandler.Delete)
 	routerRetail.GET("/:id/set-status-open", retailHandler.SetStatusOpen)
+	routerRetail.GET("/:id/set-status-close", retailHandler.SetStatusClose)
 	routerRetail.GET("/:id/generate-invoice", retailHandler.GenerateInvoice)
 
 	routerPurchaseorder := router.Group("/purchaseorder", checkTokenMiddleware)
@@ -166,6 +167,7 @@ func Init() *echo.Echo {
 	routerPurchaseorder.PUT("/:id", purchaseorderHandler.Update)
 	//routerPurchaseorder.DELETE("/:id", purchaseorderHandler.Delete)
 	routerPurchaseorder.GET("/:id/set-status-open", purchaseorderHandler.SetStatusOpen)
+	routerPurchaseorder.GET("/:id/set-status-close", purchaseorderHandler.SetStatusClose)
 	routerPurchaseorder.GET("/:id/generate-invoice", purchaseorderHandler.GenerateInvoice)
 
 	routerUser := router.Group("/user")

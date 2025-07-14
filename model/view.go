@@ -99,10 +99,11 @@ type RetailView struct {
 	CreateName   string         `json:"createName"`
 	UpdateName   string         `json:"updateName"`
 
-	Customer       *CustomerView       `json:"customer,omitempty"`
-	Retailproducts []RetailproductView `json:"retailproducts,omitempty" gorm:"foreignKey:RetailID"`
-	Transactions   []TransactionView   `json:"transactions,omitempty" gorm:"foreignKey:RelatedID"`
-	Stockmovements []StockmovementView `json:"stockmovements,omitempty" gorm:"foreignKey:RelatedID"`
+	Customer              *CustomerView              `json:"customer,omitempty"`
+	Retailproducts        []RetailproductView        `json:"retailproducts,omitempty" gorm:"foreignKey:RetailID"`
+	Transactions          []TransactionView          `json:"transactions,omitempty" gorm:"foreignKey:RelatedID"`
+	Stockmovements        []StockmovementView        `json:"stockmovements,omitempty" gorm:"foreignKey:RelatedID"`
+	Stockmovementvehicles []StockmovementvehicleView `json:"stockmovementvehicles,omitempty" gorm:"foreignKey:RelatedID"`
 }
 
 func (RetailView) TableName() string {

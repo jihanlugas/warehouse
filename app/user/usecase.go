@@ -212,7 +212,7 @@ func (u usecase) UpdateUserprivilege(loginUser jwt.UserLogin, id string, req req
 
 	tx := conn.Begin()
 
-	tUserprivilege = tUser.Userprivilege
+	tUserprivilege = *tUser.Userprivilege
 	tUserprivilege.StockIn = req.StockIn
 	tUserprivilege.TransferOut = req.TransferOut
 	tUserprivilege.TransferIn = req.TransferIn

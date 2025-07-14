@@ -547,10 +547,13 @@ func dbSeed() {
 
 	users := []model.User{
 		{ID: admin, WarehouseID: "", Role: model.UserRoleAdmin, Email: "admin@gmail.com", Username: "admin", PhoneNumber: utils.FormatPhoneTo62("6287770333043"), Fullname: "Admin", Address: "Jl. Gunung Sahari No. 10, Jakarta Pusat", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
+		{ID: opkalimantan, WarehouseID: kalimantan, Role: model.UserRoleOperator, Email: "opkalimantan@gmail.com", Username: "opkalimantan", PhoneNumber: "", Fullname: "opkalimantan", Address: "", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
 		{ID: opkalimantan1, WarehouseID: kalimantan, Role: model.UserRoleOperator, Email: "opkalimantan1@gmail.com", Username: "opkalimantan1", PhoneNumber: "", Fullname: "opkalimantan1", Address: "", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
 		{ID: opkalimantan2, WarehouseID: kalimantan, Role: model.UserRoleOperator, Email: "opkalimantan2@gmail.com", Username: "opkalimantan2", PhoneNumber: "", Fullname: "opkalimantan2", Address: "", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
+		{ID: opmarunda, WarehouseID: marunda, Role: model.UserRoleOperator, Email: "opmarunda@gmail.com", Username: "opmarunda", PhoneNumber: "", Fullname: "opmarunda", Address: "", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
 		{ID: opmarunda1, WarehouseID: marunda, Role: model.UserRoleOperator, Email: "opmarunda1@gmail.com", Username: "opmarunda1", PhoneNumber: "", Fullname: "opmarunda1", Address: "", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
 		{ID: opmarunda2, WarehouseID: marunda, Role: model.UserRoleOperator, Email: "opmarunda2@gmail.com", Username: "opmarunda2", PhoneNumber: "", Fullname: "opmarunda2", Address: "", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
+		{ID: oppurwakarta, WarehouseID: purwakarta, Role: model.UserRoleOperator, Email: "oppurwakarta@gmail.com", Username: "oppurwakarta", PhoneNumber: "", Fullname: "oppurwakarta", Address: "", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
 		{ID: oppurwakarta1, WarehouseID: purwakarta, Role: model.UserRoleOperator, Email: "oppurwakarta1@gmail.com", Username: "oppurwakarta1", PhoneNumber: "", Fullname: "oppurwakarta1", Address: "", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
 		{ID: oppurwakarta2, WarehouseID: purwakarta, Role: model.UserRoleOperator, Email: "oppurwakarta2@gmail.com", Username: "oppurwakarta2", PhoneNumber: "", Fullname: "oppurwakarta2", Address: "", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
 	}

@@ -97,7 +97,7 @@ type User struct {
 	UpdateDt          time.Time      `gorm:"not null"`
 	DeleteDt          gorm.DeletedAt `gorm:"null"`
 
-	Userprivilege Userprivilege `gorm:"not null"`
+	Userprivilege *Userprivilege `gorm:"not null"`
 }
 
 type Userprivilege struct {

@@ -185,6 +185,7 @@ type TransactionView struct {
 	RelatedID   string                 `json:"RelatedId"`
 	RelatedType TransactionRelatedType `json:"relatedType"`
 	Type        TransactionType        `json:"type"`
+	CustomerID  string                 `json:"customerId"`
 	Amount      float64                `json:"amount"`
 	Notes       string                 `json:"notes"`
 	Number      string                 `json:"number"`
@@ -196,6 +197,7 @@ type TransactionView struct {
 	CreateName  string                 `json:"createName"`
 	UpdateName  string                 `json:"updateName"`
 
+	Customer      *CustomerView      `json:"customer,omitempty"`
 	Retail        *RetailView        `json:"retail,omitempty" gorm:"foreignKey:RelatedID;references:ID"`
 	Purchaseorder *PurchaseorderView `json:"purchaseorder,omitempty" gorm:"foreignKey:RelatedID;references:ID"`
 }

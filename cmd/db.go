@@ -243,7 +243,15 @@ func dbUpView() {
 		panic(err)
 	}
 	vTransaction := conn.Model(&model.Transaction{}).Unscoped().
-		Select("transactions.*, u1.fullname as create_name, u2.fullname as update_name").
+		Select([]string{
+			"transactions.*, u1.fullname as create_name, u2.fullname as update_name",
+			"CASE " +
+				"WHEN transactions.related_type = 'PURCHASE_ORDER' THEN purchaseorders.customer_id " +
+				"WHEN transactions.related_type = 'RETAIL' THEN retails.customer_id " +
+				"ELSE '' END AS customer_id",
+		}).
+		Joins("left join purchaseorders purchaseorders on purchaseorders.id = transactions.related_id").
+		Joins("left join retails retails on retails.id = transactions.related_id").
 		Joins("left join users u1 on u1.id = transactions.create_by").
 		Joins("left join users u2 on u2.id = transactions.update_by")
 	err = conn.Migrator().CreateView(model.VIEW_TRANSACTION, gorm.ViewOption{

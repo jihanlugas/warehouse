@@ -581,9 +581,9 @@ func dbSeed() {
 	tx.Create(&userprivileges)
 
 	warehouses := []model.Warehouse{
-		{ID: kalimantan, Name: "Kalimantan", Location: "Kalimantan", IsStockin: true, IsInbound: false, IsOutbound: true, IsRetail: false, IsPurchaseorder: false},
-		{ID: marunda, Name: "Marunda", Location: "Marunda", IsStockin: false, IsInbound: true, IsOutbound: true, IsRetail: true, IsPurchaseorder: true},
-		{ID: purwakarta, Name: "Purwakarta", Location: "Purwakarta", IsStockin: false, IsInbound: true, IsOutbound: false, IsRetail: true, IsPurchaseorder: true},
+		{ID: kalimantan, Name: "Kalimantan", Location: "Jl. Kalimantan No. 10, Kalimatan Timur", IsStockin: true, IsInbound: false, IsOutbound: true, IsRetail: false, IsPurchaseorder: false},
+		{ID: marunda, Name: "Marunda", Location: "Jl. Marunda No. 10, DKI Jakarta", IsStockin: false, IsInbound: true, IsOutbound: true, IsRetail: true, IsPurchaseorder: true},
+		{ID: purwakarta, Name: "Purwakarta", Location: "Jl. Purwakarta No. 10, Jawa Barat", IsStockin: false, IsInbound: true, IsOutbound: false, IsRetail: true, IsPurchaseorder: true},
 	}
 	tx.Create(&warehouses)
 

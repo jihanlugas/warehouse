@@ -207,7 +207,7 @@ func (u usecase) GenerateDeliveryOrder(loginUser jwt.UserLogin, id string) (pdfB
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	vStockmovementvehicle, err = u.stockmovementvehicleRepository.GetViewById(conn, id, "Stockmovement")
+	vStockmovementvehicle, err = u.stockmovementvehicleRepository.GetViewById(conn, id, "Stockmovement", "Vehicle", "Product", "Purchaseorder", "Purchaseorder.Customer", "Retail", "Retail.Customer")
 	if err != nil {
 		return pdfBytes, vStockmovementvehicle, errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}

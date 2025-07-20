@@ -22,6 +22,14 @@ func dbUpTable() {
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
+	err = conn.Migrator().AutoMigrate(&model.Photo{})
+	if err != nil {
+		panic(err)
+	}
+	err = conn.Migrator().AutoMigrate(&model.Photoinc{})
+	if err != nil {
+		panic(err)
+	}
 	err = conn.Migrator().AutoMigrate(&model.User{})
 	if err != nil {
 		panic(err)
@@ -82,6 +90,10 @@ func dbUpTable() {
 	if err != nil {
 		panic(err)
 	}
+	err = conn.Migrator().AutoMigrate(&model.Stockmovementvehiclephoto{})
+	if err != nil {
+		panic(err)
+	}
 }
 
 func dbUpView() {
@@ -89,6 +101,38 @@ func dbUpView() {
 
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
+
+	err = conn.Migrator().DropView(model.VIEW_PHOTO)
+	if err != nil {
+		panic(err)
+	}
+	vPhoto := conn.Model(&model.Photo{}).Unscoped().
+		Select("photos.*, u1.fullname as create_name, u2.fullname as update_name").
+		Joins("left join users u1 on u1.id = photos.create_by").
+		Joins("left join users u2 on u2.id = photos.update_by")
+	err = conn.Migrator().CreateView(model.VIEW_PHOTO, gorm.ViewOption{
+		Replace: true,
+		Query:   vPhoto,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	err = conn.Migrator().DropView(model.VIEW_PHOTOINC)
+	if err != nil {
+		panic(err)
+	}
+	vPhotoinc := conn.Model(&model.Photoinc{}).Unscoped().
+		Select("photoincs.*, u1.fullname as create_name, u2.fullname as update_name").
+		Joins("left join users u1 on u1.id = photoincs.create_by").
+		Joins("left join users u2 on u2.id = photoincs.update_by")
+	err = conn.Migrator().CreateView(model.VIEW_PHOTOINC, gorm.ViewOption{
+		Replace: true,
+		Query:   vPhotoinc,
+	})
+	if err != nil {
+		panic(err)
+	}
 
 	err = conn.Migrator().DropView(model.VIEW_USER)
 	if err != nil {
@@ -406,6 +450,23 @@ func dbUpView() {
 	err = conn.Migrator().CreateView(model.VIEW_STOCKMOVEMENTVEHICLE, gorm.ViewOption{
 		Replace: true,
 		Query:   vStockmovementvehicle,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	err = conn.Migrator().DropView(model.VIEW_STOCKMOVEMENTVEHICLEPHOTO)
+	if err != nil {
+		panic(err)
+	}
+	vStockmovementvehiclephoto := conn.Model(&model.Stockmovementvehiclephoto{}).Unscoped().
+		Select("stockmovementvehiclephotos.*, photos.photo_path as photo_url, u1.fullname as create_name, u2.fullname as update_name").
+		Joins("left join photos photos on photos.id = stockmovementvehiclephotos.photo_id").
+		Joins("left join users u1 on u1.id = stockmovementvehiclephotos.create_by").
+		Joins("left join users u2 on u2.id = stockmovementvehiclephotos.update_by")
+	err = conn.Migrator().CreateView(model.VIEW_STOCKMOVEMENTVEHICLEPHOTO, gorm.ViewOption{
+		Replace: true,
+		Query:   vStockmovementvehiclephoto,
 	})
 	if err != nil {
 		panic(err)

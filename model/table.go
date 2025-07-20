@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+type PhotoRef string
 type UserRole string
 type StockMovementType string
 type StockLogType string
@@ -14,6 +15,10 @@ type RetailStatus string
 type PurchaseorderStatus string
 
 type TransactionStatus string
+
+const (
+	PhotoRefStockmovementvehiclephoto PhotoRef = "stockmovementvehiclephoto"
+)
 
 const (
 	UserRoleAdmin    UserRole = "ADMIN"
@@ -63,15 +68,22 @@ type Photo struct {
 	PhotoHeight int64          `gorm:"not null"`
 	CreateBy    string         `gorm:"not null"`
 	CreateDt    time.Time      `gorm:"not null"`
+	UpdateBy    string         `gorm:"not null"`
+	UpdateDt    time.Time      `gorm:"not null"`
 	DeleteDt    gorm.DeletedAt `gorm:"null"`
 }
 
 type Photoinc struct {
-	ID        string `gorm:"primaryKey"`
-	RefTable  string `gorm:"not null"`
-	FolderInc int64  `gorm:"not null"`
-	Folder    string `gorm:"not null"`
-	Running   int64  `gorm:"not null"`
+	ID        string         `gorm:"primaryKey"`
+	RefTable  string         `gorm:"not null"`
+	FolderInc int64          `gorm:"not null"`
+	Folder    string         `gorm:"not null"`
+	Running   int64          `gorm:"not null"`
+	CreateBy  string         `gorm:"not null"`
+	CreateDt  time.Time      `gorm:"not null"`
+	UpdateBy  string         `gorm:"not null"`
+	UpdateDt  time.Time      `gorm:"not null"`
+	DeleteDt  gorm.DeletedAt `gorm:"null"`
 }
 
 type User struct {
@@ -303,4 +315,16 @@ type Stockmovementvehicle struct {
 	UpdateBy             string         `gorm:"not null"`
 	UpdateDt             time.Time      `gorm:"not null"`
 	DeleteDt             gorm.DeletedAt `gorm:"null"`
+}
+
+type Stockmovementvehiclephoto struct {
+	ID                     string         `gorm:"primaryKey"`
+	WarehouseID            string         `gorm:"not null"`
+	StockmovementvehicleID string         `gorm:"not null"`
+	PhotoID                string         `json:"photoId"`
+	CreateBy               string         `gorm:"not null"`
+	CreateDt               time.Time      `gorm:"not null"`
+	UpdateBy               string         `gorm:"not null"`
+	UpdateDt               time.Time      `gorm:"not null"`
+	DeleteDt               gorm.DeletedAt `gorm:"null"`
 }

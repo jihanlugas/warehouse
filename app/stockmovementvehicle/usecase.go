@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/jihanlugas/warehouse/app/photo"
 	"github.com/jihanlugas/warehouse/app/purchaseorder"
 	"github.com/jihanlugas/warehouse/app/retail"
 	"github.com/jihanlugas/warehouse/app/stock"
 	"github.com/jihanlugas/warehouse/app/stocklog"
 	"github.com/jihanlugas/warehouse/app/stockmovement"
+	"github.com/jihanlugas/warehouse/app/stockmovementvehiclephoto"
 	"github.com/jihanlugas/warehouse/app/vehicle"
 	"github.com/jihanlugas/warehouse/app/warehouse"
 	"github.com/jihanlugas/warehouse/db"
@@ -35,17 +37,20 @@ type Usecase interface {
 	UpdatePurchaseorder(loginUser jwt.UserLogin, id string, req request.UpdateStockmovementvehiclePurchaseorder) error
 	CreateRetail(loginUser jwt.UserLogin, req request.CreateStockmovementvehicleRetail) error
 	UpdateRetail(loginUser jwt.UserLogin, id string, req request.UpdateStockmovementvehicleRetail) error
+	UploadPhoto(loginUser jwt.UserLogin, id string, req request.CreateStockmovementvehiclephoto) error
 }
 
 type usecase struct {
-	stockmovementvehicleRepository Repository
-	warehouseRepository            warehouse.Repository
-	vehicleRepository              vehicle.Repository
-	stockmovementRepository        stockmovement.Repository
-	stockRepository                stock.Repository
-	stocklogRepository             stocklog.Repository
-	purchaseorderRepository        purchaseorder.Repository
-	retailRepository               retail.Repository
+	stockmovementvehicleRepository      Repository
+	warehouseRepository                 warehouse.Repository
+	vehicleRepository                   vehicle.Repository
+	stockmovementRepository             stockmovement.Repository
+	stockRepository                     stock.Repository
+	stocklogRepository                  stocklog.Repository
+	purchaseorderRepository             purchaseorder.Repository
+	retailRepository                    retail.Repository
+	stockmovementvehiclephotoRepository stockmovementvehiclephoto.Repository
+	photoRepository                     photo.Repository
 }
 
 func (u usecase) Page(loginUser jwt.UserLogin, req request.PageStockmovementvehicle) (vStockmovementvehicles []model.StockmovementvehicleView, count int64, err error) {
@@ -619,7 +624,7 @@ func (u usecase) CreateRetail(loginUser jwt.UserLogin, req request.CreateStockmo
 	}
 	err = u.stockmovementvehicleRepository.Create(tx, tStockmovementvehicle)
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to create stockmovement vehicle: ", err))
+		return errors.New(fmt.Sprintf("failed to create %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
@@ -675,15 +680,93 @@ func (u usecase) UpdateRetail(loginUser jwt.UserLogin, id string, req request.Up
 	return err
 }
 
-func NewUsecase(stockmovementvehicleRepository Repository, warehouseRepository warehouse.Repository, vehicleRepository vehicle.Repository, stockmovementRepository stockmovement.Repository, stockRepository stock.Repository, stocklogRepository stocklog.Repository, purchaseorderRepository purchaseorder.Repository, retailRepository retail.Repository) Usecase {
+func (u usecase) UploadPhoto(loginUser jwt.UserLogin, id string, req request.CreateStockmovementvehiclephoto) error {
+	var err error
+
+	var vStockmovementvehicle model.StockmovementvehicleView
+
+	conn, closeConn := db.GetConnection()
+	defer closeConn()
+
+	vStockmovementvehicle, err = u.stockmovementvehicleRepository.GetViewById(conn, id, "Stockmovement")
+	if err != nil {
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementvehicleRepository.Name(), err))
+	}
+
+	if vStockmovementvehicle.Stockmovement == nil {
+		return errors.New("data stock movement not found")
+	}
+
+	switch vStockmovementvehicle.Stockmovement.Type {
+	case model.StockMovementTypeTransfer:
+		switch vStockmovementvehicle.Status {
+		case "LOADING":
+			if req.WarehouseID != vStockmovementvehicle.FromWarehouseID {
+				return errors.New("unable to upload photo")
+			}
+			break
+		case "UNLOADING":
+			if req.WarehouseID != vStockmovementvehicle.ToWarehouseID {
+				return errors.New("unable to upload photo")
+			}
+			break
+		default:
+			return errors.New("unable to upload photo")
+		}
+		break
+	case model.StockMovementTypePurchaseOrder:
+		if vStockmovementvehicle.Status != "LOADING" && vStockmovementvehicle.FromWarehouseID != req.WarehouseID {
+			return errors.New("unable to upload photo")
+		}
+		break
+	case model.StockMovementTypeRetail:
+		if vStockmovementvehicle.Status != "LOADING" && vStockmovementvehicle.FromWarehouseID != req.WarehouseID {
+			return errors.New("unable to upload photo")
+		}
+		break
+	default:
+		return errors.New("invalid stock movement type")
+	}
+
+	tx := conn.Begin()
+
+	tPhoto, err := u.photoRepository.Upload(tx, req.Photo, model.PhotoRefStockmovementvehiclephoto)
+	if err != nil {
+		return errors.New(fmt.Sprintf("failed to upload %s: %v", u.photoRepository.Name(), err))
+	}
+
+	tStockmovementvehiclephoto := model.Stockmovementvehiclephoto{
+		ID:                     utils.GetUniqueID(),
+		WarehouseID:            req.WarehouseID,
+		StockmovementvehicleID: req.StockmovementvehicleID,
+		PhotoID:                tPhoto.ID,
+		CreateBy:               loginUser.UserID,
+		UpdateBy:               loginUser.UserID,
+	}
+	err = u.stockmovementvehiclephotoRepository.Create(tx, tStockmovementvehiclephoto)
+	if err != nil {
+		return errors.New(fmt.Sprintf("failed to create %s: %v", u.stockmovementvehiclephotoRepository.Name(), err))
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func NewUsecase(stockmovementvehicleRepository Repository, warehouseRepository warehouse.Repository, vehicleRepository vehicle.Repository, stockmovementRepository stockmovement.Repository, stockRepository stock.Repository, stocklogRepository stocklog.Repository, purchaseorderRepository purchaseorder.Repository, retailRepository retail.Repository, stockmovementvehiclephotoRepository stockmovementvehiclephoto.Repository, photoRepository photo.Repository) Usecase {
 	return &usecase{
-		stockmovementvehicleRepository: stockmovementvehicleRepository,
-		warehouseRepository:            warehouseRepository,
-		vehicleRepository:              vehicleRepository,
-		stockmovementRepository:        stockmovementRepository,
-		stockRepository:                stockRepository,
-		stocklogRepository:             stocklogRepository,
-		purchaseorderRepository:        purchaseorderRepository,
-		retailRepository:               retailRepository,
+		stockmovementvehicleRepository:      stockmovementvehicleRepository,
+		warehouseRepository:                 warehouseRepository,
+		vehicleRepository:                   vehicleRepository,
+		stockmovementRepository:             stockmovementRepository,
+		stockRepository:                     stockRepository,
+		stocklogRepository:                  stocklogRepository,
+		purchaseorderRepository:             purchaseorderRepository,
+		retailRepository:                    retailRepository,
+		stockmovementvehiclephotoRepository: stockmovementvehiclephotoRepository,
+		photoRepository:                     photoRepository,
 	}
 }

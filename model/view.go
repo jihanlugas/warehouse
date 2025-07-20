@@ -5,6 +5,40 @@ import (
 	"time"
 )
 
+type PhotoView struct {
+	ID          string         `json:"id"`
+	ClientName  string         `json:"clientName"`
+	ServerName  string         `json:"serverName"`
+	RefTable    string         `json:"refTable"`
+	Ext         string         `json:"ext"`
+	PhotoPath   string         `json:"photoPath"`
+	PhotoSize   int64          `json:"photoSize"`
+	PhotoWidth  int64          `json:"photoWidth"`
+	PhotoHeight int64          `json:"photoHeight"`
+	CreateBy    string         `json:"createBy"`
+	CreateDt    time.Time      `json:"createDt"`
+	UpdateBy    string         `json:"updateBy"`
+	UpdateDt    time.Time      `json:"updateDt"`
+	DeleteDt    gorm.DeletedAt `json:"deleteDt"`
+	CreateName  string         `json:"createName"`
+	UpdateName  string         `json:"updateName"`
+}
+
+type PhotoincView struct {
+	ID         string         `json:"id"`
+	RefTable   string         `json:"eefTable"`
+	FolderInc  int64          `json:"folderInc"`
+	Folder     string         `json:"folder"`
+	Running    int64          `json:"running"`
+	CreateBy   string         `json:"createBy"`
+	CreateDt   time.Time      `json:"createDt"`
+	UpdateBy   string         `json:"updateBy"`
+	UpdateDt   time.Time      `json:"updateDt"`
+	DeleteDt   gorm.DeletedAt `json:"deleteDt"`
+	CreateName string         `json:"createName"`
+	UpdateName string         `json:"updateName"`
+}
+
 type UserView struct {
 	ID                string         `json:"id"`
 	WarehouseID       string         `json:"warehouseId"`
@@ -383,15 +417,37 @@ type StockmovementvehicleView struct {
 	CreateName           string            `json:"createName"`
 	UpdateName           string            `json:"updateName"`
 
-	Product       *ProductView       `json:"product,omitempty"`
-	Vehicle       *VehicleView       `json:"vehicle,omitempty"`
-	Stockmovement *StockmovementView `json:"stockmovement,omitempty"`
-	Retail        *RetailView        `json:"retail,omitempty" gorm:"foreignKey:RelatedID;references:ID"`
-	Purchaseorder *PurchaseorderView `json:"purchaseorder,omitempty" gorm:"foreignKey:RelatedID;references:ID"`
+	Product                    *ProductView                    `json:"product,omitempty"`
+	Vehicle                    *VehicleView                    `json:"vehicle,omitempty"`
+	Stockmovement              *StockmovementView              `json:"stockmovement,omitempty"`
+	Retail                     *RetailView                     `json:"retail,omitempty" gorm:"foreignKey:RelatedID;references:ID"`
+	Purchaseorder              *PurchaseorderView              `json:"purchaseorder,omitempty" gorm:"foreignKey:RelatedID;references:ID"`
+	Stockmovementvehiclephotos []StockmovementvehiclephotoView `json:"stockmovementvehiclephotos,omitempty" gorm:"foreignKey:StockmovementvehicleID"`
 }
 
 func (StockmovementvehicleView) TableName() string {
 	return VIEW_STOCKMOVEMENTVEHICLE
+}
+
+type StockmovementvehiclephotoView struct {
+	ID                     string         `json:"id"`
+	WarehouseID            string         `json:"sarehouseId"`
+	StockmovementvehicleID string         `json:"stockmovementvehicleId"`
+	PhotoID                string         `json:"photoId"`
+	PhotoUrl               string         `json:"photoUrl"`
+	CreateDt               time.Time      `json:"createDt"`
+	UpdateBy               string         `json:"updateBy"`
+	UpdateDt               time.Time      `json:"updateDt"`
+	DeleteDt               gorm.DeletedAt `json:"deleteDt"`
+	CreateName             string         `json:"createName"`
+	UpdateName             string         `json:"updateName"`
+
+	Warehouse            *WarehouseView            `json:"warehouse,omitempty"`
+	Stockmovementvehicle *StockmovementvehicleView `json:"stockmovementvehicle,omitempty"`
+}
+
+func (StockmovementvehiclephotoView) TableName() string {
+	return VIEW_STOCKMOVEMENTVEHICLEPHOTO
 }
 
 type InboundView struct {

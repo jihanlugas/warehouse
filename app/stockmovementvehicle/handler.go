@@ -1,6 +1,7 @@
 package stockmovementvehicle
 
 import (
+	"errors"
 	"fmt"
 	"github.com/jihanlugas/warehouse/jwt"
 	"github.com/jihanlugas/warehouse/request"
@@ -191,6 +192,59 @@ func (h Handler) GenerateDeliveryOrder(c echo.Context) error {
 
 	// Kirimkan PDF sebagai respons
 	return c.Blob(http.StatusOK, "application/pdf", pdfBytes)
+}
+
+// UploadPhoto
+// @Tags Stockmovementvehicle
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param req body request.CreateStockmovementvehiclephoto true "json req body"
+// @Success      200  {object}	response.Response
+// @Failure      500  {object}  response.Response
+// @Router /stockmovementvehicle/{id}/upload-photo [post]
+func (h Handler) UploadPhoto(c echo.Context) error {
+	var err error
+
+	loginUser, err := jwt.GetUserLoginInfo(c)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
+	}
+
+	req := new(request.CreateStockmovementvehiclephoto)
+	if err = c.Bind(req); err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerBind, err, nil).SendJSON(c)
+	}
+
+	req.Photo, err = c.FormFile("photo")
+	if err != nil && !errors.Is(err, http.ErrMissingFile) {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
+	}
+
+	req.PhotoChk = req.Photo != nil
+
+	//utils.TrimWhitespace(req)
+
+	err = c.Validate(req)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerFailedValidation, err, response.ValidationError(err)).SendJSON(c)
+	}
+
+	if jwt.IsSaveWarehouseIDOR(loginUser, req.WarehouseID) {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerIDOR, err, nil).SendJSON(c)
+	}
+
+	err = h.usecase.UploadPhoto(loginUser, id, *req)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
+	}
+
+	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
 }
 
 // CreatePurchaseorder

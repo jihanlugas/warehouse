@@ -7,6 +7,7 @@ import (
 	"github.com/jihanlugas/warehouse/app/customer"
 	"github.com/jihanlugas/warehouse/app/inbound"
 	"github.com/jihanlugas/warehouse/app/outbound"
+	"github.com/jihanlugas/warehouse/app/photo"
 	"github.com/jihanlugas/warehouse/app/product"
 	"github.com/jihanlugas/warehouse/app/purchaseorder"
 	"github.com/jihanlugas/warehouse/app/purchaseorderproduct"
@@ -17,6 +18,7 @@ import (
 	"github.com/jihanlugas/warehouse/app/stocklog"
 	"github.com/jihanlugas/warehouse/app/stockmovement"
 	"github.com/jihanlugas/warehouse/app/stockmovementvehicle"
+	"github.com/jihanlugas/warehouse/app/stockmovementvehiclephoto"
 	"github.com/jihanlugas/warehouse/app/transaction"
 	"github.com/jihanlugas/warehouse/app/user"
 	"github.com/jihanlugas/warehouse/app/userprivilege"
@@ -55,6 +57,8 @@ func Init() *echo.Echo {
 	stocklogRepository := stocklog.NewRepository()
 	stockmovementRepository := stockmovement.NewRepository()
 	stockmovementvehicleRepository := stockmovementvehicle.NewRepository()
+	stockmovementvehiclephotoRepository := stockmovementvehiclephoto.NewRepository()
+	photoRepository := photo.NewRepository()
 
 	// usecases
 	authUsecase := auth.NewUsecase(userRepository, warehouseRepository)
@@ -62,7 +66,7 @@ func Init() *echo.Echo {
 	warehouseUsecase := warehouse.NewUsecase(warehouseRepository)
 	transactionUsecase := transaction.NewUsecase(transactionRepository)
 	stocklogUsecase := stocklog.NewUsecase(stocklogRepository)
-	stockmovementvehicleUsecase := stockmovementvehicle.NewUsecase(stockmovementvehicleRepository, warehouseRepository, vehicleRepository, stockmovementRepository, stockRepository, stocklogRepository, purchaseorderRepository, retailRepository)
+	stockmovementvehicleUsecase := stockmovementvehicle.NewUsecase(stockmovementvehicleRepository, warehouseRepository, vehicleRepository, stockmovementRepository, stockRepository, stocklogRepository, purchaseorderRepository, retailRepository, stockmovementvehiclephotoRepository, photoRepository)
 	vehicleUsecase := vehicle.NewUsecase(vehicleRepository)
 	customerUsecase := customer.NewUsecase(customerRepository)
 	productUsecase := product.NewUsecase(productRepository)
@@ -89,6 +93,8 @@ func Init() *echo.Echo {
 	stockinHandler := stockin.NewHandler(stockinUsecase)
 
 	router := websiteRouter()
+
+	router.Static("/"+config.StorageDirectory, config.StorageDirectory)
 
 	if config.Debug {
 		router.GET("/", func(c echo.Context) error {
@@ -134,6 +140,7 @@ func Init() *echo.Echo {
 	routerStockmovementvehicle.DELETE("/:id", stockmovementvehicleHandler.Delete, checkTokenMiddleware)
 	routerStockmovementvehicle.GET("/:id/set-sent", stockmovementvehicleHandler.SetSent, checkTokenMiddleware)
 	routerStockmovementvehicle.GET("/:id/generate-delivery-order", stockmovementvehicleHandler.GenerateDeliveryOrder, checkTokenMiddleware)
+	routerStockmovementvehicle.POST("/:id/upload-photo", stockmovementvehicleHandler.UploadPhoto, checkTokenMiddleware)
 
 	routerStockmovementvehiclePurchaseorder := routerStockmovementvehicle.Group("/purchaseorder")
 	routerStockmovementvehiclePurchaseorder.POST("", stockmovementvehicleHandler.CreatePurchaseorder, checkTokenMiddleware)

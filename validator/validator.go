@@ -12,6 +12,8 @@ import (
 	"github.com/jihanlugas/warehouse/db"
 	"github.com/jihanlugas/warehouse/utils"
 	"gorm.io/gorm"
+	"mime/multipart"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"slices"
@@ -23,6 +25,7 @@ import (
 var (
 	Validate        *CustomValidator
 	regxPhoneNumber *regexp.Regexp
+	regxPhoto       *regexp.Regexp
 )
 
 type CustomValidator struct {
@@ -32,6 +35,7 @@ type CustomValidator struct {
 func init() {
 	Validate = NewValidator()
 	regxPhoneNumber = regexp.MustCompile(`((^\+?628\d{8,14}$)|(^0?8\d{8,14}$)){1}`)
+	regxPhoto = regexp.MustCompile(`(?i)^\.?(jpe?g|png|webp|)$`)
 }
 
 func (v *CustomValidator) Validate(i interface{}) error {
@@ -58,6 +62,7 @@ func NewValidator() *CustomValidator {
 	_ = validate.RegisterValidation("existsdata", existsDataOnDbTable)
 	_ = validate.RegisterValidation("phone_number", validPhoneNumber)
 	_ = validate.RegisterValidation("passwdComplex", checkPasswordComplexity)
+	_ = validate.RegisterValidation("photo", photoCheck, true)
 	_ = validate.RegisterValidation("base64PhotoCheck", base64PhotoCheck, true)
 
 	return &CustomValidator{
@@ -226,31 +231,33 @@ func base64PhotoCheck(fl validator.FieldLevel) bool {
 	return true
 }
 
-//func photoCheck(fl validator.FieldLevel) bool {
-//	if len(params) == 0 {
-//		return true
-//	}
-//	parentVal := fl.Parent()
-//	if parentVal.Kind() == reflect.Ptr {
-//		parentVal = reflect.Indirect(parentVal)
-//	}
-//	// field photo harus dengan tipe data: *multipart.FileHeader ( pointer )
-//	photoVal := parentVal.FieldByName(params[0])
-//	if photoVal.Kind() != reflect.Ptr {
-//		return false
-//	}
-//	if photoVal.IsZero() {
-//		return true
-//	}
-//	if f, ok := photoVal.Interface().(*multipart.FileHeader); !ok {
-//		return false
-//	} else {
-//		if !regExt.MatchString(filepath.Ext(f.Filename)) {
-//			return false
-//		}
-//		if f.Size > config.PhotoUploadMaxSizeByte {
-//			return false
-//		}
-//		return true
-//	}
-//}
+func photoCheck(fl validator.FieldLevel) bool {
+	params := strings.Fields(fl.Param())
+
+	if len(params) == 0 {
+		return true
+	}
+	parentVal := fl.Parent()
+	if parentVal.Kind() == reflect.Ptr {
+		parentVal = reflect.Indirect(parentVal)
+	}
+	// field photo harus dengan tipe data: *multipart.FileHeader ( pointer )
+	photoVal := parentVal.FieldByName(params[0])
+	if photoVal.Kind() != reflect.Ptr {
+		return false
+	}
+	if photoVal.IsZero() {
+		return true
+	}
+	if f, ok := photoVal.Interface().(*multipart.FileHeader); !ok {
+		return false
+	} else {
+		if !regxPhoto.MatchString(filepath.Ext(f.Filename)) {
+			return false
+		}
+		if f.Size > config.PhotoUploadMaxSizeByte {
+			return false
+		}
+		return true
+	}
+}

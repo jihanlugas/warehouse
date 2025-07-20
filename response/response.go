@@ -26,6 +26,7 @@ const (
 	ErrorHandlerGetUserInfo      = "bad request"
 	ErrorHandlerGetParam         = "invalid param"
 	ErrorHandlerBind             = "invalid request"
+	ErrorHandlerGetPhoto         = "unable to get the photo"
 
 	// Error Usecase
 	ErrorUsecaseBadRequest = "bad request"

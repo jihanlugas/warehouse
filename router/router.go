@@ -184,7 +184,7 @@ func Init() *echo.Echo {
 	routerUser.PUT("/:id", userHandler.Update, checkTokenMiddlewareAdmin)
 	routerUser.POST("/:id/privilege", userHandler.UpdateUserPrivilege, checkTokenMiddlewareAdmin)
 	routerUser.DELETE("/:id", userHandler.Delete, checkTokenMiddlewareAdmin)
-	routerUser.POST("/change-password", userHandler.Delete, checkTokenMiddleware)
+	routerUser.POST("/change-password", userHandler.ChangePassword, checkTokenMiddleware)
 
 	routerVehicle := router.Group("/vehicle", checkTokenMiddleware)
 	routerVehicle.GET("", vehicleHandler.Page)

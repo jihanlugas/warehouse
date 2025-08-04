@@ -122,6 +122,9 @@ func (r repository) Page(conn *gorm.DB, req request.PageStockmovementvehicle) (v
 	if req.Type != "" {
 		query = query.Where("type = ?", req.Type)
 	}
+	if req.Status != "" {
+		query = query.Where("status = ?", req.Status)
+	}
 	if req.StartSentGrossQuantity != nil {
 		query = query.Where("sent_gross_quantity >= ?", req.StartSentGrossQuantity)
 	}

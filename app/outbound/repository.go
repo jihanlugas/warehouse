@@ -61,6 +61,9 @@ func (r repository) Page(conn *gorm.DB, req request.PageOutbound) (vOutbounds []
 	if req.Remark != "" {
 		query = query.Where("remark ILIKE ?", "%"+req.Remark+"%")
 	}
+	if req.Status != "" {
+		query = query.Where("status = ?", req.Status)
+	}
 	if req.StartSentGrossQuantity != nil {
 		query = query.Where("sent_gross_quantity >= ?", req.StartSentGrossQuantity)
 	}

@@ -147,7 +147,7 @@ func (h Handler) Update(c echo.Context) error {
 	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
 }
 
-// SetRecived
+// SetUnloading
 // @Tags Inbound
 // @Security BearerAuth
 // @Accept json
@@ -155,8 +155,8 @@ func (h Handler) Update(c echo.Context) error {
 // @Param id path string true "ID"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /inbound/{id}/set-recived [get]
-func (h Handler) SetRecived(c echo.Context) error {
+// @Router /inbound/{id}/set-unloading [get]
+func (h Handler) SetUnloading(c echo.Context) error {
 	var err error
 
 	loginUser, err := jwt.GetUserLoginInfo(c)
@@ -169,7 +169,37 @@ func (h Handler) SetRecived(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
 	}
 
-	err = h.usecase.SetRecived(loginUser, id)
+	err = h.usecase.SetUnloading(loginUser, id)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
+	}
+
+	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
+}
+
+// SetComplete
+// @Tags Inbound
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "ID"
+// @Success      200  {object}	response.Response
+// @Failure      500  {object}  response.Response
+// @Router /inbound/{id}/set-cemplete [get]
+func (h Handler) SetComplete(c echo.Context) error {
+	var err error
+
+	loginUser, err := jwt.GetUserLoginInfo(c)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
+	}
+
+	err = h.usecase.SetComplete(loginUser, id)
 	if err != nil {
 		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
 	}

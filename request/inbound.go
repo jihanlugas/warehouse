@@ -33,6 +33,7 @@ type PageInbound struct {
 	VehicleID                 string     `json:"vehicleId" form:"vehicleId" query:"vehicleId"`
 	Type                      string     `json:"type" form:"type" query:"type"`
 	Remark                    string     `json:"remark" form:"remark" query:"remark"`
+	Status                    string     `json:"status" form:"status" query:"status"`
 	StartSentGrossQuantity    *float64   `json:"startSentGrossQuantity" form:"startSentGrossQuantity" query:"startSentGrossQuantity"`
 	StartSentTareQuantity     *float64   `json:"startSentTareQuantity" form:"startSentTareQuantity" query:"startSentTareQuantity"`
 	StartSentNetQuantity      *float64   `json:"startSentNetQuantity" form:"startSentNetQuantity" query:"startSentNetQuantity"`

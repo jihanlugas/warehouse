@@ -162,6 +162,7 @@ func (u usecase) SetSent(loginUser jwt.UserLogin, id string) error {
 		}
 	}
 
+	tStockmovementvehicle.Status = model.StockmovementvehicleStatusCompleted
 	tStockmovementvehicle.SentTime = &now
 	tStockmovementvehicle.UpdateBy = loginUser.UserID
 	err = u.stockmovementvehicleRepository.Save(tx, tStockmovementvehicle)
@@ -169,9 +170,8 @@ func (u usecase) SetSent(loginUser jwt.UserLogin, id string) error {
 		return errors.New(fmt.Sprintf("failed to update %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
-	CurrentQuantity := 0.0
-	if vStockmovementvehicle.SentNetQuantity != 0 {
-		CurrentQuantity = tStock.Quantity - vStockmovementvehicle.SentNetQuantity
+	if vStockmovementvehicle.SentNetQuantity != 0 && vStockmovementvehicle.StockmovementvehicleID == "" {
+		CurrentQuantity := tStock.Quantity - vStockmovementvehicle.SentNetQuantity
 		tStock.Quantity = CurrentQuantity
 		tStock.UpdateBy = loginUser.UserID
 		err = u.stockRepository.Save(tx, tStock)
@@ -232,11 +232,11 @@ func (u usecase) GenerateDeliveryOrder(loginUser jwt.UserLogin, id string) (pdfB
 	}
 
 	switch vStockmovementvehicle.Stockmovement.Type {
-	case model.StockMovementTypePurchaseOrder:
+	case model.StockmovementTypePurchaseOrder:
 		pdfBytes, err = u.generatePurchaseorderDeliveryOrder(vStockmovementvehicle)
-	case model.StockMovementTypeRetail:
+	case model.StockmovementTypeRetail:
 		pdfBytes, err = u.generateRetailDeliveryOrder(vStockmovementvehicle)
-	case model.StockMovementTypeTransfer:
+	case model.StockmovementTypeTransfer:
 		pdfBytes, err = u.generateTransferDeliveryOrder(vStockmovementvehicle)
 	default:
 		return pdfBytes, vStockmovementvehicle, errors.New("stockmovement type not recognized")
@@ -396,7 +396,7 @@ func (u usecase) CreatePurchaseorder(loginUser jwt.UserLogin, req request.Create
 				FromWarehouseID: vWarehouse.ID,
 				ProductID:       req.ProductID,
 				RelatedID:       req.PurchaseorderID,
-				Type:            model.StockMovementTypePurchaseOrder,
+				Type:            model.StockmovementTypePurchaseOrder,
 				UnitPrice:       vPurchaseorderproduct.UnitPrice,
 				Remark:          "",
 				CreateBy:        "",
@@ -445,14 +445,16 @@ func (u usecase) CreatePurchaseorder(loginUser jwt.UserLogin, req request.Create
 	}
 
 	tStockmovementvehicle = model.Stockmovementvehicle{
-		StockmovementID:   vStockmovement.ID,
-		ProductID:         req.ProductID,
-		VehicleID:         tVehicle.ID,
-		SentGrossQuantity: req.SentGrossQuantity,
-		SentTareQuantity:  req.SentTareQuantity,
-		SentNetQuantity:   req.SentNetQuantity,
-		CreateBy:          loginUser.UserID,
-		UpdateBy:          loginUser.UserID,
+		StockmovementID:        vStockmovement.ID,
+		ProductID:              req.ProductID,
+		VehicleID:              tVehicle.ID,
+		StockmovementvehicleID: req.StockmovementvehicleID,
+		SentGrossQuantity:      req.SentGrossQuantity,
+		SentTareQuantity:       req.SentTareQuantity,
+		SentNetQuantity:        req.SentNetQuantity,
+		Status:                 model.StockmovementvehicleStatusLoading,
+		CreateBy:               loginUser.UserID,
+		UpdateBy:               loginUser.UserID,
 	}
 	err = u.stockmovementvehicleRepository.Create(tx, tStockmovementvehicle)
 	if err != nil {
@@ -480,7 +482,7 @@ func (u usecase) UpdatePurchaseorder(loginUser jwt.UserLogin, id string, req req
 		return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
-	if vStockmovementvehicle.SentTime != nil {
+	if vStockmovementvehicle.Status != model.StockmovementvehicleStatusLoading {
 		return errors.New("this vehicle already sent")
 	}
 
@@ -564,7 +566,7 @@ func (u usecase) CreateRetail(loginUser jwt.UserLogin, req request.CreateStockmo
 				FromWarehouseID: vWarehouse.ID,
 				ProductID:       req.ProductID,
 				RelatedID:       req.RetailID,
-				Type:            model.StockMovementTypeRetail,
+				Type:            model.StockmovementTypeRetail,
 				UnitPrice:       vRetailproduct.UnitPrice,
 				Remark:          "",
 				CreateBy:        "",
@@ -613,14 +615,16 @@ func (u usecase) CreateRetail(loginUser jwt.UserLogin, req request.CreateStockmo
 	}
 
 	tStockmovementvehicle = model.Stockmovementvehicle{
-		StockmovementID:   vStockmovement.ID,
-		ProductID:         req.ProductID,
-		VehicleID:         tVehicle.ID,
-		SentGrossQuantity: req.SentGrossQuantity,
-		SentTareQuantity:  req.SentTareQuantity,
-		SentNetQuantity:   req.SentNetQuantity,
-		CreateBy:          loginUser.UserID,
-		UpdateBy:          loginUser.UserID,
+		StockmovementID:        vStockmovement.ID,
+		ProductID:              req.ProductID,
+		VehicleID:              tVehicle.ID,
+		StockmovementvehicleID: req.StockmovementvehicleID,
+		SentGrossQuantity:      req.SentGrossQuantity,
+		SentTareQuantity:       req.SentTareQuantity,
+		SentNetQuantity:        req.SentNetQuantity,
+		Status:                 model.StockmovementvehicleStatusLoading,
+		CreateBy:               loginUser.UserID,
+		UpdateBy:               loginUser.UserID,
 	}
 	err = u.stockmovementvehicleRepository.Create(tx, tStockmovementvehicle)
 	if err != nil {
@@ -648,7 +652,7 @@ func (u usecase) UpdateRetail(loginUser jwt.UserLogin, id string, req request.Up
 		return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
-	if vStockmovementvehicle.SentTime != nil {
+	if vStockmovementvehicle.Status != model.StockmovementvehicleStatusLoading {
 		return errors.New("this vehicle already sent")
 	}
 
@@ -698,7 +702,7 @@ func (u usecase) UploadPhoto(loginUser jwt.UserLogin, id string, req request.Cre
 	}
 
 	switch vStockmovementvehicle.Stockmovement.Type {
-	case model.StockMovementTypeTransfer:
+	case model.StockmovementTypeTransfer:
 		switch vStockmovementvehicle.Status {
 		case "LOADING":
 			if req.WarehouseID != vStockmovementvehicle.FromWarehouseID {
@@ -714,12 +718,12 @@ func (u usecase) UploadPhoto(loginUser jwt.UserLogin, id string, req request.Cre
 			return errors.New("unable to upload photo")
 		}
 		break
-	case model.StockMovementTypePurchaseOrder:
+	case model.StockmovementTypePurchaseOrder:
 		if vStockmovementvehicle.Status != "LOADING" && vStockmovementvehicle.FromWarehouseID != req.WarehouseID {
 			return errors.New("unable to upload photo")
 		}
 		break
-	case model.StockMovementTypeRetail:
+	case model.StockmovementTypeRetail:
 		if vStockmovementvehicle.Status != "LOADING" && vStockmovementvehicle.FromWarehouseID != req.WarehouseID {
 			return errors.New("unable to upload photo")
 		}

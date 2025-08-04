@@ -7,12 +7,13 @@ import (
 
 type PhotoRef string
 type UserRole string
-type StockMovementType string
+type StockmovementType string
 type StockLogType string
 type TransactionType string
 type TransactionRelatedType string
 type RetailStatus string
 type PurchaseorderStatus string
+type StockmovementvehicleStatus string
 
 type TransactionStatus string
 
@@ -26,10 +27,10 @@ const (
 )
 
 const (
-	StockMovementTypeTransfer      StockMovementType = "TRANSFER"
-	StockMovementTypeIn            StockMovementType = "IN"
-	StockMovementTypePurchaseOrder StockMovementType = "PURCHASE_ORDER"
-	StockMovementTypeRetail        StockMovementType = "RETAIL"
+	StockmovementTypeTransfer      StockmovementType = "TRANSFER"
+	StockmovementTypeIn            StockmovementType = "IN"
+	StockmovementTypePurchaseOrder StockmovementType = "PURCHASE_ORDER"
+	StockmovementTypeRetail        StockmovementType = "RETAIL"
 )
 
 const (
@@ -51,9 +52,16 @@ const (
 	RetailStatusOpen  RetailStatus = "OPEN"
 	RetailStatusClose RetailStatus = "CLOSE"
 )
+
 const (
 	PurchaseorderStatusOpen  PurchaseorderStatus = "OPEN"
 	PurchaseorderStatusClose PurchaseorderStatus = "CLOSE"
+)
+const (
+	StockmovementvehicleStatusLoading   StockmovementvehicleStatus = "LOADING"
+	StockmovementvehicleStatusInTransit StockmovementvehicleStatus = "IN TRANSIT"
+	StockmovementvehicleStatusUnloading StockmovementvehicleStatus = "UNLOADING"
+	StockmovementvehicleStatusCompleted StockmovementvehicleStatus = "COMPLETED"
 )
 
 type Photo struct {
@@ -286,7 +294,7 @@ type Stockmovement struct {
 	ToWarehouseID   string            `gorm:"not null"`
 	ProductID       string            `gorm:"not null"`
 	RelatedID       string            `gorm:"not null"`
-	Type            StockMovementType `gorm:"not null"`
+	Type            StockmovementType `gorm:"not null"`
 	UnitPrice       float64           `gorm:"not null"`
 	Remark          string            `gorm:"not null"`
 	CreateBy        string            `gorm:"not null"`
@@ -297,24 +305,27 @@ type Stockmovement struct {
 }
 
 type Stockmovementvehicle struct {
-	ID                   string         `gorm:"primaryKey"`
-	StockmovementID      string         `gorm:"not null"`
-	ProductID            string         `gorm:"not null"`
-	VehicleID            string         `gorm:"not null"`
-	SentGrossQuantity    float64        `gorm:"not null"`
-	SentTareQuantity     float64        `gorm:"not null"`
-	SentNetQuantity      float64        `gorm:"not null"`
-	SentTime             *time.Time     `gorm:"null"`
-	RecivedGrossQuantity float64        `gorm:"not null"`
-	RecivedTareQuantity  float64        `gorm:"not null"`
-	RecivedNetQuantity   float64        `gorm:"not null"`
-	RecivedTime          *time.Time     `gorm:"null"`
-	Number               string         `gorm:"not null"`
-	CreateBy             string         `gorm:"not null"`
-	CreateDt             time.Time      `gorm:"not null"`
-	UpdateBy             string         `gorm:"not null"`
-	UpdateDt             time.Time      `gorm:"not null"`
-	DeleteDt             gorm.DeletedAt `gorm:"null"`
+	ID                     string                     `gorm:"primaryKey"`
+	StockmovementID        string                     `gorm:"not null"`
+	ProductID              string                     `gorm:"not null"`
+	VehicleID              string                     `gorm:"not null"`
+	StockmovementvehicleID string                     `gorm:"not null"`
+	SentGrossQuantity      float64                    `gorm:"not null"`
+	SentTareQuantity       float64                    `gorm:"not null"`
+	SentNetQuantity        float64                    `gorm:"not null"`
+	SentTime               *time.Time                 `gorm:"null"`
+	RecivedGrossQuantity   float64                    `gorm:"not null"`
+	RecivedTareQuantity    float64                    `gorm:"not null"`
+	RecivedNetQuantity     float64                    `gorm:"not null"`
+	RecivedTime            *time.Time                 `gorm:"null"`
+	Shrinkage              float64                    `gorm:"not null"`
+	Number                 string                     `gorm:"not null"`
+	Status                 StockmovementvehicleStatus `gorm:"not null"`
+	CreateBy               string                     `gorm:"not null"`
+	CreateDt               time.Time                  `gorm:"not null"`
+	UpdateBy               string                     `gorm:"not null"`
+	UpdateDt               time.Time                  `gorm:"not null"`
+	DeleteDt               gorm.DeletedAt             `gorm:"null"`
 }
 
 type Stockmovementvehiclephoto struct {

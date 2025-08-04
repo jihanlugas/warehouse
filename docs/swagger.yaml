@@ -7,7 +7,7 @@ definitions:
     x-enum-varnames:
     - StockLogTypeIn
     - StockLogTypeOut
-  model.StockMovementType:
+  model.StockmovementType:
     enum:
     - TRANSFER
     - IN
@@ -15,10 +15,10 @@ definitions:
     - RETAIL
     type: string
     x-enum-varnames:
-    - StockMovementTypeTransfer
-    - StockMovementTypeIn
-    - StockMovementTypePurchaseOrder
-    - StockMovementTypeRetail
+    - StockmovementTypeTransfer
+    - StockmovementTypeIn
+    - StockmovementTypePurchaseOrder
+    - StockmovementTypeRetail
   request.ChangePassword:
     properties:
       confirmPasswd:
@@ -2209,10 +2209,10 @@ paths:
         name: type
         type: string
         x-enum-varnames:
-        - StockMovementTypeTransfer
-        - StockMovementTypeIn
-        - StockMovementTypePurchaseOrder
-        - StockMovementTypeRetail
+        - StockmovementTypeTransfer
+        - StockmovementTypeIn
+        - StockmovementTypePurchaseOrder
+        - StockmovementTypeRetail
       - in: query
         name: vehicleId
         type: string

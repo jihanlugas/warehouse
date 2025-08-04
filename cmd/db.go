@@ -431,17 +431,6 @@ func dbUpView() {
 	vStockmovementvehicle := conn.Model(&model.Stockmovementvehicle{}).Unscoped().
 		Select([]string{
 			"stockmovementvehicles.*, stockmovements.from_warehouse_id, stockmovements.to_warehouse_id, stockmovements.related_id, stockmovements.type, stockmovements.unit_price",
-			"CASE WHEN stockmovementvehicles.recived_time IS NOT NULL THEN stockmovementvehicles.sent_net_quantity - stockmovementvehicles.recived_net_quantity ELSE NULL END AS shrinkage",
-			"CASE " +
-				"WHEN stockmovements.type = 'TRANSFER' AND stockmovementvehicles.sent_time IS NULL THEN 'LOADING' " +
-				"WHEN stockmovements.type = 'TRANSFER' AND stockmovementvehicles.sent_time IS NOT NULL AND stockmovementvehicles.recived_time IS NULL AND stockmovementvehicles.recived_gross_quantity = 0 THEN 'IN TRANSIT' " +
-				"WHEN stockmovements.type = 'TRANSFER' AND stockmovementvehicles.sent_time IS NOT NULL AND stockmovementvehicles.recived_time IS NULL AND stockmovementvehicles.recived_gross_quantity != 0 THEN 'UNLOADING' " +
-				"WHEN stockmovements.type = 'TRANSFER' AND stockmovementvehicles.sent_time IS NOT NULL AND stockmovementvehicles.recived_time IS NOT NULL THEN 'COMPLETED' " +
-				"WHEN stockmovements.type = 'PURCHASE_ORDER' AND stockmovementvehicles.sent_time IS NULL THEN 'LOADING' " +
-				"WHEN stockmovements.type = 'PURCHASE_ORDER' AND stockmovementvehicles.sent_time IS NOT NULL THEN 'COMPLETED' " +
-				"WHEN stockmovements.type = 'RETAIL' AND stockmovementvehicles.sent_time IS NULL THEN 'LOADING' " +
-				"WHEN stockmovements.type = 'RETAIL' AND stockmovementvehicles.sent_time IS NOT NULL THEN 'COMPLETED' " +
-				"ELSE '' END AS status",
 			"u1.fullname as create_name, u2.fullname as update_name",
 		}).
 		Joins("left join stockmovements on stockmovements.id = stockmovementvehicles.stockmovement_id").
@@ -479,19 +468,12 @@ func dbUpView() {
 	vInbound := conn.Model(&model.Stockmovementvehicle{}).Unscoped().
 		Select([]string{
 			"stockmovementvehicles.*, stockmovements.to_warehouse_id as warehouse_id, stockmovements.type, stockmovements.remark",
-			"CASE WHEN stockmovementvehicles.recived_time IS NOT NULL THEN stockmovementvehicles.sent_net_quantity - stockmovementvehicles.recived_net_quantity ELSE NULL END AS shrinkage",
-			"CASE " +
-				"WHEN stockmovementvehicles.sent_time IS NULL THEN 'LOADING' " +
-				"WHEN stockmovementvehicles.sent_time IS NOT NULL AND stockmovementvehicles.recived_time IS NULL AND stockmovementvehicles.recived_gross_quantity = 0 THEN 'IN TRANSIT' " +
-				"WHEN stockmovementvehicles.sent_time IS NOT NULL AND stockmovementvehicles.recived_time IS NULL AND stockmovementvehicles.recived_gross_quantity != 0 THEN 'UNLOADING' " +
-				"WHEN stockmovementvehicles.sent_time IS NOT NULL AND stockmovementvehicles.recived_time IS NOT NULL THEN 'COMPLETED' " +
-				"ELSE '' END AS status",
 			"u1.fullname as create_name, u2.fullname as update_name",
 		}).
 		Joins("join stockmovements stockmovements on stockmovements.id = stockmovementvehicles.stockmovement_id").
 		Joins("left join users u1 on u1.id = stockmovementvehicles.create_by").
 		Joins("left join users u2 on u2.id = stockmovementvehicles.update_by").
-		Where("stockmovements.type = ?", model.StockMovementTypeTransfer).
+		Where("stockmovements.type = ?", model.StockmovementTypeTransfer).
 		Where("stockmovementvehicles.sent_time IS NOT NULL")
 	err = conn.Migrator().CreateView(model.VIEW_INBOUND, gorm.ViewOption{
 		Replace: true,
@@ -508,19 +490,12 @@ func dbUpView() {
 	vOutbound := conn.Model(&model.Stockmovementvehicle{}).Unscoped().
 		Select([]string{
 			"stockmovementvehicles.*, stockmovements.from_warehouse_id as warehouse_id, stockmovements.type, stockmovements.remark",
-			"CASE WHEN stockmovementvehicles.recived_time IS NOT NULL THEN stockmovementvehicles.sent_net_quantity - stockmovementvehicles.recived_net_quantity ELSE NULL END AS shrinkage",
-			"CASE " +
-				"WHEN stockmovementvehicles.sent_time IS NULL THEN 'LOADING' " +
-				"WHEN stockmovementvehicles.sent_time IS NOT NULL AND stockmovementvehicles.recived_time IS NULL AND stockmovementvehicles.recived_gross_quantity = 0 THEN 'IN TRANSIT' " +
-				"WHEN stockmovementvehicles.sent_time IS NOT NULL AND stockmovementvehicles.recived_time IS NULL AND stockmovementvehicles.recived_gross_quantity != 0 THEN 'UNLOADING' " +
-				"WHEN stockmovementvehicles.sent_time IS NOT NULL AND stockmovementvehicles.recived_time IS NOT NULL THEN 'COMPLETED' " +
-				"ELSE '' END AS status",
 			"u1.fullname as create_name, u2.fullname as update_name",
 		}).
 		Joins("join stockmovements stockmovements on stockmovements.id = stockmovementvehicles.stockmovement_id").
 		Joins("left join users u1 on u1.id = stockmovementvehicles.create_by").
 		Joins("left join users u2 on u2.id = stockmovementvehicles.update_by").
-		Where("stockmovements.type = ?", model.StockMovementTypeTransfer)
+		Where("stockmovements.type = ?", model.StockmovementTypeTransfer)
 	err = conn.Migrator().CreateView(model.VIEW_OUTBOUND, gorm.ViewOption{
 		Replace: true,
 		Query:   vOutbound,
@@ -538,7 +513,7 @@ func dbUpView() {
 		Joins("join stocklogs stocklogs on stocklogs.stockmovement_id = stockmovements.id").
 		Joins("left join users u1 on u1.id = stockmovements.create_by").
 		Joins("left join users u2 on u2.id = stockmovements.update_by").
-		Where("stockmovements.type = ?", model.StockMovementTypeIn)
+		Where("stockmovements.type = ?", model.StockmovementTypeIn)
 	err = conn.Migrator().CreateView(model.VIEW_STOCKIN, gorm.ViewOption{
 		Replace: true,
 		Query:   vStockin,

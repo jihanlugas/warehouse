@@ -27,7 +27,8 @@ type Usecase interface {
 	Page(loginUser jwt.UserLogin, req request.PageInbound) (vInbounds []model.InboundView, count int64, err error)
 	GetById(loginUser jwt.UserLogin, id string, preloads ...string) (vInbound model.InboundView, err error)
 	Update(loginUser jwt.UserLogin, id string, req request.UpdateInbound) error
-	SetRecived(loginUser jwt.UserLogin, id string) error
+	SetUnloading(loginUser jwt.UserLogin, id string) error
+	SetComplete(loginUser jwt.UserLogin, id string) error
 	GenerateDeliveryRecipt(loginUser jwt.UserLogin, id string) (pdfBytes []byte, vInbound model.InboundView, err error)
 }
 
@@ -77,7 +78,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateIn
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	vInbound, err = u.inboundRepository.GetViewById(conn, id, "Warehouse", "Stockmovement")
+	vInbound, err = u.inboundRepository.GetViewById(conn, id, "Warehouse", "Stockmovement", "Stockmovementvehicles")
 	if err != nil {
 		return errors.New(fmt.Sprintf("failed to get %s: %v", u.inboundRepository.Name(), err))
 	}
@@ -97,15 +98,20 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateIn
 
 	tx := conn.Begin()
 
-	if tStockmovementvehicle.RecivedTime != nil {
+	if tStockmovementvehicle.Status != model.StockmovementvehicleStatusUnloading {
 		return errors.New("unable to update data")
+	}
+
+	directQuantity := 0.0
+	for _, direct := range vInbound.Stockmovementvehicles {
+		directQuantity = directQuantity + direct.SentNetQuantity
 	}
 
 	tStockmovementvehicle.RecivedGrossQuantity = req.RecivedGrossQuantity
 	tStockmovementvehicle.RecivedTareQuantity = req.RecivedTareQuantity
 	tStockmovementvehicle.RecivedNetQuantity = req.RecivedNetQuantity
+	tStockmovementvehicle.Shrinkage = tStockmovementvehicle.SentNetQuantity - tStockmovementvehicle.RecivedNetQuantity - directQuantity
 	tStockmovementvehicle.UpdateBy = loginUser.UserID
-
 	err = u.stockmovementvehicleRepository.Save(tx, tStockmovementvehicle)
 	if err != nil {
 		return errors.New(fmt.Sprintf("failed to update %s: %v", u.stockmovementvehicleRepository.Name(), err))
@@ -119,11 +125,10 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateIn
 	return err
 }
 
-func (u usecase) SetRecived(loginUser jwt.UserLogin, id string) error {
+func (u usecase) SetUnloading(loginUser jwt.UserLogin, id string) error {
 	var err error
+
 	var vInbound model.InboundView
-	var tStock model.Stock
-	var tStocklog model.Stocklog
 	var tStockmovementvehicle model.Stockmovementvehicle
 
 	now := time.Now()
@@ -131,7 +136,53 @@ func (u usecase) SetRecived(loginUser jwt.UserLogin, id string) error {
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	vInbound, err = u.inboundRepository.GetViewById(conn, id, "Warehouse", "Stockmovement")
+	vInbound, err = u.inboundRepository.GetViewById(conn, id, "Warehouse", "Stockmovement", "Stockmovementvehicles")
+	if err != nil {
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.inboundRepository.Name(), err))
+	}
+
+	if vInbound.Warehouse != nil && !vInbound.Warehouse.IsInbound {
+		return errors.New(fmt.Sprint("this warehouse is not allowed to update inbound"))
+	}
+
+	if vInbound.Status != model.StockmovementvehicleStatusInTransit {
+		return errors.New(fmt.Sprintf("unable to set UNLOADING status when the status %s", vInbound.Status))
+	}
+
+	tStockmovementvehicle, err = u.stockmovementvehicleRepository.GetTableById(conn, id)
+	if err != nil {
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementvehicleRepository.Name(), err))
+	}
+
+	tx := conn.Begin()
+
+	tStockmovementvehicle.Status = model.StockmovementvehicleStatusUnloading
+	tStockmovementvehicle.UpdateBy = loginUser.UserID
+	tStockmovementvehicle.RecivedTime = &now
+	err = u.stockmovementvehicleRepository.Save(tx, tStockmovementvehicle)
+	if err != nil {
+		return errors.New(fmt.Sprintf("failed to update %s: %v", u.stockmovementvehicleRepository.Name(), err))
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (u usecase) SetComplete(loginUser jwt.UserLogin, id string) error {
+	var err error
+	var vInbound model.InboundView
+	var tStock model.Stock
+	var tStocklog model.Stocklog
+	var tStockmovementvehicle model.Stockmovementvehicle
+
+	conn, closeConn := db.GetConnection()
+	defer closeConn()
+
+	vInbound, err = u.inboundRepository.GetViewById(conn, id, "Warehouse", "Stockmovement", "Stockmovementvehicles")
 	if err != nil {
 		return errors.New(fmt.Sprintf("failed to get %s: %v", u.inboundRepository.Name(), err))
 	}
@@ -151,11 +202,13 @@ func (u usecase) SetRecived(loginUser jwt.UserLogin, id string) error {
 
 	tx := conn.Begin()
 
-	if tStockmovementvehicle.RecivedTime != nil {
-		return errors.New("unable to update data")
+	directQuantity := 0.0
+	for _, direct := range vInbound.Stockmovementvehicles {
+		if direct.Status == model.StockmovementvehicleStatusLoading {
+			return errors.New("another transfer still loading")
+		}
+		directQuantity = directQuantity + direct.SentNetQuantity
 	}
-
-	tStockmovementvehicle.UpdateBy = loginUser.UserID
 
 	tStock, err = u.stockRepository.GetTableByWarehouseIdAndProductId(tx, vInbound.WarehouseID, vInbound.ProductID)
 	if err != nil {
@@ -183,7 +236,6 @@ func (u usecase) SetRecived(loginUser jwt.UserLogin, id string) error {
 	if tStockmovementvehicle.RecivedNetQuantity != tStockmovementvehicle.RecivedGrossQuantity-tStockmovementvehicle.RecivedTareQuantity {
 		return errors.New(fmt.Sprint("failed to update stockmovementvehicle: weight dosent match"))
 	}
-	tStockmovementvehicle.RecivedTime = &now
 
 	CurrentQuantity := 0.0
 	CurrentQuantity = tStock.Quantity + tStockmovementvehicle.RecivedNetQuantity
@@ -214,59 +266,62 @@ func (u usecase) SetRecived(loginUser jwt.UserLogin, id string) error {
 		return errors.New(fmt.Sprintf("failed to create %s: %v", u.stocklogRepository.Name(), err))
 	}
 
-	// process from warehouse data if from warehouse only have gross data
-	if tStockmovementvehicle.SentNetQuantity == 0 {
-		tStockmovementvehicle.SentTareQuantity = tStockmovementvehicle.RecivedTareQuantity
-		tStockmovementvehicle.SentNetQuantity = tStockmovementvehicle.SentGrossQuantity - tStockmovementvehicle.SentTareQuantity
+	//// process from warehouse data if from warehouse only have gross data
+	//if tStockmovementvehicle.SentNetQuantity == 0 {
+	//	tStockmovementvehicle.SentTareQuantity = tStockmovementvehicle.RecivedTareQuantity
+	//	tStockmovementvehicle.SentNetQuantity = tStockmovementvehicle.SentGrossQuantity - tStockmovementvehicle.SentTareQuantity
+	//
+	//	tFromStock, err := u.stockRepository.GetTableByWarehouseIdAndProductId(tx, vInbound.Stockmovement.FromWarehouseID, vInbound.ProductID)
+	//	if err != nil {
+	//		if !errors.Is(err, gorm.ErrRecordNotFound) {
+	//			return errors.New(fmt.Sprint("failed to get from stock: ", err))
+	//		}
+	//		tFromStock = model.Stock{
+	//			ID:          utils.GetUniqueID(),
+	//			WarehouseID: vInbound.Stockmovement.FromWarehouseID,
+	//			ProductID:   vInbound.ProductID,
+	//			Quantity:    0,
+	//			CreateBy:    loginUser.UserID,
+	//			UpdateBy:    loginUser.UserID,
+	//		}
+	//		err = u.stockRepository.Save(tx, tFromStock)
+	//		if err != nil {
+	//			return errors.New(fmt.Sprintf("failed to create %s: %v", u.stockRepository.Name(), err))
+	//		}
+	//	}
+	//
+	//	FromCurrentQuantity := tFromStock.Quantity - tStockmovementvehicle.SentNetQuantity
+	//	tFromStock.Quantity = FromCurrentQuantity
+	//	tFromStock.UpdateBy = loginUser.UserID
+	//	err = u.stockRepository.Save(tx, tStock)
+	//	if err != nil {
+	//		return errors.New(fmt.Sprint("failed to update from stock: ", err))
+	//	}
+	//
+	//	tStocklog = model.Stocklog{
+	//		WarehouseID:            tFromStock.WarehouseID,
+	//		StockID:                tFromStock.ID,
+	//		StockmovementID:        vInbound.StockmovementID,
+	//		StockmovementvehicleID: vInbound.ID,
+	//		ProductID:              vInbound.ProductID,
+	//		VehicleID:              vInbound.VehicleID,
+	//		Type:                   model.StockLogTypeOut,
+	//		GrossQuantity:          tStockmovementvehicle.SentGrossQuantity,
+	//		TareQuantity:           tStockmovementvehicle.SentTareQuantity,
+	//		NetQuantity:            tStockmovementvehicle.SentNetQuantity,
+	//		CurrentQuantity:        FromCurrentQuantity,
+	//		CreateBy:               loginUser.UserID,
+	//		UpdateBy:               loginUser.UserID,
+	//	}
+	//	err = u.stocklogRepository.Create(tx, tStocklog)
+	//	if err != nil {
+	//		return errors.New(fmt.Sprint("failed to create from stocklog: ", err))
+	//	}
+	//}
 
-		tFromStock, err := u.stockRepository.GetTableByWarehouseIdAndProductId(tx, vInbound.Stockmovement.FromWarehouseID, vInbound.ProductID)
-		if err != nil {
-			if !errors.Is(err, gorm.ErrRecordNotFound) {
-				return errors.New(fmt.Sprint("failed to get from stock: ", err))
-			}
-			tFromStock = model.Stock{
-				ID:          utils.GetUniqueID(),
-				WarehouseID: vInbound.Stockmovement.FromWarehouseID,
-				ProductID:   vInbound.ProductID,
-				Quantity:    0,
-				CreateBy:    loginUser.UserID,
-				UpdateBy:    loginUser.UserID,
-			}
-			err = u.stockRepository.Save(tx, tFromStock)
-			if err != nil {
-				return errors.New(fmt.Sprintf("failed to create %s: %v", u.stockRepository.Name(), err))
-			}
-		}
-
-		FromCurrentQuantity := tFromStock.Quantity - tStockmovementvehicle.SentNetQuantity
-		tFromStock.Quantity = FromCurrentQuantity
-		tFromStock.UpdateBy = loginUser.UserID
-		err = u.stockRepository.Save(tx, tStock)
-		if err != nil {
-			return errors.New(fmt.Sprint("failed to update from stock: ", err))
-		}
-
-		tStocklog = model.Stocklog{
-			WarehouseID:            tFromStock.WarehouseID,
-			StockID:                tFromStock.ID,
-			StockmovementID:        vInbound.StockmovementID,
-			StockmovementvehicleID: vInbound.ID,
-			ProductID:              vInbound.ProductID,
-			VehicleID:              vInbound.VehicleID,
-			Type:                   model.StockLogTypeOut,
-			GrossQuantity:          tStockmovementvehicle.SentGrossQuantity,
-			TareQuantity:           tStockmovementvehicle.SentTareQuantity,
-			NetQuantity:            tStockmovementvehicle.SentNetQuantity,
-			CurrentQuantity:        FromCurrentQuantity,
-			CreateBy:               loginUser.UserID,
-			UpdateBy:               loginUser.UserID,
-		}
-		err = u.stocklogRepository.Create(tx, tStocklog)
-		if err != nil {
-			return errors.New(fmt.Sprint("failed to create from stocklog: ", err))
-		}
-	}
-
+	tStockmovementvehicle.Shrinkage = tStockmovementvehicle.SentNetQuantity - tStockmovementvehicle.RecivedNetQuantity - directQuantity
+	tStockmovementvehicle.UpdateBy = loginUser.UserID
+	tStockmovementvehicle.Status = model.StockmovementvehicleStatusCompleted
 	err = u.stockmovementvehicleRepository.Save(tx, tStockmovementvehicle)
 	if err != nil {
 		return errors.New(fmt.Sprintf("failed to update %s: %v", u.stockmovementvehicleRepository.Name(), err))

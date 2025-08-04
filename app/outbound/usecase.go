@@ -120,7 +120,7 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateOutbound) err
 		FromWarehouseID: req.FromWarehouseID,
 		ToWarehouseID:   req.ToWarehouseID,
 		ProductID:       req.ProductID,
-		Type:            model.StockMovementTypeTransfer,
+		Type:            model.StockmovementTypeTransfer,
 		Remark:          req.Remark,
 		CreateBy:        loginUser.UserID,
 		UpdateBy:        loginUser.UserID,
@@ -131,14 +131,16 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateOutbound) err
 	}
 
 	tStockmovementvehicle = model.Stockmovementvehicle{
-		StockmovementID:   tStockmovement.ID,
-		ProductID:         req.ProductID,
-		VehicleID:         tVehicle.ID,
-		SentGrossQuantity: req.SentGrossQuantity,
-		SentTareQuantity:  req.SentTareQuantity,
-		SentNetQuantity:   req.SentNetQuantity,
-		CreateBy:          loginUser.UserID,
-		UpdateBy:          loginUser.UserID,
+		StockmovementID:        tStockmovement.ID,
+		ProductID:              req.ProductID,
+		VehicleID:              tVehicle.ID,
+		StockmovementvehicleID: req.StockmovementvehicleID,
+		SentGrossQuantity:      req.SentGrossQuantity,
+		SentTareQuantity:       req.SentTareQuantity,
+		SentNetQuantity:        req.SentNetQuantity,
+		Status:                 model.StockmovementvehicleStatusLoading,
+		CreateBy:               loginUser.UserID,
+		UpdateBy:               loginUser.UserID,
 	}
 	err = u.stockmovementvehicleRepository.Create(tx, tStockmovementvehicle)
 	if err != nil {
@@ -217,7 +219,7 @@ func (u usecase) SetSent(loginUser jwt.UserLogin, id string) error {
 		return errors.New(fmt.Sprintf("failed to get %s: %v", u.outboundRepository.Name(), err))
 	}
 
-	if vOutbound.SentTime != nil {
+	if vOutbound.Status != model.StockmovementvehicleStatusLoading {
 		return errors.New("this vehicle already sent")
 	}
 
@@ -257,15 +259,16 @@ func (u usecase) SetSent(loginUser jwt.UserLogin, id string) error {
 	}
 
 	tStockmovementvehicle.SentTime = &now
+	tStockmovementvehicle.Status = model.StockmovementvehicleStatusInTransit
 	tStockmovementvehicle.UpdateBy = loginUser.UserID
 	err = u.stockmovementvehicleRepository.Save(tx, tStockmovementvehicle)
 	if err != nil {
 		return errors.New(fmt.Sprintf("failed to update %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
-	CurrentQuantity := 0.0
-	if vOutbound.SentNetQuantity != 0 {
-		CurrentQuantity = tStock.Quantity - vOutbound.SentNetQuantity
+	// update stock on warehouse if transfer source from warehouse
+	if vOutbound.SentNetQuantity != 0 && vOutbound.StockmovementvehicleID == "" {
+		CurrentQuantity := tStock.Quantity - vOutbound.SentNetQuantity
 		tStock.Quantity = CurrentQuantity
 		tStock.UpdateBy = loginUser.UserID
 		err = u.stockRepository.Save(tx, tStock)

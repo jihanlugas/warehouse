@@ -102,7 +102,7 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateStockin) erro
 		ID:            utils.GetUniqueID(),
 		ToWarehouseID: req.WarehouseID,
 		ProductID:     req.ProductID,
-		Type:          model.StockMovementTypeIn,
+		Type:          model.StockmovementTypeIn,
 		Remark:        req.Remark,
 		CreateBy:      loginUser.UserID,
 		UpdateBy:      loginUser.UserID,

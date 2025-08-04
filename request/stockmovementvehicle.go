@@ -6,19 +6,21 @@ import (
 )
 
 type CreateStockmovementvehiclePurchaseorder struct {
-	FromWarehouseID     string  `json:"fromWarehouseId" form:"fromWarehouseId" query:"fromWarehouseId" validate:"required"`
-	PurchaseorderID     string  `json:"purchaseorderId" form:"purchaseorderId" query:"purchaseorderId" validate:"required"`
-	ProductID           string  `json:"productId" form:"productId" query:"productId" validate:"required"`
-	IsNewVehiclerdriver bool    `json:"isNewVehiclerdriver" from:"isNewVehiclerdriver" query:"isNewVehiclerdriver" validate:""`
-	PlateNumber         string  `json:"plateNumber" from:"plateNumber" query:"plateNumber" validate:""`
-	VehicleID           string  `json:"vehicleId" form:"vehicleId" query:"vehicleId" validate:""`
-	VehicleName         string  `json:"vehicleName" from:"vehicleName" query:"vehicleName" validate:""`
-	NIK                 string  `json:"nik" from:"nik" query:"nik" validate:""`
-	DriverName          string  `json:"driverName" from:"driverName" query:"driverName" validate:""`
-	PhoneNumber         string  `json:"phoneNumber" from:"phoneNumber" query:"phoneNumber" validate:""`
-	SentGrossQuantity   float64 `json:"sentGrossQuantity" form:"sentGrossQuantity" query:"sentGrossQuantity" validate:""`
-	SentTareQuantity    float64 `json:"sentTareQuantity" form:"sentTareQuantity" query:"sentTareQuantity" validate:""`
-	SentNetQuantity     float64 `json:"sentNetQuantity" form:"sentNetQuantity" query:"sentNetQuantity" validate:""`
+	IsDirect               bool    `json:"isDirect" from:"isDirect" query:"isDirect" validate:""`
+	FromWarehouseID        string  `json:"fromWarehouseId" form:"fromWarehouseId" query:"fromWarehouseId" validate:"required"`
+	PurchaseorderID        string  `json:"purchaseorderId" form:"purchaseorderId" query:"purchaseorderId" validate:"required"`
+	ProductID              string  `json:"productId" form:"productId" query:"productId" validate:"required"`
+	StockmovementvehicleID string  `json:"stockmovementvehicleId" form:"stockmovementvehicleId" query:"stockmovementvehicleId" validate:""`
+	IsNewVehiclerdriver    bool    `json:"isNewVehiclerdriver" from:"isNewVehiclerdriver" query:"isNewVehiclerdriver" validate:""`
+	PlateNumber            string  `json:"plateNumber" from:"plateNumber" query:"plateNumber" validate:""`
+	VehicleID              string  `json:"vehicleId" form:"vehicleId" query:"vehicleId" validate:""`
+	VehicleName            string  `json:"vehicleName" from:"vehicleName" query:"vehicleName" validate:""`
+	NIK                    string  `json:"nik" from:"nik" query:"nik" validate:""`
+	DriverName             string  `json:"driverName" from:"driverName" query:"driverName" validate:""`
+	PhoneNumber            string  `json:"phoneNumber" from:"phoneNumber" query:"phoneNumber" validate:""`
+	SentGrossQuantity      float64 `json:"sentGrossQuantity" form:"sentGrossQuantity" query:"sentGrossQuantity" validate:""`
+	SentTareQuantity       float64 `json:"sentTareQuantity" form:"sentTareQuantity" query:"sentTareQuantity" validate:""`
+	SentNetQuantity        float64 `json:"sentNetQuantity" form:"sentNetQuantity" query:"sentNetQuantity" validate:""`
 }
 
 type UpdateStockmovementvehiclePurchaseorder struct {
@@ -28,19 +30,21 @@ type UpdateStockmovementvehiclePurchaseorder struct {
 }
 
 type CreateStockmovementvehicleRetail struct {
-	FromWarehouseID     string  `json:"fromWarehouseId" form:"fromWarehouseId" query:"fromWarehouseId" validate:"required"`
-	RetailID            string  `json:"retailId" form:"retailId" query:"retailId" validate:"required"`
-	ProductID           string  `json:"productId" form:"productId" query:"productId" validate:"required"`
-	IsNewVehiclerdriver bool    `json:"isNewVehiclerdriver" from:"isNewVehiclerdriver" query:"isNewVehiclerdriver" validate:""`
-	PlateNumber         string  `json:"plateNumber" from:"plateNumber" query:"plateNumber" validate:""`
-	VehicleID           string  `json:"vehicleId" form:"vehicleId" query:"vehicleId" validate:""`
-	VehicleName         string  `json:"vehicleName" from:"vehicleName" query:"vehicleName" validate:""`
-	NIK                 string  `json:"nik" from:"nik" query:"nik" validate:""`
-	DriverName          string  `json:"driverName" from:"driverName" query:"driverName" validate:""`
-	PhoneNumber         string  `json:"phoneNumber" from:"phoneNumber" query:"phoneNumber" validate:""`
-	SentGrossQuantity   float64 `json:"sentGrossQuantity" form:"sentGrossQuantity" query:"sentGrossQuantity" validate:""`
-	SentTareQuantity    float64 `json:"sentTareQuantity" form:"sentTareQuantity" query:"sentTareQuantity" validate:""`
-	SentNetQuantity     float64 `json:"sentNetQuantity" form:"sentNetQuantity" query:"sentNetQuantity" validate:""`
+	IsDirect               bool    `json:"isDirect" from:"isDirect" query:"isDirect" validate:""`
+	FromWarehouseID        string  `json:"fromWarehouseId" form:"fromWarehouseId" query:"fromWarehouseId" validate:"required"`
+	RetailID               string  `json:"retailId" form:"retailId" query:"retailId" validate:"required"`
+	ProductID              string  `json:"productId" form:"productId" query:"productId" validate:"required"`
+	StockmovementvehicleID string  `json:"stockmovementvehicleId" form:"stockmovementvehicleId" query:"stockmovementvehicleId" validate:""`
+	IsNewVehiclerdriver    bool    `json:"isNewVehiclerdriver" from:"isNewVehiclerdriver" query:"isNewVehiclerdriver" validate:""`
+	PlateNumber            string  `json:"plateNumber" from:"plateNumber" query:"plateNumber" validate:""`
+	VehicleID              string  `json:"vehicleId" form:"vehicleId" query:"vehicleId" validate:""`
+	VehicleName            string  `json:"vehicleName" from:"vehicleName" query:"vehicleName" validate:""`
+	NIK                    string  `json:"nik" from:"nik" query:"nik" validate:""`
+	DriverName             string  `json:"driverName" from:"driverName" query:"driverName" validate:""`
+	PhoneNumber            string  `json:"phoneNumber" from:"phoneNumber" query:"phoneNumber" validate:""`
+	SentGrossQuantity      float64 `json:"sentGrossQuantity" form:"sentGrossQuantity" query:"sentGrossQuantity" validate:""`
+	SentTareQuantity       float64 `json:"sentTareQuantity" form:"sentTareQuantity" query:"sentTareQuantity" validate:""`
+	SentNetQuantity        float64 `json:"sentNetQuantity" form:"sentNetQuantity" query:"sentNetQuantity" validate:""`
 }
 
 type UpdateStockmovementvehicleRetail struct {
@@ -57,7 +61,8 @@ type PageStockmovementvehicle struct {
 	ProductID                 string                  `json:"productId" form:"productId" query:"productId"`
 	VehicleID                 string                  `json:"vehicleId" form:"vehicleId" query:"vehicleId"`
 	RelatedID                 string                  `json:"relatedId" form:"relatedId" query:"relatedId"`
-	Type                      model.StockMovementType `json:"type" form:"type" query:"type"`
+	Type                      model.StockmovementType `json:"type" form:"type" query:"type"`
+	Status                    string                  `json:"status" form:"status" query:"status"`
 	StartSentGrossQuantity    *float64                `json:"startSentGrossQuantity" form:"startSentGrossQuantity" query:"startSentGrossQuantity"`
 	StartSentTareQuantity     *float64                `json:"startSentTareQuantity" form:"startSentTareQuantity" query:"startSentTareQuantity"`
 	StartSentNetQuantity      *float64                `json:"startSentNetQuantity" form:"startSentNetQuantity" query:"startSentNetQuantity"`

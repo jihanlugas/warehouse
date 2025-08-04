@@ -2809,10 +2809,10 @@ const docTemplate = `{
                         ],
                         "type": "string",
                         "x-enum-varnames": [
-                            "StockMovementTypeTransfer",
-                            "StockMovementTypeIn",
-                            "StockMovementTypePurchaseOrder",
-                            "StockMovementTypeRetail"
+                            "StockmovementTypeTransfer",
+                            "StockmovementTypeIn",
+                            "StockmovementTypePurchaseOrder",
+                            "StockmovementTypeRetail"
                         ],
                         "name": "type",
                         "in": "query"
@@ -4381,7 +4381,7 @@ const docTemplate = `{
                 "StockLogTypeOut"
             ]
         },
-        "model.StockMovementType": {
+        "model.StockmovementType": {
             "type": "string",
             "enum": [
                 "TRANSFER",
@@ -4390,10 +4390,10 @@ const docTemplate = `{
                 "RETAIL"
             ],
             "x-enum-varnames": [
-                "StockMovementTypeTransfer",
-                "StockMovementTypeIn",
-                "StockMovementTypePurchaseOrder",
-                "StockMovementTypeRetail"
+                "StockmovementTypeTransfer",
+                "StockmovementTypeIn",
+                "StockmovementTypePurchaseOrder",
+                "StockmovementTypeRetail"
             ]
         },
         "request.ChangePassword": {

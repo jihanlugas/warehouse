@@ -197,7 +197,8 @@ func Init() *echo.Echo {
 	routerInbound.GET("", inboundHandler.Page)
 	routerInbound.GET("/:id", inboundHandler.GetById)
 	routerInbound.PUT("/:id", inboundHandler.Update)
-	routerInbound.GET("/:id/set-recived", inboundHandler.SetRecived)
+	routerInbound.GET("/:id/set-unloading", inboundHandler.SetUnloading)
+	routerInbound.GET("/:id/set-complete", inboundHandler.SetComplete)
 	routerInbound.GET("/:id/generate-delivery-recipt", inboundHandler.GenerateDeliveryRecipt)
 
 	routerOutbound := router.Group("/outbound", checkTokenMiddleware)

@@ -368,7 +368,7 @@ type StockmovementView struct {
 	ToWarehouseID   string            `json:"toWarehouseId"`
 	ProductID       string            `json:"productId"`
 	RelatedID       string            `json:"relatedId"`
-	Type            StockMovementType `json:"type"`
+	Type            StockmovementType `json:"type"`
 	UnitPrice       float64           `json:"unitPrice"`
 	Remark          string            `json:"remark"`
 	CreateDt        time.Time         `json:"createDt"`
@@ -390,38 +390,41 @@ func (StockmovementView) TableName() string {
 }
 
 type StockmovementvehicleView struct {
-	ID                   string            `json:"id"`
-	StockmovementID      string            `json:"stockmovementId"`
-	FromWarehouseID      string            `json:"fromWarehouseId"`
-	ToWarehouseID        string            `json:"toWarehouseId"`
-	RelatedID            string            `json:"relatedId"`
-	Type                 StockMovementType `json:"type"`
-	UnitPrice            float64           `json:"unitPrice"`
-	ProductID            string            `json:"productId"`
-	VehicleID            string            `json:"vehicleId"`
-	SentGrossQuantity    float64           `json:"sentGrossQuantity"`
-	SentTareQuantity     float64           `json:"sentTareQuantity"`
-	SentNetQuantity      float64           `json:"sentNetQuantity"`
-	SentTime             *time.Time        `json:"sentTime"`
-	RecivedGrossQuantity float64           `json:"recivedGrossQuantity"`
-	RecivedTareQuantity  float64           `json:"recivedTareQuantity"`
-	RecivedNetQuantity   float64           `json:"recivedNetQuantity"`
-	RecivedTime          *time.Time        `json:"recivedTime"`
-	Shrinkage            *float64          `json:"shrinkage"`
-	Status               string            `json:"status"`
-	Number               string            `json:"number"`
-	CreateDt             time.Time         `json:"createDt"`
-	UpdateBy             string            `json:"updateBy"`
-	UpdateDt             time.Time         `json:"updateDt"`
-	DeleteDt             gorm.DeletedAt    `json:"deleteDt"`
-	CreateName           string            `json:"createName"`
-	UpdateName           string            `json:"updateName"`
+	ID                     string                     `json:"id"`
+	StockmovementID        string                     `json:"stockmovementId"`
+	FromWarehouseID        string                     `json:"fromWarehouseId"`
+	ToWarehouseID          string                     `json:"toWarehouseId"`
+	RelatedID              string                     `json:"relatedId"`
+	Type                   StockmovementType          `json:"type"`
+	UnitPrice              float64                    `json:"unitPrice"`
+	ProductID              string                     `json:"productId"`
+	VehicleID              string                     `json:"vehicleId"`
+	StockmovementvehicleID string                     `json:"stockmovementvehicleId"`
+	SentGrossQuantity      float64                    `json:"sentGrossQuantity"`
+	SentTareQuantity       float64                    `json:"sentTareQuantity"`
+	SentNetQuantity        float64                    `json:"sentNetQuantity"`
+	SentTime               *time.Time                 `json:"sentTime"`
+	RecivedGrossQuantity   float64                    `json:"recivedGrossQuantity"`
+	RecivedTareQuantity    float64                    `json:"recivedTareQuantity"`
+	RecivedNetQuantity     float64                    `json:"recivedNetQuantity"`
+	RecivedTime            *time.Time                 `json:"recivedTime"`
+	Shrinkage              float64                    `json:"shrinkage"`
+	Status                 StockmovementvehicleStatus `json:"status"`
+	Number                 string                     `json:"number"`
+	CreateDt               time.Time                  `json:"createDt"`
+	UpdateBy               string                     `json:"updateBy"`
+	UpdateDt               time.Time                  `json:"updateDt"`
+	DeleteDt               gorm.DeletedAt             `json:"deleteDt"`
+	CreateName             string                     `json:"createName"`
+	UpdateName             string                     `json:"updateName"`
 
 	Product                    *ProductView                    `json:"product,omitempty"`
 	Vehicle                    *VehicleView                    `json:"vehicle,omitempty"`
 	Stockmovement              *StockmovementView              `json:"stockmovement,omitempty"`
 	Retail                     *RetailView                     `json:"retail,omitempty" gorm:"foreignKey:RelatedID;references:ID"`
 	Purchaseorder              *PurchaseorderView              `json:"purchaseorder,omitempty" gorm:"foreignKey:RelatedID;references:ID"`
+	Stockmovementvehicle       *StockmovementvehicleView       `json:"stockmovementvehicle,omitempty" gorm:"foreignKey:StockmovementvehicleID;references:ID"`
+	Stockmovementvehicles      []StockmovementvehicleView      `json:"stockmovementvehicles,omitempty" gorm:"foreignKey:StockmovementvehicleID"`
 	Stockmovementvehiclephotos []StockmovementvehiclephotoView `json:"stockmovementvehiclephotos,omitempty" gorm:"foreignKey:StockmovementvehicleID"`
 }
 
@@ -451,35 +454,38 @@ func (StockmovementvehiclephotoView) TableName() string {
 }
 
 type InboundView struct {
-	ID                   string            `json:"id"`
-	WarehouseID          string            `json:"warehouseId"`
-	StockmovementID      string            `json:"stockmovementId"`
-	ProductID            string            `json:"productId"`
-	VehicleID            string            `json:"vehicleId"`
-	Type                 StockMovementType `json:"type"`
-	Remark               string            `json:"remark"`
-	SentGrossQuantity    float64           `json:"sentGrossQuantity"`
-	SentTareQuantity     float64           `json:"sentTareQuantity"`
-	SentNetQuantity      float64           `json:"sentNetQuantity"`
-	SentTime             *time.Time        `json:"sentTime"`
-	RecivedGrossQuantity float64           `json:"recivedGrossQuantity"`
-	RecivedTareQuantity  float64           `json:"recivedTareQuantity"`
-	RecivedNetQuantity   float64           `json:"recivedNetQuantity"`
-	RecivedTime          *time.Time        `json:"recivedTime"`
-	Shrinkage            *float64          `json:"shrinkage"`
-	Status               string            `json:"status"`
-	Number               string            `json:"number"`
-	CreateDt             time.Time         `json:"createDt"`
-	UpdateBy             string            `json:"updateBy"`
-	UpdateDt             time.Time         `json:"updateDt"`
-	DeleteDt             gorm.DeletedAt    `json:"deleteDt"`
-	CreateName           string            `json:"createName"`
-	UpdateName           string            `json:"updateName"`
+	ID                     string                     `json:"id"`
+	WarehouseID            string                     `json:"warehouseId"`
+	StockmovementID        string                     `json:"stockmovementId"`
+	ProductID              string                     `json:"productId"`
+	VehicleID              string                     `json:"vehicleId"`
+	StockmovementvehicleID string                     `json:"stockmovementvehicleId"`
+	Type                   StockmovementType          `json:"type"`
+	Remark                 string                     `json:"remark"`
+	SentGrossQuantity      float64                    `json:"sentGrossQuantity"`
+	SentTareQuantity       float64                    `json:"sentTareQuantity"`
+	SentNetQuantity        float64                    `json:"sentNetQuantity"`
+	SentTime               *time.Time                 `json:"sentTime"`
+	RecivedGrossQuantity   float64                    `json:"recivedGrossQuantity"`
+	RecivedTareQuantity    float64                    `json:"recivedTareQuantity"`
+	RecivedNetQuantity     float64                    `json:"recivedNetQuantity"`
+	RecivedTime            *time.Time                 `json:"recivedTime"`
+	Shrinkage              float64                    `json:"shrinkage"`
+	Status                 StockmovementvehicleStatus `json:"status"`
+	Number                 string                     `json:"number"`
+	CreateDt               time.Time                  `json:"createDt"`
+	UpdateBy               string                     `json:"updateBy"`
+	UpdateDt               time.Time                  `json:"updateDt"`
+	DeleteDt               gorm.DeletedAt             `json:"deleteDt"`
+	CreateName             string                     `json:"createName"`
+	UpdateName             string                     `json:"updateName"`
 
-	Warehouse     *WarehouseView     `json:"warehouse,omitempty"`
-	Vehicle       *VehicleView       `json:"vehicle,omitempty"`
-	Stockmovement *StockmovementView `json:"stockmovement,omitempty"`
-	Product       *ProductView       `json:"product,omitempty"`
+	Warehouse             *WarehouseView             `json:"warehouse,omitempty"`
+	Vehicle               *VehicleView               `json:"vehicle,omitempty"`
+	Stockmovement         *StockmovementView         `json:"stockmovement,omitempty"`
+	Stockmovementvehicle  *StockmovementvehicleView  `json:"stockmovementvehicle,omitempty" gorm:"foreignKey:StockmovementvehicleID;references:ID"`
+	Stockmovementvehicles []StockmovementvehicleView `json:"stockmovementvehicles,omitempty" gorm:"foreignKey:StockmovementvehicleID"`
+	Product               *ProductView               `json:"product,omitempty"`
 }
 
 func (InboundView) TableName() string {
@@ -487,30 +493,31 @@ func (InboundView) TableName() string {
 }
 
 type OutboundView struct {
-	ID                   string            `json:"id"`
-	WarehouseID          string            `json:"warehouseId"`
-	StockmovementID      string            `json:"stockmovementId"`
-	ProductID            string            `json:"productId"`
-	VehicleID            string            `json:"vehicleId"`
-	Type                 StockMovementType `json:"type"`
-	Remark               string            `json:"remark"`
-	SentGrossQuantity    float64           `json:"sentGrossQuantity"`
-	SentTareQuantity     float64           `json:"sentTareQuantity"`
-	SentNetQuantity      float64           `json:"sentNetQuantity"`
-	SentTime             *time.Time        `json:"sentTime"`
-	RecivedGrossQuantity float64           `json:"recivedGrossQuantity"`
-	RecivedTareQuantity  float64           `json:"recivedTareQuantity"`
-	RecivedNetQuantity   float64           `json:"recivedNetQuantity"`
-	RecivedTime          *time.Time        `json:"recivedTime"`
-	Shrinkage            *float64          `json:"shrinkage"`
-	Status               string            `json:"status"`
-	Number               string            `json:"number"`
-	CreateDt             time.Time         `json:"createDt"`
-	UpdateBy             string            `json:"updateBy"`
-	UpdateDt             time.Time         `json:"updateDt"`
-	DeleteDt             gorm.DeletedAt    `json:"deleteDt"`
-	CreateName           string            `json:"createName"`
-	UpdateName           string            `json:"updateName"`
+	ID                     string                     `json:"id"`
+	WarehouseID            string                     `json:"warehouseId"`
+	StockmovementID        string                     `json:"stockmovementId"`
+	ProductID              string                     `json:"productId"`
+	VehicleID              string                     `json:"vehicleId"`
+	StockmovementvehicleID string                     `json:"stockmovementvehicleId"`
+	Type                   StockmovementType          `json:"type"`
+	Remark                 string                     `json:"remark"`
+	SentGrossQuantity      float64                    `json:"sentGrossQuantity"`
+	SentTareQuantity       float64                    `json:"sentTareQuantity"`
+	SentNetQuantity        float64                    `json:"sentNetQuantity"`
+	SentTime               *time.Time                 `json:"sentTime"`
+	RecivedGrossQuantity   float64                    `json:"recivedGrossQuantity"`
+	RecivedTareQuantity    float64                    `json:"recivedTareQuantity"`
+	RecivedNetQuantity     float64                    `json:"recivedNetQuantity"`
+	RecivedTime            *time.Time                 `json:"recivedTime"`
+	Shrinkage              float64                    `json:"shrinkage"`
+	Status                 StockmovementvehicleStatus `json:"status"`
+	Number                 string                     `json:"number"`
+	CreateDt               time.Time                  `json:"createDt"`
+	UpdateBy               string                     `json:"updateBy"`
+	UpdateDt               time.Time                  `json:"updateDt"`
+	DeleteDt               gorm.DeletedAt             `json:"deleteDt"`
+	CreateName             string                     `json:"createName"`
+	UpdateName             string                     `json:"updateName"`
 
 	Warehouse     *WarehouseView     `json:"warehouse,omitempty"`
 	Vehicle       *VehicleView       `json:"vehicle,omitempty"`

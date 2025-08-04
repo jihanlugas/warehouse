@@ -2802,10 +2802,10 @@
                         ],
                         "type": "string",
                         "x-enum-varnames": [
-                            "StockMovementTypeTransfer",
-                            "StockMovementTypeIn",
-                            "StockMovementTypePurchaseOrder",
-                            "StockMovementTypeRetail"
+                            "StockmovementTypeTransfer",
+                            "StockmovementTypeIn",
+                            "StockmovementTypePurchaseOrder",
+                            "StockmovementTypeRetail"
                         ],
                         "name": "type",
                         "in": "query"
@@ -4374,7 +4374,7 @@
                 "StockLogTypeOut"
             ]
         },
-        "model.StockMovementType": {
+        "model.StockmovementType": {
             "type": "string",
             "enum": [
                 "TRANSFER",
@@ -4383,10 +4383,10 @@
                 "RETAIL"
             ],
             "x-enum-varnames": [
-                "StockMovementTypeTransfer",
-                "StockMovementTypeIn",
-                "StockMovementTypePurchaseOrder",
-                "StockMovementTypeRetail"
+                "StockmovementTypeTransfer",
+                "StockmovementTypeIn",
+                "StockmovementTypePurchaseOrder",
+                "StockmovementTypeRetail"
             ]
         },
         "request.ChangePassword": {

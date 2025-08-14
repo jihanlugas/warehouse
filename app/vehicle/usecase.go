@@ -3,13 +3,14 @@ package vehicle
 import (
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/jihanlugas/warehouse/db"
 	"github.com/jihanlugas/warehouse/jwt"
 	"github.com/jihanlugas/warehouse/model"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/response"
 	"github.com/jihanlugas/warehouse/utils"
-	"strings"
 )
 
 type Usecase interface {
@@ -69,7 +70,7 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateVehicle) erro
 		NIK:         req.NIK,
 		DriverName:  req.DriverName,
 		PhoneNumber: utils.FormatPhoneTo62(req.PhoneNumber),
-		Description: req.Description,
+		Notes:       req.Notes,
 		CreateBy:    loginUser.UserID,
 		UpdateBy:    loginUser.UserID,
 	}
@@ -106,7 +107,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateVe
 	tx := conn.Begin()
 
 	tVehicle.Name = req.Name
-	tVehicle.Description = req.Description
+	tVehicle.Notes = req.Notes
 	tVehicle.PlateNumber = strings.ToUpper(req.PlateNumber)
 	tVehicle.NIK = req.NIK
 	tVehicle.DriverName = req.DriverName
@@ -114,7 +115,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateVe
 	tVehicle.UpdateBy = loginUser.UserID
 	err = u.vehicleRepository.Save(tx, tVehicle)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to update %s: %v", u.vehicleRepository.Name(), err))
+		return errors.New(fmt.Sprintf("failed to save %s: %v", u.vehicleRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error

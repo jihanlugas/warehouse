@@ -2,14 +2,15 @@ package purchaseorder
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/jihanlugas/warehouse/jwt"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/response"
 	"github.com/jihanlugas/warehouse/utils"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"strings"
-	"time"
 )
 
 type Handler struct {
@@ -30,7 +31,7 @@ func NewHandler(usecase Usecase) Handler {
 // @Param req query request.PagePurchaseorder false "url query string"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /purchaseorder [get]
+// @Router /purchase-order [get]
 func (h Handler) Page(c echo.Context) error {
 	var err error
 
@@ -68,7 +69,7 @@ func (h Handler) Page(c echo.Context) error {
 // @Query preloads query string false "preloads"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /purchaseorder/{id} [get]
+// @Router /purchase-order/{id} [get]
 func (h Handler) GetById(c echo.Context) error {
 	var err error
 
@@ -104,7 +105,7 @@ func (h Handler) GetById(c echo.Context) error {
 // @Param req body request.CreatePurchaseorder true "json req body"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /purchaseorder [post]
+// @Router /purchase-order [post]
 func (h Handler) Create(c echo.Context) error {
 	var err error
 
@@ -142,7 +143,7 @@ func (h Handler) Create(c echo.Context) error {
 // @Param req body request.UpdatePurchaseorder true "json req body"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /purchaseorder/{id} [put]
+// @Router /purchase-order/{id} [put]
 func (h Handler) Update(c echo.Context) error {
 	var err error
 
@@ -184,7 +185,7 @@ func (h Handler) Update(c echo.Context) error {
 // @Param id path string true "ID"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /purchaseorder/{id} [delete]
+// @Router /purchase-order/{id} [delete]
 func (h Handler) Delete(c echo.Context) error {
 	var err error
 
@@ -214,7 +215,7 @@ func (h Handler) Delete(c echo.Context) error {
 // @Param id path string true "ID"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /purchaseorder/{id}/set-status-open [get]
+// @Router /purchase-order/{id}/set-status-open [put]
 func (h Handler) SetStatusOpen(c echo.Context) error {
 	var err error
 
@@ -244,7 +245,7 @@ func (h Handler) SetStatusOpen(c echo.Context) error {
 // @Param id path string true "ID"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /purchaseorder/{id}/set-status-close [get]
+// @Router /purchase-order/{id}/set-status-close [put]
 func (h Handler) SetStatusClose(c echo.Context) error {
 	var err error
 
@@ -275,7 +276,7 @@ func (h Handler) SetStatusClose(c echo.Context) error {
 // @Query preloads query string false "preloads"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /purchaseorder/{id}/generate-invoice [get]
+// @Router /purchase-order/{id}/generate-invoice [get]
 func (h Handler) GenerateInvoice(c echo.Context) error {
 	var err error
 

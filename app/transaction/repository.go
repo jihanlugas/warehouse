@@ -2,10 +2,11 @@ package transaction
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/jihanlugas/warehouse/model"
 	"github.com/jihanlugas/warehouse/request"
 	"gorm.io/gorm"
-	"strings"
 )
 
 type Repository interface {
@@ -86,8 +87,8 @@ func (r repository) Page(conn *gorm.DB, req request.PageTransaction) (vTransacti
 	if req.RelatedID != "" {
 		query = query.Where("related_id = ?", req.RelatedID)
 	}
-	if req.RelatedType != "" {
-		query = query.Where("related_type = ?", req.RelatedType)
+	if req.TransactionRelated != "" {
+		query = query.Where("transaction_related = ?", req.TransactionRelated)
 	}
 	if req.Notes != "" {
 		query = query.Where("notes ILIKE ?", "%"+req.Notes+"%")

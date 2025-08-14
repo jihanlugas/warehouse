@@ -4,7 +4,7 @@ type UpdateUserprivilege struct {
 	StockIn       bool `json:"stockIn" form:"stockIn" query:"stockIn"`
 	TransferOut   bool `json:"transferOut" form:"transferOut" query:"transferOut"`
 	TransferIn    bool `json:"transferIn" form:"transferIn" query:"transferIn"`
-	PurchaseOrder bool `json:"purchaseOrder" form:"purchaseOrder" query:"purchaseOrder"`
+	Purchaseorder bool `json:"purchaseorder" form:"purchaseorder" query:"purchaseorder"`
 	Retail        bool `json:"retail" form:"retail" query:"retail"`
 }
 type CreateUserwarehouse struct {

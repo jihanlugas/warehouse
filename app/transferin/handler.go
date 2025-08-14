@@ -1,15 +1,16 @@
-package inbound
+package transferin
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/jihanlugas/warehouse/jwt"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/response"
 	"github.com/jihanlugas/warehouse/utils"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"strings"
-	"time"
 )
 
 type Handler struct {
@@ -23,14 +24,14 @@ func NewHandler(usecase Usecase) Handler {
 }
 
 // Page
-// @Tags Inbound
+// @Tags Transferin
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param req query request.PageInbound false "url query string"
+// @Param req query request.PageTransferin false "url query string"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /inbound [get]
+// @Router /stockmovementvehicle/transfer-in [get]
 func (h Handler) Page(c echo.Context) error {
 	var err error
 
@@ -39,7 +40,7 @@ func (h Handler) Page(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
 	}
 
-	req := new(request.PageInbound)
+	req := new(request.PageTransferin)
 	if err = c.Bind(req); err != nil {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerBind, err, nil).SendJSON(c)
 	}
@@ -51,14 +52,6 @@ func (h Handler) Page(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerFailedValidation, err, response.ValidationError(err)).SendJSON(c)
 	}
 
-	if req.WarehouseID == "" {
-		req.WarehouseID = loginUser.WarehouseID
-	} else {
-		if jwt.IsSaveWarehouseIDOR(loginUser, req.WarehouseID) {
-			return response.Error(http.StatusBadRequest, response.ErrorHandlerIDOR, err, nil).SendJSON(c)
-		}
-	}
-
 	data, count, err := h.usecase.Page(loginUser, *req)
 	if err != nil {
 		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
@@ -68,7 +61,7 @@ func (h Handler) Page(c echo.Context) error {
 }
 
 // GetById
-// @Tags Inbound
+// @Tags Transferin
 // @Security BearerAuth
 // @Accept json
 // @Produce json
@@ -76,7 +69,7 @@ func (h Handler) Page(c echo.Context) error {
 // @Query preloads query string false "preloads"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /inbound/{id} [get]
+// @Router /stockmovementvehicle/transfer-in/{id} [get]
 func (h Handler) GetById(c echo.Context) error {
 	var err error
 
@@ -96,24 +89,24 @@ func (h Handler) GetById(c echo.Context) error {
 		preloadSlice = strings.Split(preloads, ",")
 	}
 
-	vInbound, err := h.usecase.GetById(loginUser, id, preloadSlice...)
+	vStockmovementvehicle, err := h.usecase.GetById(loginUser, id, preloadSlice...)
 	if err != nil {
 		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
 	}
 
-	return response.Success(http.StatusOK, response.SuccessHandler, vInbound).SendJSON(c)
+	return response.Success(http.StatusOK, response.SuccessHandler, vStockmovementvehicle).SendJSON(c)
 }
 
 // Update
-// @Tags Inbound
+// @Tags Transferin
 // @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path string true "ID"
-// @Param req body request.UpdateInbound true "json req body"
+// @Param req body request.UpdateTransferin true "json req body"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /inbound/{id} [put]
+// @Router /stockmovementvehicle/transfer-in [post]
 func (h Handler) Update(c echo.Context) error {
 	var err error
 
@@ -127,7 +120,7 @@ func (h Handler) Update(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
 	}
 
-	req := new(request.UpdateInbound)
+	req := new(request.UpdateTransferin)
 	if err = c.Bind(req); err != nil {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerBind, err, nil).SendJSON(c)
 	}
@@ -145,17 +138,18 @@ func (h Handler) Update(c echo.Context) error {
 	}
 
 	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
+
 }
 
 // SetUnloading
-// @Tags Inbound
+// @Tags Transferin
 // @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path string true "ID"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /inbound/{id}/set-unloading [get]
+// @Router /stockmovementvehicle/transfer-in/{id}/set-unloading [put]
 func (h Handler) SetUnloading(c echo.Context) error {
 	var err error
 
@@ -178,14 +172,14 @@ func (h Handler) SetUnloading(c echo.Context) error {
 }
 
 // SetComplete
-// @Tags Inbound
+// @Tags Transferin
 // @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path string true "ID"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /inbound/{id}/set-cemplete [get]
+// @Router /stockmovementvehicle/transfer-in/{id}/set-complete [put]
 func (h Handler) SetComplete(c echo.Context) error {
 	var err error
 
@@ -208,15 +202,14 @@ func (h Handler) SetComplete(c echo.Context) error {
 }
 
 // GenerateDeliveryRecipt
-// @Tags Inbound
+// @Tags Transferin
 // @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path string true "ID"
-// @Query preloads query string false "preloads"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /inbound/{id}/generate-delivery-recipt [get]
+// @Router /stockmovementvehicle/transfer-in/{id}/generate-delivery-recipt [get]
 func (h Handler) GenerateDeliveryRecipt(c echo.Context) error {
 	var err error
 
@@ -230,14 +223,14 @@ func (h Handler) GenerateDeliveryRecipt(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
 	}
 
-	pdfBytes, vInbound, err := h.usecase.GenerateDeliveryRecipt(loginUser, id)
+	pdfBytes, vStockmovementvehicle, err := h.usecase.GenerateDeliveryRecipt(loginUser, id)
 	if err != nil {
 		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
 	}
 
-	fmt.Print(fmt.Sprintf("Delivery Recipt %s %s.pdf", vInbound.ID, utils.DisplayDate(time.Now())))
+	fmt.Print(fmt.Sprintf("Delivery Recipt %s %s.pdf", vStockmovementvehicle.ID, utils.DisplayDate(time.Now())))
 
-	filename := fmt.Sprintf("Delivery Recipt %s %s.pdf", vInbound.ID, utils.DisplayDate(time.Now()))
+	filename := fmt.Sprintf("Delivery Recipt %s %s.pdf", vStockmovementvehicle.ID, utils.DisplayDate(time.Now()))
 	c.Response().Header().Set("Content-Disposition", "attachment; filename="+filename)
 
 	// Kirimkan PDF sebagai respons

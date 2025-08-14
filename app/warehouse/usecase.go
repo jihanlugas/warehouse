@@ -3,6 +3,7 @@ package warehouse
 import (
 	"errors"
 	"fmt"
+
 	"github.com/jihanlugas/warehouse/db"
 	"github.com/jihanlugas/warehouse/jwt"
 	"github.com/jihanlugas/warehouse/model"
@@ -19,14 +20,14 @@ type Usecase interface {
 }
 
 type usecase struct {
-	customerRepository Repository
+	warehouseRepository Repository
 }
 
 func (u usecase) Page(loginUser jwt.UserLogin, req request.PageWarehouse) (vWarehouses []model.WarehouseView, count int64, err error) {
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	vWarehouses, count, err = u.customerRepository.Page(conn, req)
+	vWarehouses, count, err = u.warehouseRepository.Page(conn, req)
 	if err != nil {
 		return vWarehouses, count, err
 	}
@@ -38,9 +39,9 @@ func (u usecase) GetById(loginUser jwt.UserLogin, id string, preloads ...string)
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	vWarehouse, err = u.customerRepository.GetViewById(conn, id, preloads...)
+	vWarehouse, err = u.warehouseRepository.GetViewById(conn, id, preloads...)
 	if err != nil {
-		return vWarehouse, errors.New(fmt.Sprintf("failed to get %s: %v", u.customerRepository.Name(), err))
+		return vWarehouse, errors.New(fmt.Sprintf("failed to get %s: %v", u.warehouseRepository.Name(), err))
 	}
 
 	return vWarehouse, err
@@ -58,19 +59,20 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateWarehouse) er
 	tWarehouse = model.Warehouse{
 		ID:              utils.GetUniqueID(),
 		Name:            req.Name,
-		Location:        req.Location,
+		Address:         req.Address,
+		Notes:           req.Notes,
 		IsStockin:       false,
-		IsInbound:       false,
-		IsOutbound:      false,
+		IsTransferIn:    false,
+		IsTransferOut:   false,
 		IsRetail:        false,
 		IsPurchaseorder: false,
 		CreateBy:        loginUser.UserID,
 		UpdateBy:        loginUser.UserID,
 	}
 
-	err = u.customerRepository.Create(tx, tWarehouse)
+	err = u.warehouseRepository.Create(tx, tWarehouse)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to create %s: %v", u.customerRepository.Name(), err))
+		return errors.New(fmt.Sprintf("failed to create %s: %v", u.warehouseRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
@@ -88,19 +90,20 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateWa
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	tWarehouse, err = u.customerRepository.GetTableById(conn, id)
+	tWarehouse, err = u.warehouseRepository.GetTableById(conn, id)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to get %s: %v", u.customerRepository.Name(), err))
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.warehouseRepository.Name(), err))
 	}
 
 	tx := conn.Begin()
 
 	tWarehouse.Name = req.Name
-	tWarehouse.Location = req.Location
+	tWarehouse.Address = req.Address
+	tWarehouse.Notes = req.Notes
 	tWarehouse.UpdateBy = loginUser.UserID
-	err = u.customerRepository.Save(tx, tWarehouse)
+	err = u.warehouseRepository.Save(tx, tWarehouse)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to update %s: %v", u.customerRepository.Name(), err))
+		return errors.New(fmt.Sprintf("failed to save %s: %v", u.warehouseRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
@@ -118,16 +121,16 @@ func (u usecase) Delete(loginUser jwt.UserLogin, id string) error {
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	tWarehouse, err = u.customerRepository.GetTableById(conn, id)
+	tWarehouse, err = u.warehouseRepository.GetTableById(conn, id)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to get %s: %v", u.customerRepository.Name(), err))
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.warehouseRepository.Name(), err))
 	}
 
 	tx := conn.Begin()
 
-	err = u.customerRepository.Delete(tx, tWarehouse)
+	err = u.warehouseRepository.Delete(tx, tWarehouse)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to delete %s: %v", u.customerRepository.Name(), err))
+		return errors.New(fmt.Sprintf("failed to delete %s: %v", u.warehouseRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
@@ -138,8 +141,8 @@ func (u usecase) Delete(loginUser jwt.UserLogin, id string) error {
 	return err
 }
 
-func NewUsecase(customerRepository Repository) Usecase {
+func NewUsecase(warehouseRepository Repository) Usecase {
 	return &usecase{
-		customerRepository: customerRepository,
+		warehouseRepository: warehouseRepository,
 	}
 }

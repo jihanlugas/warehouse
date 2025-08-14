@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"html/template"
+	"os"
+
 	"github.com/jihanlugas/warehouse/app/customer"
 	"github.com/jihanlugas/warehouse/app/purchaseorderproduct"
 	"github.com/jihanlugas/warehouse/app/stock"
@@ -15,8 +18,6 @@ import (
 	"github.com/jihanlugas/warehouse/model"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/utils"
-	"html/template"
-	"os"
 )
 
 type Usecase interface {
@@ -92,12 +93,12 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreatePurchaseorder
 	}
 
 	tPurchaseorder = model.Purchaseorder{
-		ID:         utils.GetUniqueID(),
-		CustomerID: req.CustomerID,
-		Notes:      req.Notes,
-		Status:     model.PurchaseorderStatusOpen,
-		CreateBy:   loginUser.UserID,
-		UpdateBy:   loginUser.UserID,
+		ID:                  utils.GetUniqueID(),
+		CustomerID:          req.CustomerID,
+		Notes:               req.Notes,
+		PurchaseorderStatus: model.PurchaseorderStatusOpen,
+		CreateBy:            loginUser.UserID,
+		UpdateBy:            loginUser.UserID,
 	}
 
 	err = u.purchaseorderRepository.Create(tx, tPurchaseorder)
@@ -146,7 +147,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdatePu
 	tPurchaseorder.UpdateBy = loginUser.UserID
 	err = u.purchaseorderRepository.Save(tx, tPurchaseorder)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to update %s: %v", u.purchaseorderRepository.Name(), err))
+		return errors.New(fmt.Sprintf("failed to save %s: %v", u.purchaseorderRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
@@ -198,11 +199,11 @@ func (u usecase) SetStatusOpen(loginUser jwt.UserLogin, id string) error {
 
 	tx := conn.Begin()
 
-	if tPurchaseorder.Status == model.PurchaseorderStatusOpen {
+	if tPurchaseorder.PurchaseorderStatus == model.PurchaseorderStatusOpen {
 		return errors.New("the purchase order is already open")
 	}
 
-	tPurchaseorder.Status = model.PurchaseorderStatusOpen
+	tPurchaseorder.PurchaseorderStatus = model.PurchaseorderStatusOpen
 	tPurchaseorder.UpdateBy = loginUser.UserID
 	err = u.purchaseorderRepository.Save(tx, tPurchaseorder)
 	if err != nil {
@@ -231,11 +232,11 @@ func (u usecase) SetStatusClose(loginUser jwt.UserLogin, id string) error {
 
 	tx := conn.Begin()
 
-	if tPurchaseorder.Status == model.PurchaseorderStatusClose {
+	if tPurchaseorder.PurchaseorderStatus == model.PurchaseorderStatusClose {
 		return errors.New("the purchase order is already open")
 	}
 
-	tPurchaseorder.Status = model.PurchaseorderStatusClose
+	tPurchaseorder.PurchaseorderStatus = model.PurchaseorderStatusClose
 	tPurchaseorder.UpdateBy = loginUser.UserID
 	err = u.purchaseorderRepository.Save(tx, tPurchaseorder)
 	if err != nil {
@@ -254,7 +255,7 @@ func (u usecase) GenerateInvoice(loginUser jwt.UserLogin, id string) (pdfBytes [
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	vPurchaseorder, err = u.purchaseorderRepository.GetViewById(conn, id, "Customer", "Stockmovementvehicles", "Stockmovementvehicles.Stockmovement", "Stockmovementvehicles.Product", "Transactions")
+	vPurchaseorder, err = u.purchaseorderRepository.GetViewById(conn, id, "Customer", "Purchaseorderproducts", "Stockmovementvehicles", "Stockmovementvehicles.Product", "Transactions")
 	if err != nil {
 		return pdfBytes, vPurchaseorder, errors.New(fmt.Sprintf("failed to get %s: %v", u.purchaseorderRepository.Name(), err))
 	}

@@ -2,12 +2,13 @@ package stockmovementvehicle
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/jihanlugas/warehouse/model"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/utils"
 	"gorm.io/gorm"
-	"strings"
-	"time"
 )
 
 type Repository interface {
@@ -107,9 +108,6 @@ func (r repository) Page(conn *gorm.DB, req request.PageStockmovementvehicle) (v
 	if req.ToWarehouseID != "" {
 		query = query.Where("to_warehouse_id = ?", req.ToWarehouseID)
 	}
-	if req.StockmovementID != "" {
-		query = query.Where("stockmovement_id = ?", req.StockmovementID)
-	}
 	if req.ProductID != "" {
 		query = query.Where("product_id = ?", req.ProductID)
 	}
@@ -119,11 +117,11 @@ func (r repository) Page(conn *gorm.DB, req request.PageStockmovementvehicle) (v
 	if req.VehicleID != "" {
 		query = query.Where("vehicle_id = ?", req.VehicleID)
 	}
-	if req.Type != "" {
-		query = query.Where("type = ?", req.Type)
+	if req.StockmovementvehicleType != "" {
+		query = query.Where("stockmovementvehicle_type = ?", req.StockmovementvehicleType)
 	}
-	if req.Status != "" {
-		query = query.Where("status = ?", req.Status)
+	if req.StockmovementvehicleStatus != "" {
+		query = query.Where("stockmovementvehicle_status = ?", req.StockmovementvehicleStatus)
 	}
 	if req.StartSentGrossQuantity != nil {
 		query = query.Where("sent_gross_quantity >= ?", req.StartSentGrossQuantity)
@@ -137,17 +135,17 @@ func (r repository) Page(conn *gorm.DB, req request.PageStockmovementvehicle) (v
 	if req.StartSentTime != nil {
 		query = query.Where("sent_time >= ?", req.StartSentTime)
 	}
-	if req.StartRecivedGrossQuantity != nil {
-		query = query.Where("recived_gross_quantity >= ?", req.StartRecivedGrossQuantity)
+	if req.StartReceivedGrossQuantity != nil {
+		query = query.Where("received_gross_quantity >= ?", req.StartReceivedGrossQuantity)
 	}
-	if req.StartRecivedTareQuantity != nil {
-		query = query.Where("recived_tare_quantity >= ?", req.StartRecivedTareQuantity)
+	if req.StartReceivedTareQuantity != nil {
+		query = query.Where("received_tare_quantity >= ?", req.StartReceivedTareQuantity)
 	}
-	if req.StartRecivedNetQuantity != nil {
-		query = query.Where("recived_net_quantity >= ?", req.StartRecivedNetQuantity)
+	if req.StartReceivedNetQuantity != nil {
+		query = query.Where("received_net_quantity >= ?", req.StartReceivedNetQuantity)
 	}
-	if req.StartRecivedTime != nil {
-		query = query.Where("recived_time >= ?", req.StartRecivedTime)
+	if req.StartReceivedTime != nil {
+		query = query.Where("received_time >= ?", req.StartReceivedTime)
 	}
 	if req.EndSentGrossQuantity != nil {
 		query = query.Where("sent_gross_quantity <= ?", req.EndSentGrossQuantity)
@@ -161,17 +159,17 @@ func (r repository) Page(conn *gorm.DB, req request.PageStockmovementvehicle) (v
 	if req.EndSentTime != nil {
 		query = query.Where("sent_time <= ?", req.EndSentTime)
 	}
-	if req.EndRecivedGrossQuantity != nil {
-		query = query.Where("recived_gross_quantity <= ?", req.EndRecivedGrossQuantity)
+	if req.EndReceivedGrossQuantity != nil {
+		query = query.Where("received_gross_quantity <= ?", req.EndReceivedGrossQuantity)
 	}
-	if req.EndRecivedTareQuantity != nil {
-		query = query.Where("recived_tare_quantity <= ?", req.EndRecivedTareQuantity)
+	if req.EndReceivedTareQuantity != nil {
+		query = query.Where("received_tare_quantity <= ?", req.EndReceivedTareQuantity)
 	}
-	if req.EndRecivedNetQuantity != nil {
-		query = query.Where("recived_net_quantity <= ?", req.EndRecivedNetQuantity)
+	if req.EndReceivedNetQuantity != nil {
+		query = query.Where("received_net_quantity <= ?", req.EndReceivedNetQuantity)
 	}
-	if req.EndRecivedTime != nil {
-		query = query.Where("recived_time <= ?", req.EndRecivedTime)
+	if req.EndReceivedTime != nil {
+		query = query.Where("received_time <= ?", req.EndReceivedTime)
 	}
 	if req.CreateName != "" {
 		query = query.Where("create_name ILIKE ?", "%"+req.CreateName+"%")

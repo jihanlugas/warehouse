@@ -1,19 +1,20 @@
 package request
 
 import (
-	"github.com/jihanlugas/warehouse/model"
 	"time"
+
+	"github.com/jihanlugas/warehouse/model"
 )
 
 type PageStocklog struct {
 	Paging
 	WarehouseID            string             `json:"warehouseId" form:"warehouseId" query:"warehouseId"`
 	StockID                string             `json:"stockId" form:"stockId" query:"stockId"`
-	StockmovementID        string             `json:"stockmovementId" form:"stockmovementId" query:"stockmovementId"`
+	StockproductID         string             `json:"stockproductId" form:"stockproductId" query:"stockproductId"`
 	StockmovementvehicleID string             `json:"stockmovementvehicleId" form:"stockmovementvehicleId" query:"stockmovementvehicleId"`
 	ProductID              string             `json:"productId" form:"productId" query:"productId"`
 	VehicleID              string             `json:"vehicleId" form:"vehicleId" query:"vehicleId"`
-	Type                   model.StockLogType `json:"type" form:"type" query:"type"`
+	StocklogType           model.StocklogType `json:"stocklogType" form:"stocklogType" query:"stocklogType"`
 	StartGrossQuantity     *float64           `json:"startGrossQuantity" form:"startGrossQuantity" query:"startGrossQuantity"`
 	StartTareQuantity      *float64           `json:"startTareQuantity" form:"startTareQuantity" query:"startTareQuantity"`
 	StartNetQuantity       *float64           `json:"startNetQuantity" form:"startNetQuantity" query:"startNetQuantity"`

@@ -3,6 +3,7 @@ package transaction
 import (
 	"errors"
 	"fmt"
+
 	"github.com/jihanlugas/warehouse/db"
 	"github.com/jihanlugas/warehouse/jwt"
 	"github.com/jihanlugas/warehouse/model"
@@ -56,14 +57,14 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateTransaction) 
 	tx := conn.Begin()
 
 	tTransaction = model.Transaction{
-		ID:          utils.GetUniqueID(),
-		RelatedID:   req.RelatedID,
-		RelatedType: model.TransactionRelatedType(req.RelatedType),
-		Type:        model.TransactionTypePayment,
-		Amount:      req.Amount,
-		Notes:       req.Notes,
-		CreateBy:    loginUser.UserID,
-		UpdateBy:    loginUser.UserID,
+		ID:                 utils.GetUniqueID(),
+		RelatedID:          req.RelatedID,
+		TransactionRelated: model.TransactionRelated(req.TransactionRelated),
+		TransactionType:    model.TransactionTypePayment,
+		Amount:             req.Amount,
+		Notes:              req.Notes,
+		CreateBy:           loginUser.UserID,
+		UpdateBy:           loginUser.UserID,
 	}
 
 	err = u.transactionRepository.Create(tx, tTransaction)
@@ -97,7 +98,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateTr
 	tTransaction.UpdateBy = loginUser.UserID
 	err = u.transactionRepository.Save(tx, tTransaction)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to update %s: %v", u.transactionRepository.Name(), err))
+		return errors.New(fmt.Sprintf("failed to save %s: %v", u.transactionRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error

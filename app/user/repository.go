@@ -2,11 +2,12 @@ package user
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/jihanlugas/warehouse/model"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/utils"
 	"gorm.io/gorm"
-	"strings"
 )
 
 type Repository interface {
@@ -127,8 +128,8 @@ func (r repository) Page(conn *gorm.DB, req request.PageUser) (vUsers []model.Us
 	if req.WarehouseID != "" {
 		query = query.Where("warehouse_id = ?", req.WarehouseID)
 	}
-	if req.Role != "" {
-		query = query.Where("role = ?", req.Role)
+	if req.UserRole != "" {
+		query = query.Where("user_role = ?", req.UserRole)
 	}
 	if req.Fullname != "" {
 		query = query.Where("fullname ILIKE ?", "%"+req.Fullname+"%")

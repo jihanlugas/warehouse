@@ -3,6 +3,7 @@ package product
 import (
 	"errors"
 	"fmt"
+
 	"github.com/jihanlugas/warehouse/db"
 	"github.com/jihanlugas/warehouse/jwt"
 	"github.com/jihanlugas/warehouse/model"
@@ -56,11 +57,11 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateProduct) erro
 	tx := conn.Begin()
 
 	tProduct = model.Product{
-		ID:          utils.GetUniqueID(),
-		Name:        req.Name,
-		Description: req.Description,
-		CreateBy:    loginUser.UserID,
-		UpdateBy:    loginUser.UserID,
+		ID:       utils.GetUniqueID(),
+		Name:     req.Name,
+		Notes:    req.Notes,
+		CreateBy: loginUser.UserID,
+		UpdateBy: loginUser.UserID,
 	}
 
 	err = u.productRepository.Create(tx, tProduct)
@@ -90,11 +91,11 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdatePr
 
 	tx := conn.Begin()
 	tProduct.Name = req.Name
-	tProduct.Description = req.Description
+	tProduct.Notes = req.Notes
 	tProduct.UpdateBy = loginUser.UserID
 	err = u.productRepository.Save(tx, tProduct)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to update %s: %v", u.productRepository.Name(), err))
+		return errors.New(fmt.Sprintf("failed to save %s: %v", u.productRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error

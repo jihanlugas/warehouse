@@ -2,10 +2,11 @@ package warehouse
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/jihanlugas/warehouse/model"
 	"github.com/jihanlugas/warehouse/request"
 	"gorm.io/gorm"
-	"strings"
 )
 
 type Repository interface {
@@ -82,11 +83,17 @@ func (r repository) Page(conn *gorm.DB, req request.PageWarehouse) (vWarehouses 
 		}
 	}
 
+	if req.LocationID != "" {
+		query = query.Where("location_id = ?", req.LocationID)
+	}
 	if req.Name != "" {
 		query = query.Where("name ILIKE ?", "%"+req.Name+"%")
 	}
-	if req.Location != "" {
-		query = query.Where("location ILIKE ?", "%"+req.Location+"%")
+	if req.Address != "" {
+		query = query.Where("address ILIKE ?", "%"+req.Address+"%")
+	}
+	if req.Notes != "" {
+		query = query.Where("notes ILIKE ?", "%"+req.Notes+"%")
 	}
 	if req.CreateName != "" {
 		query = query.Where("create_name ILIKE ?", "%"+req.CreateName+"%")

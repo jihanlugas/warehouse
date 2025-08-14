@@ -3,25 +3,25 @@ package jwt
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/golang-jwt/jwt"
 	"github.com/jihanlugas/warehouse/config"
 	"github.com/jihanlugas/warehouse/constant"
 	"github.com/jihanlugas/warehouse/model"
 	"github.com/jihanlugas/warehouse/response"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"strconv"
-	"strings"
-	"time"
 )
 
 type UserLogin struct {
-	ExpiredDt       time.Time      `json:"expiredDt"`
-	UserID          string         `json:"userId"`
-	PassVersion     int            `json:"passVersion"`
-	WarehouseID     string         `json:"warehouseId"`
-	Role            model.UserRole `json:"role"`
-	UserwarehouseID string         `json:"userwarehouseId"`
+	ExpiredDt   time.Time      `json:"expiredDt"`
+	UserID      string         `json:"userId"`
+	PassVersion int            `json:"passVersion"`
+	WarehouseID string         `json:"warehouseId"`
+	UserRole    model.UserRole `json:"userRole"`
 }
 
 func GetUserLoginInfo(c echo.Context) (UserLogin, error) {
@@ -37,7 +37,7 @@ func CreateToken(userLogin UserLogin) (string, error) {
 
 	now := time.Now()
 	expiredUnix := userLogin.ExpiredDt.Unix()
-	subject := fmt.Sprintf("%d$$%s$$%d$$%s$$%s$$%s", expiredUnix, userLogin.UserID, userLogin.PassVersion, userLogin.WarehouseID, userLogin.Role, userLogin.UserwarehouseID)
+	subject := fmt.Sprintf("%d$$%s$$%d$$%s$$%s", expiredUnix, userLogin.UserID, userLogin.PassVersion, userLogin.WarehouseID, userLogin.UserRole)
 	jwtKey := []byte(config.JwtSecretKey)
 	claims := jwt.MapClaims{
 		"iss": "Services",
@@ -91,12 +91,11 @@ func ExtractClaims(header string) (UserLogin, error) {
 		return userlogin, err
 	}
 	userlogin = UserLogin{
-		ExpiredDt:       expiredAt,
-		UserID:          contentData[1],
-		PassVersion:     passVersion,
-		WarehouseID:     contentData[3],
-		Role:            model.UserRole(contentData[4]),
-		UserwarehouseID: contentData[5],
+		ExpiredDt:   expiredAt,
+		UserID:      contentData[1],
+		PassVersion: passVersion,
+		WarehouseID: contentData[3],
+		UserRole:    model.UserRole(contentData[4]),
 	}
 
 	return userlogin, err
@@ -125,7 +124,7 @@ func parseToken(token string) (jwt.MapClaims, error) {
 }
 
 func IsSaveWarehouseIDOR(loginUser UserLogin, warehouseId string) bool {
-	if loginUser.Role != model.UserRoleAdmin {
+	if loginUser.UserRole != model.UserRoleAdmin {
 		if loginUser.WarehouseID != warehouseId {
 			return true
 		}

@@ -3,10 +3,10 @@ package router
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/jihanlugas/warehouse/app/auth"
 	"github.com/jihanlugas/warehouse/app/customer"
-	"github.com/jihanlugas/warehouse/app/inbound"
-	"github.com/jihanlugas/warehouse/app/outbound"
+	"github.com/jihanlugas/warehouse/app/location"
 	"github.com/jihanlugas/warehouse/app/photo"
 	"github.com/jihanlugas/warehouse/app/product"
 	"github.com/jihanlugas/warehouse/app/purchaseorder"
@@ -16,10 +16,13 @@ import (
 	"github.com/jihanlugas/warehouse/app/stock"
 	"github.com/jihanlugas/warehouse/app/stockin"
 	"github.com/jihanlugas/warehouse/app/stocklog"
-	"github.com/jihanlugas/warehouse/app/stockmovement"
 	"github.com/jihanlugas/warehouse/app/stockmovementvehicle"
 	"github.com/jihanlugas/warehouse/app/stockmovementvehiclephoto"
+	"github.com/jihanlugas/warehouse/app/stockmovementvehiclepurchaseorder"
+	"github.com/jihanlugas/warehouse/app/stockmovementvehicleretail"
 	"github.com/jihanlugas/warehouse/app/transaction"
+	"github.com/jihanlugas/warehouse/app/transferin"
+	"github.com/jihanlugas/warehouse/app/transferout"
 	"github.com/jihanlugas/warehouse/app/user"
 	"github.com/jihanlugas/warehouse/app/userprivilege"
 	"github.com/jihanlugas/warehouse/app/vehicle"
@@ -33,14 +36,16 @@ import (
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
 
-	_ "github.com/jihanlugas/warehouse/docs"
 	"net/http"
+
+	_ "github.com/jihanlugas/warehouse/docs"
 )
 
 func Init() *echo.Echo {
 	//// repositories
 	userRepository := user.NewRepository()
 	userprivilegeRepository := userprivilege.NewRepository()
+	locationRepository := location.NewRepository()
 	warehouseRepository := warehouse.NewRepository()
 	transactionRepository := transaction.NewRepository()
 	vehicleRepository := vehicle.NewRepository()
@@ -50,47 +55,50 @@ func Init() *echo.Echo {
 	retailproductRepository := retailproduct.NewRepository()
 	purchaseorderRepository := purchaseorder.NewRepository()
 	purchaseorderproductRepository := purchaseorderproduct.NewRepository()
-	outboundRepository := outbound.NewRepository()
-	inboundRepository := inbound.NewRepository()
-	stockinRepository := stockin.NewRepository()
 	stockRepository := stock.NewRepository()
 	stocklogRepository := stocklog.NewRepository()
-	stockmovementRepository := stockmovement.NewRepository()
 	stockmovementvehicleRepository := stockmovementvehicle.NewRepository()
 	stockmovementvehiclephotoRepository := stockmovementvehiclephoto.NewRepository()
 	photoRepository := photo.NewRepository()
 
 	// usecases
 	authUsecase := auth.NewUsecase(userRepository, warehouseRepository)
-	userUsecase := user.NewUsecase(userRepository, userprivilegeRepository)
+	userUsecase := user.NewUsecase(userRepository, userprivilegeRepository, warehouseRepository)
+	locationUsecase := location.NewUsecase(locationRepository)
 	warehouseUsecase := warehouse.NewUsecase(warehouseRepository)
 	transactionUsecase := transaction.NewUsecase(transactionRepository)
-	stocklogUsecase := stocklog.NewUsecase(stocklogRepository)
-	stockmovementvehicleUsecase := stockmovementvehicle.NewUsecase(stockmovementvehicleRepository, warehouseRepository, vehicleRepository, stockmovementRepository, stockRepository, stocklogRepository, purchaseorderRepository, retailRepository, stockmovementvehiclephotoRepository, photoRepository)
 	vehicleUsecase := vehicle.NewUsecase(vehicleRepository)
 	customerUsecase := customer.NewUsecase(customerRepository)
 	productUsecase := product.NewUsecase(productRepository)
+	stockmovementvehicleUsecase := stockmovementvehicle.NewUsecase(stockmovementvehicleRepository, stockmovementvehiclephotoRepository, photoRepository)
+	stockinUsecase := stockin.NewUsecase(stockmovementvehicleRepository, warehouseRepository, stockRepository, stocklogRepository)
+	transferoutUsecase := transferout.NewUsecase(stockmovementvehicleRepository, warehouseRepository, stockRepository, stocklogRepository, vehicleRepository)
+	transferinUsecase := transferin.NewUsecase(stockmovementvehicleRepository, warehouseRepository, stockRepository, stocklogRepository)
+	stockmovementvehiclepurchaseorderUsecase := stockmovementvehiclepurchaseorder.NewUsecase(purchaseorderRepository, stockmovementvehicleRepository, warehouseRepository, stockRepository, stocklogRepository, vehicleRepository)
+	stockmovementvehicleretailUsecase := stockmovementvehicleretail.NewUsecase(retailRepository, stockmovementvehicleRepository, warehouseRepository, stockRepository, stocklogRepository, vehicleRepository)
+	stocklogUsecase := stocklog.NewUsecase(stocklogRepository)
+	//stockmovementvehicleUsecase := stockmovementvehicle.NewUsecase(stockmovementvehicleRepository, warehouseRepository, vehicleRepository, stockRepository, stocklogRepository, purchaseorderRepository, retailRepository, stockmovementvehiclephotoRepository, photoRepository)
 	retailUsecase := retail.NewUsecase(retailRepository, retailproductRepository, stockRepository, stocklogRepository, customerRepository, warehouseRepository, vehicleRepository)
 	purchaseorderUsecase := purchaseorder.NewUsecase(purchaseorderRepository, purchaseorderproductRepository, stockRepository, stocklogRepository, customerRepository, warehouseRepository, vehicleRepository)
-	outboundUsecase := outbound.NewUsecase(outboundRepository, warehouseRepository, vehicleRepository, stockRepository, stocklogRepository, stockmovementRepository, stockmovementvehicleRepository)
-	inboundUsecase := inbound.NewUsecase(inboundRepository, warehouseRepository, vehicleRepository, stockRepository, stocklogRepository, stockmovementRepository, stockmovementvehicleRepository)
-	stockinUsecase := stockin.NewUsecase(stockinRepository, warehouseRepository, stockRepository, stocklogRepository, stockmovementRepository)
 
 	// handlers
 	authHandler := auth.NewHandler(authUsecase)
 	userHandler := user.NewHandler(userUsecase)
+	locationHandler := location.NewHandler(locationUsecase)
 	warehouseHandler := warehouse.NewHandler(warehouseUsecase)
 	transactionHandler := transaction.NewHandler(transactionUsecase)
 	stocklogHandler := stocklog.NewHandler(stocklogUsecase)
 	stockmovementvehicleHandler := stockmovementvehicle.NewHandler(stockmovementvehicleUsecase)
+	stockinHandler := stockin.NewHandler(stockinUsecase)
+	transferoutHandler := transferout.NewHandler(transferoutUsecase)
+	transferinHandler := transferin.NewHandler(transferinUsecase)
+	stockmovementvehicleretailHandler := stockmovementvehicleretail.NewHandler(stockmovementvehicleretailUsecase)
+	stockmovementvehiclepurchaseorderHandler := stockmovementvehiclepurchaseorder.NewHandler(stockmovementvehiclepurchaseorderUsecase)
 	vehicleHandler := vehicle.NewHandler(vehicleUsecase)
 	customerHandler := customer.NewHandler(customerUsecase)
 	productHandler := product.NewHandler(productUsecase)
 	retailHandler := retail.NewHandler(retailUsecase)
 	purchaseorderHandler := purchaseorder.NewHandler(purchaseorderUsecase)
-	outboundHandler := outbound.NewHandler(outboundUsecase)
-	inboundHandler := inbound.NewHandler(inboundUsecase)
-	stockinHandler := stockin.NewHandler(stockinUsecase)
 
 	router := websiteRouter()
 
@@ -109,12 +117,30 @@ func Init() *echo.Echo {
 	routerAuth.GET("/init", authHandler.Init, checkTokenMiddleware)
 	routerAuth.GET("/refresh-token", authHandler.RefreshToken, checkTokenMiddleware)
 
+	routerLocation := router.Group("/location", checkTokenMiddlewareAdmin)
+	routerLocation.GET("", locationHandler.Page)
+	routerLocation.GET("/:id", locationHandler.GetById)
+
 	routerCustomer := router.Group("/customer", checkTokenMiddlewareAdmin)
 	routerCustomer.GET("", customerHandler.Page)
 	routerCustomer.POST("", customerHandler.Create)
 	routerCustomer.GET("/:id", customerHandler.GetById)
 	routerCustomer.PUT("/:id", customerHandler.Update)
 	routerCustomer.DELETE("/:id", customerHandler.Delete)
+
+	routerVehicle := router.Group("/vehicle", checkTokenMiddleware)
+	routerVehicle.GET("", vehicleHandler.Page)
+	routerVehicle.POST("", vehicleHandler.Create)
+	routerVehicle.GET("/:id", vehicleHandler.GetById)
+	routerVehicle.PUT("/:id", vehicleHandler.Update)
+	routerVehicle.DELETE("/:id", vehicleHandler.Delete)
+
+	routerProduct := router.Group("/product")
+	routerProduct.GET("", productHandler.Page, checkTokenMiddleware)
+	routerProduct.POST("", productHandler.Create, checkTokenMiddlewareAdmin)
+	routerProduct.GET("/:id", productHandler.GetById, checkTokenMiddleware)
+	routerProduct.PUT("/:id", productHandler.Update, checkTokenMiddlewareAdmin)
+	routerProduct.DELETE("/:id", productHandler.Delete, checkTokenMiddlewareAdmin)
 
 	routerWarehouse := router.Group("/warehouse")
 	routerWarehouse.GET("", warehouseHandler.Page, checkTokenMiddleware)
@@ -130,53 +156,6 @@ func Init() *echo.Echo {
 	routerTransaction.PUT("/:id", transactionHandler.Update)
 	routerTransaction.DELETE("/:id", transactionHandler.Delete)
 
-	routerStocklog := router.Group("/stocklog")
-	routerStocklog.GET("", stocklogHandler.Page, checkTokenMiddleware)
-	routerStocklog.GET("/:id", stocklogHandler.GetById, checkTokenMiddleware)
-
-	routerStockmovementvehicle := router.Group("/stockmovementvehicle")
-	routerStockmovementvehicle.GET("", stockmovementvehicleHandler.Page, checkTokenMiddleware)
-	routerStockmovementvehicle.GET("/:id", stockmovementvehicleHandler.GetById, checkTokenMiddleware)
-	routerStockmovementvehicle.DELETE("/:id", stockmovementvehicleHandler.Delete, checkTokenMiddleware)
-	routerStockmovementvehicle.GET("/:id/set-sent", stockmovementvehicleHandler.SetSent, checkTokenMiddleware)
-	routerStockmovementvehicle.GET("/:id/generate-delivery-order", stockmovementvehicleHandler.GenerateDeliveryOrder, checkTokenMiddleware)
-	routerStockmovementvehicle.POST("/:id/upload-photo", stockmovementvehicleHandler.UploadPhoto, checkTokenMiddleware)
-
-	routerStockmovementvehiclePurchaseorder := routerStockmovementvehicle.Group("/purchaseorder")
-	routerStockmovementvehiclePurchaseorder.POST("", stockmovementvehicleHandler.CreatePurchaseorder, checkTokenMiddleware)
-	routerStockmovementvehiclePurchaseorder.PUT("/:id", stockmovementvehicleHandler.UpdatePurchaseorder, checkTokenMiddleware)
-
-	routerStockmovementvehicleRetail := routerStockmovementvehicle.Group("/retail")
-	routerStockmovementvehicleRetail.POST("", stockmovementvehicleHandler.CreateRetail, checkTokenMiddleware)
-	routerStockmovementvehicleRetail.PUT("/:id", stockmovementvehicleHandler.UpdateRetail, checkTokenMiddleware)
-
-	routerProduct := router.Group("/product")
-	routerProduct.GET("", productHandler.Page, checkTokenMiddleware)
-	routerProduct.POST("", productHandler.Create, checkTokenMiddlewareAdmin)
-	routerProduct.GET("/:id", productHandler.GetById, checkTokenMiddleware)
-	routerProduct.PUT("/:id", productHandler.Update, checkTokenMiddlewareAdmin)
-	routerProduct.DELETE("/:id", productHandler.Delete, checkTokenMiddlewareAdmin)
-
-	routerRetail := router.Group("/retail", checkTokenMiddleware)
-	routerRetail.GET("", retailHandler.Page)
-	routerRetail.POST("", retailHandler.Create)
-	routerRetail.GET("/:id", retailHandler.GetById)
-	routerRetail.PUT("/:id", retailHandler.Update)
-	//routerRetail.DELETE("/:id", retailHandler.Delete)
-	routerRetail.GET("/:id/set-status-open", retailHandler.SetStatusOpen)
-	routerRetail.GET("/:id/set-status-close", retailHandler.SetStatusClose)
-	routerRetail.GET("/:id/generate-invoice", retailHandler.GenerateInvoice)
-
-	routerPurchaseorder := router.Group("/purchaseorder", checkTokenMiddleware)
-	routerPurchaseorder.GET("", purchaseorderHandler.Page)
-	routerPurchaseorder.POST("", purchaseorderHandler.Create)
-	routerPurchaseorder.GET("/:id", purchaseorderHandler.GetById)
-	routerPurchaseorder.PUT("/:id", purchaseorderHandler.Update)
-	//routerPurchaseorder.DELETE("/:id", purchaseorderHandler.Delete)
-	routerPurchaseorder.GET("/:id/set-status-open", purchaseorderHandler.SetStatusOpen)
-	routerPurchaseorder.GET("/:id/set-status-close", purchaseorderHandler.SetStatusClose)
-	routerPurchaseorder.GET("/:id/generate-invoice", purchaseorderHandler.GenerateInvoice)
-
 	routerUser := router.Group("/user")
 	routerUser.GET("", userHandler.Page, checkTokenMiddlewareAdmin)
 	routerUser.POST("", userHandler.Create, checkTokenMiddlewareAdmin)
@@ -186,33 +165,87 @@ func Init() *echo.Echo {
 	routerUser.DELETE("/:id", userHandler.Delete, checkTokenMiddlewareAdmin)
 	routerUser.POST("/change-password", userHandler.ChangePassword, checkTokenMiddleware)
 
-	routerVehicle := router.Group("/vehicle", checkTokenMiddleware)
-	routerVehicle.GET("", vehicleHandler.Page)
-	routerVehicle.POST("", vehicleHandler.Create)
-	routerVehicle.GET("/:id", vehicleHandler.GetById)
-	routerVehicle.PUT("/:id", vehicleHandler.Update)
-	routerVehicle.DELETE("/:id", vehicleHandler.Delete)
+	routerStockmovementvehicle := router.Group("/stockmovementvehicle")
+	routerStockmovementvehicle.GET("", stockmovementvehicleHandler.Page, checkTokenMiddlewareAdmin)
+	routerStockmovementvehicle.GET("/:id", stockmovementvehicleHandler.GetById, checkTokenMiddleware)
+	routerStockmovementvehicle.DELETE("/:id", stockmovementvehicleHandler.Delete, checkTokenMiddlewareAdmin)
+	routerStockmovementvehicle.POST("/:id/upload-photo", stockmovementvehicleHandler.UploadPhoto, checkTokenMiddleware)
+	//routerStockmovementvehiclePUTGET("/:id/set-sent", stockmovementvehicleHandler.SetSent, checkTokenMiddleware)
+	//routerStockmovementvehicle.GET("/:id/generate-delivery-order", stockmovementvehicleHandler.GenerateDeliveryOrder, checkTokenMiddleware)
 
-	routerInbound := router.Group("/inbound", checkTokenMiddleware)
-	routerInbound.GET("", inboundHandler.Page)
-	routerInbound.GET("/:id", inboundHandler.GetById)
-	routerInbound.PUT("/:id", inboundHandler.Update)
-	routerInbound.GET("/:id/set-unloading", inboundHandler.SetUnloading)
-	routerInbound.GET("/:id/set-complete", inboundHandler.SetComplete)
-	routerInbound.GET("/:id/generate-delivery-recipt", inboundHandler.GenerateDeliveryRecipt)
+	routerStockmovementvehicleStockin := routerStockmovementvehicle.Group("/stock-in", checkTokenMiddleware)
+	routerStockmovementvehicleStockin.GET("", stockinHandler.Page)
+	routerStockmovementvehicleStockin.POST("", stockinHandler.Create)
+	routerStockmovementvehicleStockin.GET("/:id", stockinHandler.GetById)
+	routerStockmovementvehicleStockin.DELETE("/:id", stockinHandler.Delete)
+	routerStockmovementvehicleStockin.PUT("/:id/set-complete", stockinHandler.SetComplete)
 
-	routerOutbound := router.Group("/outbound", checkTokenMiddleware)
-	routerOutbound.GET("", outboundHandler.Page)
-	routerOutbound.POST("", outboundHandler.Create)
-	routerOutbound.GET("/:id", outboundHandler.GetById)
-	routerOutbound.PUT("/:id", outboundHandler.Update)
-	routerOutbound.GET("/:id/set-sent", outboundHandler.SetSent)
-	routerOutbound.GET("/:id/generate-delivery-order", outboundHandler.GenerateDeliveryOrder)
+	routerStockmovementvehicleTrasnferout := routerStockmovementvehicle.Group("/transfer-out", checkTokenMiddleware)
+	routerStockmovementvehicleTrasnferout.GET("", transferoutHandler.Page)
+	routerStockmovementvehicleTrasnferout.POST("", transferoutHandler.Create)
+	routerStockmovementvehicleTrasnferout.GET("/:id", transferoutHandler.GetById)
+	routerStockmovementvehicleTrasnferout.PUT("/:id", transferoutHandler.Update)
+	routerStockmovementvehicleTrasnferout.DELETE("/:id", transferoutHandler.Delete)
+	routerStockmovementvehicleTrasnferout.PUT("/:id/set-in-transit", transferoutHandler.SetInTransit)
+	routerStockmovementvehicleTrasnferout.GET("/:id/generate-delivery-order", transferoutHandler.GenerateDeliveryOrder)
 
-	routerStockin := router.Group("/stockin", checkTokenMiddleware)
-	routerStockin.GET("", stockinHandler.Page)
-	routerStockin.GET("/:id", stockinHandler.GetById)
-	routerStockin.POST("", stockinHandler.Create)
+	routerStockmovementvehicleTrasnferin := routerStockmovementvehicle.Group("/transfer-in", checkTokenMiddleware)
+	routerStockmovementvehicleTrasnferin.GET("", transferinHandler.Page)
+	routerStockmovementvehicleTrasnferin.GET("/:id", transferinHandler.GetById)
+	routerStockmovementvehicleTrasnferin.PUT("/:id", transferinHandler.Update)
+	routerStockmovementvehicleTrasnferin.PUT("/:id/set-unloading", transferinHandler.SetUnloading)
+	routerStockmovementvehicleTrasnferin.PUT("/:id/set-complete", transferinHandler.SetComplete)
+	routerStockmovementvehicleTrasnferin.GET("/:id/generate-delivery-recipt", transferinHandler.GenerateDeliveryRecipt)
+
+	routerStockmovementvehiclePurchaseorder := routerStockmovementvehicle.Group("/purchase-order", checkTokenMiddleware)
+	routerStockmovementvehiclePurchaseorder.GET("", stockmovementvehiclepurchaseorderHandler.Page)
+	routerStockmovementvehiclePurchaseorder.POST("", stockmovementvehiclepurchaseorderHandler.Create)
+	routerStockmovementvehiclePurchaseorder.GET("/:id", stockmovementvehiclepurchaseorderHandler.GetById)
+	routerStockmovementvehiclePurchaseorder.PUT("/:id", stockmovementvehiclepurchaseorderHandler.Update)
+	routerStockmovementvehiclePurchaseorder.DELETE("/:id", stockmovementvehiclepurchaseorderHandler.Delete)
+	routerStockmovementvehiclePurchaseorder.PUT("/:id/set-complete", stockmovementvehiclepurchaseorderHandler.SetComplete)
+	routerStockmovementvehiclePurchaseorder.GET("/:id/generate-delivery-order", stockmovementvehiclepurchaseorderHandler.GenerateDeliveryOrder)
+
+	routerStockmovementvehicleRetail := routerStockmovementvehicle.Group("/retail", checkTokenMiddleware)
+	routerStockmovementvehicleRetail.GET("", stockmovementvehicleretailHandler.Page)
+	routerStockmovementvehicleRetail.POST("", stockmovementvehicleretailHandler.Create)
+	routerStockmovementvehicleRetail.GET("/:id", stockmovementvehicleretailHandler.GetById)
+	routerStockmovementvehicleRetail.PUT("/:id", stockmovementvehicleretailHandler.Update)
+	routerStockmovementvehicleRetail.DELETE("/:id", stockmovementvehicleretailHandler.Delete)
+	routerStockmovementvehicleRetail.PUT("/:id/set-complete", stockmovementvehicleretailHandler.SetComplete)
+	routerStockmovementvehicleRetail.GET("/:id/generate-delivery-order", stockmovementvehicleretailHandler.GenerateDeliveryOrder)
+
+	routerStocklog := router.Group("/stocklog")
+	routerStocklog.GET("", stocklogHandler.Page, checkTokenMiddleware)
+	routerStocklog.GET("/:id", stocklogHandler.GetById, checkTokenMiddleware)
+	//
+	//routerStockmovementvehiclePurchaseorder := routerStockmovementvehicle.Group("/purchaseorder")
+	//routerStockmovementvehiclePurchaseorder.POST("", stockmovementvehicleHandler.CreatePurchaseorder, checkTokenMiddleware)
+	//routerStockmovementvehiclePurchaseorder.PUT("/:id", stockmovementvehicleHandler.UpdatePurchaseorder, checkTokenMiddleware)
+	//
+	//routerStockmovementvehicleRetail := routerStockmovementvehicle.Group("/retail")
+	//routerStockmovementvehicleRetail.POST("", stockmovementvehicleHandler.CreateRetail, checkTokenMiddleware)
+	//routerStockmovementvehicleRetail.PUT("/:id", stockmovementvehicleHandler.UpdateRetail, checkTokenMiddleware)
+
+	routerRetail := router.Group("/retail", checkTokenMiddleware)
+	routerRetail.GET("", retailHandler.Page)
+	routerRetail.POST("", retailHandler.Create)
+	routerRetail.GET("/:id", retailHandler.GetById)
+	routerRetail.PUT("/:id", retailHandler.Update)
+	routerRetail.DELETE("/:id", retailHandler.Delete)
+	routerRetail.PUT("/:id/set-status-open", retailHandler.SetStatusOpen)
+	routerRetail.PUT("/:id/set-status-close", retailHandler.SetStatusClose)
+	routerRetail.GET("/:id/generate-invoice", retailHandler.GenerateInvoice)
+
+	routerPurchaseorder := router.Group("/purchase-order", checkTokenMiddleware)
+	routerPurchaseorder.GET("", purchaseorderHandler.Page)
+	routerPurchaseorder.POST("", purchaseorderHandler.Create)
+	routerPurchaseorder.GET("/:id", purchaseorderHandler.GetById)
+	routerPurchaseorder.PUT("/:id", purchaseorderHandler.Update)
+	routerPurchaseorder.DELETE("/:id", purchaseorderHandler.Delete)
+	routerPurchaseorder.PUT("/:id/set-status-open", purchaseorderHandler.SetStatusOpen)
+	routerPurchaseorder.PUT("/:id/set-status-close", purchaseorderHandler.SetStatusClose)
+	routerPurchaseorder.GET("/:id/generate-invoice", purchaseorderHandler.GenerateInvoice)
 
 	return router
 
@@ -308,7 +341,7 @@ func checkTokenMiddlewareAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 			return response.ErrorForce(http.StatusUnauthorized, response.ErrorMiddlewarePassVersion).SendJSON(c)
 		}
 
-		if tUser.Role == model.UserRoleOperator {
+		if tUser.UserRole == model.UserRoleOperator {
 			return response.ErrorForce(http.StatusUnauthorized, response.ErrorRoleNotAllowed).SendJSON(c)
 		}
 

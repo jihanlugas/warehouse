@@ -435,22 +435,22 @@ const docTemplate = `{
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedGrossQuantity",
+                        "name": "endReceivedGrossQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedNetQuantity",
+                        "name": "endReceivedNetQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedTareQuantity",
+                        "name": "endReceivedTareQuantity",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "endRecivedTime",
+                        "name": "endReceivedTime",
                         "in": "query"
                     },
                     {
@@ -514,22 +514,22 @@ const docTemplate = `{
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedGrossQuantity",
+                        "name": "startReceivedGrossQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedNetQuantity",
+                        "name": "startReceivedNetQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedTareQuantity",
+                        "name": "startReceivedTareQuantity",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "startRecivedTime",
+                        "name": "startReceivedTime",
                         "in": "query"
                     },
                     {
@@ -719,7 +719,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/inbound/{id}/set-recived": {
+        "/inbound/{id}/set-received": {
             "get": {
                 "security": [
                     {
@@ -784,22 +784,22 @@ const docTemplate = `{
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedGrossQuantity",
+                        "name": "endReceivedGrossQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedNetQuantity",
+                        "name": "endReceivedNetQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedTareQuantity",
+                        "name": "endReceivedTareQuantity",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "endRecivedTime",
+                        "name": "endReceivedTime",
                         "in": "query"
                     },
                     {
@@ -863,22 +863,22 @@ const docTemplate = `{
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedGrossQuantity",
+                        "name": "startReceivedGrossQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedNetQuantity",
+                        "name": "startReceivedNetQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedTareQuantity",
+                        "name": "startReceivedTareQuantity",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "startRecivedTime",
+                        "name": "startReceivedTime",
                         "in": "query"
                     },
                     {
@@ -2668,22 +2668,22 @@ const docTemplate = `{
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedGrossQuantity",
+                        "name": "endReceivedGrossQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedNetQuantity",
+                        "name": "endReceivedNetQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedTareQuantity",
+                        "name": "endReceivedTareQuantity",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "endRecivedTime",
+                        "name": "endReceivedTime",
                         "in": "query"
                     },
                     {
@@ -2752,22 +2752,22 @@ const docTemplate = `{
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedGrossQuantity",
+                        "name": "startReceivedGrossQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedNetQuantity",
+                        "name": "startReceivedNetQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedTareQuantity",
+                        "name": "startReceivedTareQuantity",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "startRecivedTime",
+                        "name": "startReceivedTime",
                         "in": "query"
                     },
                     {
@@ -2811,7 +2811,7 @@ const docTemplate = `{
                         "x-enum-varnames": [
                             "StockmovementTypeTransfer",
                             "StockmovementTypeIn",
-                            "StockmovementTypePurchaseOrder",
+                            "StockmovementTypePurchaseorder",
                             "StockmovementTypeRetail"
                         ],
                         "name": "type",
@@ -4392,7 +4392,7 @@ const docTemplate = `{
             "x-enum-varnames": [
                 "StockmovementTypeTransfer",
                 "StockmovementTypeIn",
-                "StockmovementTypePurchaseOrder",
+                "StockmovementTypePurchaseorder",
                 "StockmovementTypeRetail"
             ]
         },
@@ -4746,7 +4746,7 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 20
                 },
-                "purchaseOrder": {
+                "purchaseorder": {
                     "type": "boolean"
                 },
                 "retail": {
@@ -4889,13 +4889,13 @@ const docTemplate = `{
         "request.UpdateInbound": {
             "type": "object",
             "properties": {
-                "recivedGrossQuantity": {
+                "receivedGrossQuantity": {
                     "type": "number"
                 },
-                "recivedNetQuantity": {
+                "receivedNetQuantity": {
                     "type": "number"
                 },
-                "recivedTareQuantity": {
+                "receivedTareQuantity": {
                     "type": "number"
                 }
             }
@@ -5020,7 +5020,7 @@ const docTemplate = `{
         "request.UpdateUserprivilege": {
             "type": "object",
             "properties": {
-                "purchaseOrder": {
+                "purchaseorder": {
                     "type": "boolean"
                 },
                 "retail": {

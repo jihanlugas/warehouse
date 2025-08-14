@@ -1,13 +1,14 @@
 package stockin
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/jihanlugas/warehouse/jwt"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/response"
 	"github.com/jihanlugas/warehouse/utils"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"strings"
 )
 
 type Handler struct {
@@ -28,7 +29,7 @@ func NewHandler(usecase Usecase) Handler {
 // @Param req query request.PageStockin false "url query string"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /stockin [get]
+// @Router /stockmovementvehicle/stock-in [get]
 func (h Handler) Page(c echo.Context) error {
 	var err error
 
@@ -49,57 +50,12 @@ func (h Handler) Page(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerFailedValidation, err, response.ValidationError(err)).SendJSON(c)
 	}
 
-	if req.WarehouseID == "" {
-		req.WarehouseID = loginUser.WarehouseID
-	} else {
-		if jwt.IsSaveWarehouseIDOR(loginUser, req.WarehouseID) {
-			return response.Error(http.StatusBadRequest, response.ErrorHandlerIDOR, err, nil).SendJSON(c)
-		}
-	}
-
 	data, count, err := h.usecase.Page(loginUser, *req)
 	if err != nil {
 		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
 	}
 
 	return response.Success(http.StatusOK, response.SuccessHandler, response.PayloadPagination(req, data, count)).SendJSON(c)
-}
-
-// GetById
-// @Tags Stockin
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param id path string true "ID"
-// @Query preloads query string false "preloads"
-// @Success      200  {object}	response.Response
-// @Failure      500  {object}  response.Response
-// @Router /stockin/{id} [get]
-func (h Handler) GetById(c echo.Context) error {
-	var err error
-
-	loginUser, err := jwt.GetUserLoginInfo(c)
-	if err != nil {
-		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
-	}
-
-	id := c.Param("id")
-	if id == "" {
-		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
-	}
-
-	preloads := c.QueryParam("preloads")
-	var preloadSlice []string
-	if preloads != "" {
-		preloadSlice = strings.Split(preloads, ",")
-	}
-
-	vStockin, err := h.usecase.GetById(loginUser, id, preloadSlice...)
-	if err != nil {
-		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
-	}
-
-	return response.Success(http.StatusOK, response.SuccessHandler, vStockin).SendJSON(c)
 }
 
 // Create
@@ -110,7 +66,7 @@ func (h Handler) GetById(c echo.Context) error {
 // @Param req body request.CreateStockin true "json req body"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /stockin [post]
+// @Router /stockmovementvehicle/stock-in [post]
 func (h Handler) Create(c echo.Context) error {
 	var err error
 
@@ -131,11 +87,104 @@ func (h Handler) Create(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerFailedValidation, err, response.ValidationError(err)).SendJSON(c)
 	}
 
-	if jwt.IsSaveWarehouseIDOR(loginUser, req.WarehouseID) {
-		return response.Error(http.StatusBadRequest, response.ErrorHandlerIDOR, err, nil).SendJSON(c)
+	err = h.usecase.Create(loginUser, *req)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
 	}
 
-	err = h.usecase.Create(loginUser, *req)
+	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
+}
+
+// GetById
+// @Tags Stockin
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "ID"
+// @Query preloads query string false "preloads"
+// @Success      200  {object}	response.Response
+// @Failure      500  {object}  response.Response
+// @Router /stockmovementvehicle/stock-in/{id} [get]
+func (h Handler) GetById(c echo.Context) error {
+	var err error
+
+	loginUser, err := jwt.GetUserLoginInfo(c)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
+	}
+
+	preloads := c.QueryParam("preloads")
+	var preloadSlice []string
+	if preloads != "" {
+		preloadSlice = strings.Split(preloads, ",")
+	}
+
+	vStockmovementvehicle, err := h.usecase.GetById(loginUser, id, preloadSlice...)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
+	}
+
+	return response.Success(http.StatusOK, response.SuccessHandler, vStockmovementvehicle).SendJSON(c)
+}
+
+// Delete
+// @Tags Stockin
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "ID"
+// @Success      200  {object}	response.Response
+// @Failure      500  {object}  response.Response
+// @Router /stockmovementvehicle/stock-in/{id} [delete]
+func (h Handler) Delete(c echo.Context) error {
+	var err error
+
+	loginUser, err := jwt.GetUserLoginInfo(c)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
+	}
+
+	err = h.usecase.Delete(loginUser, id)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
+	}
+
+	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
+}
+
+// SetComplete
+// @Tags Stockin
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "ID"
+// @Success      200  {object}	response.Response
+// @Failure      500  {object}  response.Response
+// @Router /stockmovementvehicle/stock-in/{id}/set-complete [put]
+func (h Handler) SetComplete(c echo.Context) error {
+	var err error
+
+	loginUser, err := jwt.GetUserLoginInfo(c)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
+	}
+
+	err = h.usecase.SetComplete(loginUser, id)
 	if err != nil {
 		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
 	}

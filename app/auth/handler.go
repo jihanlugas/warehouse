@@ -1,13 +1,14 @@
 package auth
 
 import (
+	"net/http"
+
 	"github.com/jihanlugas/warehouse/jwt"
 	"github.com/jihanlugas/warehouse/model"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/response"
 	"github.com/jihanlugas/warehouse/utils"
 	"github.com/labstack/echo/v4"
-	"net/http"
 )
 
 type Handler struct {
@@ -114,7 +115,7 @@ func (h Handler) Init(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
 	}
 
-	if vUser.Role == model.UserRoleOperator {
+	if vUser.UserRole == model.UserRoleOperator {
 		res = response.Init{
 			User:      vUser,
 			Warehouse: &vWarehouse,

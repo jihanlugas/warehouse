@@ -1,12 +1,13 @@
 package model
 
 import (
+	"time"
+
 	"github.com/jihanlugas/warehouse/utils"
 	"gorm.io/gorm"
-	"time"
 )
 
-func (m *Stockmovement) BeforeCreate(tx *gorm.DB) (err error) {
+func (m *Location) BeforeCreate(tx *gorm.DB) (err error) {
 	now := time.Now()
 
 	if m.ID == "" {
@@ -22,12 +23,8 @@ func (m *Stockmovement) BeforeCreate(tx *gorm.DB) (err error) {
 	return
 }
 
-func (m *Stockmovement) BeforeUpdate(tx *gorm.DB) (err error) {
+func (m *Location) BeforeUpdate(tx *gorm.DB) (err error) {
 	now := time.Now()
 	m.UpdateDt = now
-	return
-}
-
-func (m *StockmovementView) AfterFind(tx *gorm.DB) (err error) {
 	return
 }

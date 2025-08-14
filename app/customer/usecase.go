@@ -99,7 +99,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateCu
 	tCustomer.UpdateBy = loginUser.UserID
 	err = u.customerRepository.Save(tx, tCustomer)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to update %s: %v", u.customerRepository.Name(), err))
+		return errors.New(fmt.Sprintf("failed to save %s: %v", u.customerRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error

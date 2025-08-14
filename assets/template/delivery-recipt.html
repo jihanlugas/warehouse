@@ -40,15 +40,19 @@
         </div>
         <div class="w-full text-center">
             <div class="border-2 p-2 mb-4">{{ .Number }}</div>
-            <div class="text-3xl font-bold uppercase">Surat Jalan</div>
+            <div class="text-3xl font-bold uppercase">Tanda Terima</div>
         </div>
     </div>
     <hr class="border my-4" />
     <div class="mb-8">
+        <div class="text-xl font-bold">Dari</div>
+        <div>{{ .FromWarehouse.Name }}</div>
+        <div class="">{{ displayPhoneNumber .FromWarehouse.PhoneNumber }}</div>
+    </div>
+    <div class="mb-8">
         <div class="text-xl font-bold">Tujuan</div>
-        <div>{{ .Stockmovement.ToWarehouse.Name }}</div>
-        <div class="">{{ .Stockmovement.ToWarehouse.Location }}</div>
-        <div class="">{{ displayPhoneNumber .Stockmovement.ToWarehouse.PhoneNumber }}</div>
+        <div>{{ .ToWarehouse.Name }}</div>
+        <div class="">{{ displayPhoneNumber .ToWarehouse.PhoneNumber }}</div>
     </div>
     <div class='mb-8'>
         <div class='mb-4'>Rincian Pengiriman:</div>
@@ -57,9 +61,9 @@
             <tr class="text-left border-y-2 border-gray-400">
                 <th class="px-2 py-4 w-16">No</th>
                 <th class='px-2 py-4'>Product</th>
-                <th class='px-2 py-4'>Tara</th>
-                <th class='px-2 py-4'>Broto</th>
-                <th class='px-2 py-4'>Netto</th>
+                <th class='px-2 py-4'>Berat Kosong</th>
+                <th class='px-2 py-4'>Berat Kotor</th>
+                <th class='px-2 py-4'>Berat Bersih</th>
             </tr>
             </thead>
             <tbody>
@@ -80,9 +84,9 @@
             <tr class="text-left border-y-2 border-gray-400">
                 <th class="px-2 py-4 w-16">No</th>
                 <th class='px-2 py-4'>Product</th>
-                <th class='px-2 py-4'>Tara</th>
-                <th class='px-2 py-4'>Broto</th>
-                <th class='px-2 py-4'>Netto</th>
+                <th class='px-2 py-4'>Berat Kosong</th>
+                <th class='px-2 py-4'>Berat Kotor</th>
+                <th class='px-2 py-4'>Berat Bersih</th>
                 <th class='px-2 py-4'>Selisih</th>
             </tr>
             </thead>
@@ -90,10 +94,10 @@
             <tr class='border-b border-gray-400'>
                 <td class='p-2'>1</td>
                 <td class='p-2'>{{ .Product.Name }}</td>
-                <td class='p-2'>{{ displayNumber .RecivedTareQuantity }}</td>
-                <td class='p-2'>{{ displayNumber .RecivedGrossQuantity }}</td>
-                <td class='p-2'>{{ displayNumber .RecivedNetQuantity }}</td>
-                <td class='p-2'>{{ displayNumberMinus .SentGrossQuantity .RecivedGrossQuantity }}</td>
+                <td class='p-2'>{{ displayNumber .ReceivedTareQuantity }}</td>
+                <td class='p-2'>{{ displayNumber .ReceivedGrossQuantity }}</td>
+                <td class='p-2'>{{ displayNumber .ReceivedNetQuantity }}</td>
+                <td class='p-2'>{{ displayNumberMinus .SentGrossQuantity .ReceivedGrossQuantity }}</td>
             </tr>
             </tbody>
         </table>

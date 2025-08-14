@@ -1,19 +1,24 @@
 package request
 
 type CreateWarehouse struct {
-	Name     string `json:"name" form:"name" query:"name" validate:"required"`
-	Location string `json:"location" form:"location" query:"location" validate:""`
+	LocationID string `json:"locationId" form:"locationId" query:"locationId" validate:"required"`
+	Name       string `json:"name" form:"name" query:"name" validate:"required"`
+	Address    string `json:"address" form:"address" query:"address" validate:""`
+	Notes      string `json:"notes" form:"notes" query:"notes" validate:""`
 }
 type UpdateWarehouse struct {
-	Name     string `json:"name" form:"name" query:"name" validate:"required"`
-	Location string `json:"location" form:"location" query:"location" validate:""`
+	LocationID string `json:"locationId" form:"locationId" query:"locationId" validate:"required"`
+	Name       string `json:"name" form:"name" query:"name" validate:"required"`
+	Address    string `json:"address" form:"address" query:"address" validate:""`
+	Notes      string `json:"notes" form:"notes" query:"notes" validate:""`
 }
 
 type PageWarehouse struct {
 	Paging
+	LocationID string `json:"locationId" form:"locationId" query:"locationId" validate:""`
 	Name       string `json:"name" form:"name" query:"name"`
-	Location   string `json:"location" form:"location" query:"location"`
-	IsStock    *bool  `json:"isStock" form:"isStock" query:"isStock"`
+	Address    string `json:"address" form:"address" query:"address" validate:""`
+	Notes      string `json:"notes" form:"notes" query:"notes" validate:""`
 	CreateName string `json:"createName" form:"createName" query:"createName"`
 	Preloads   string `json:"preloads" form:"preloads" query:"preloads"`
 }

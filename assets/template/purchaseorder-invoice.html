@@ -63,19 +63,19 @@
             </thead>
             <tbody>
             {{range $stockmovementvehicle := .Stockmovementvehicles}}
-            {{ if $stockmovementvehicle.SentTime }}
+            {{ if eq $stockmovementvehicle.StockmovementvehicleStatus "COMPLETED" }}
             <tr class='border-b border-gray-400'>
                 <td class='p-2'>{{ displayDate $stockmovementvehicle.SentTime }}</td>
                 <td class='p-2'>{{ $stockmovementvehicle.Product.Name }}</td>
-                <td class='p-2'>{{ displayMoney $stockmovementvehicle.Stockmovement.UnitPrice }}</td>
+                <td class='p-2'>{{ displayMoney $stockmovementvehicle.UnitPrice }}</td>
                 <td class='p-2'>{{ displayNumber $stockmovementvehicle.SentNetQuantity }}</td>
-                <td class='p-2'>{{ displayMoneyMultiple $stockmovementvehicle.SentNetQuantity $stockmovementvehicle.Stockmovement.UnitPrice }}</td>
+                <td class='p-2'>{{ displayMoneyMultiple $stockmovementvehicle.UnitPrice $stockmovementvehicle.SentNetQuantity }}</td>
             </tr>
             {{ else }}
             <tr class='border-b border-gray-400'>
                 <td class='p-2'>-</td>
                 <td class='p-2'>{{ $stockmovementvehicle.Product.Name }}</td>
-                <td class='p-2'>{{ displayMoney $stockmovementvehicle.Stockmovement.UnitPrice }}</td>
+                <td class='p-2'>{{ displayMoney $stockmovementvehicle.UnitPrice }}</td>
                 <td class='p-2'>-</td>
                 <td class='p-2'>-</td>
             </tr>

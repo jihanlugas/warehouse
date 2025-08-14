@@ -428,22 +428,22 @@
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedGrossQuantity",
+                        "name": "endReceivedGrossQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedNetQuantity",
+                        "name": "endReceivedNetQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedTareQuantity",
+                        "name": "endReceivedTareQuantity",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "endRecivedTime",
+                        "name": "endReceivedTime",
                         "in": "query"
                     },
                     {
@@ -507,22 +507,22 @@
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedGrossQuantity",
+                        "name": "startReceivedGrossQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedNetQuantity",
+                        "name": "startReceivedNetQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedTareQuantity",
+                        "name": "startReceivedTareQuantity",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "startRecivedTime",
+                        "name": "startReceivedTime",
                         "in": "query"
                     },
                     {
@@ -712,7 +712,7 @@
                 }
             }
         },
-        "/inbound/{id}/set-recived": {
+        "/inbound/{id}/set-received": {
             "get": {
                 "security": [
                     {
@@ -777,22 +777,22 @@
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedGrossQuantity",
+                        "name": "endReceivedGrossQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedNetQuantity",
+                        "name": "endReceivedNetQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedTareQuantity",
+                        "name": "endReceivedTareQuantity",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "endRecivedTime",
+                        "name": "endReceivedTime",
                         "in": "query"
                     },
                     {
@@ -856,22 +856,22 @@
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedGrossQuantity",
+                        "name": "startReceivedGrossQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedNetQuantity",
+                        "name": "startReceivedNetQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedTareQuantity",
+                        "name": "startReceivedTareQuantity",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "startRecivedTime",
+                        "name": "startReceivedTime",
                         "in": "query"
                     },
                     {
@@ -2661,22 +2661,22 @@
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedGrossQuantity",
+                        "name": "endReceivedGrossQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedNetQuantity",
+                        "name": "endReceivedNetQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "endRecivedTareQuantity",
+                        "name": "endReceivedTareQuantity",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "endRecivedTime",
+                        "name": "endReceivedTime",
                         "in": "query"
                     },
                     {
@@ -2745,22 +2745,22 @@
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedGrossQuantity",
+                        "name": "startReceivedGrossQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedNetQuantity",
+                        "name": "startReceivedNetQuantity",
                         "in": "query"
                     },
                     {
                         "type": "number",
-                        "name": "startRecivedTareQuantity",
+                        "name": "startReceivedTareQuantity",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "startRecivedTime",
+                        "name": "startReceivedTime",
                         "in": "query"
                     },
                     {
@@ -2804,7 +2804,7 @@
                         "x-enum-varnames": [
                             "StockmovementTypeTransfer",
                             "StockmovementTypeIn",
-                            "StockmovementTypePurchaseOrder",
+                            "StockmovementTypePurchaseorder",
                             "StockmovementTypeRetail"
                         ],
                         "name": "type",
@@ -4385,7 +4385,7 @@
             "x-enum-varnames": [
                 "StockmovementTypeTransfer",
                 "StockmovementTypeIn",
-                "StockmovementTypePurchaseOrder",
+                "StockmovementTypePurchaseorder",
                 "StockmovementTypeRetail"
             ]
         },
@@ -4739,7 +4739,7 @@
                     "type": "string",
                     "maxLength": 20
                 },
-                "purchaseOrder": {
+                "purchaseorder": {
                     "type": "boolean"
                 },
                 "retail": {
@@ -4882,13 +4882,13 @@
         "request.UpdateInbound": {
             "type": "object",
             "properties": {
-                "recivedGrossQuantity": {
+                "receivedGrossQuantity": {
                     "type": "number"
                 },
-                "recivedNetQuantity": {
+                "receivedNetQuantity": {
                     "type": "number"
                 },
-                "recivedTareQuantity": {
+                "receivedTareQuantity": {
                     "type": "number"
                 }
             }
@@ -5013,7 +5013,7 @@
         "request.UpdateUserprivilege": {
             "type": "object",
             "properties": {
-                "purchaseOrder": {
+                "purchaseorder": {
                     "type": "boolean"
                 },
                 "retail": {

@@ -1,15 +1,16 @@
-package retail
+package transferout
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/jihanlugas/warehouse/jwt"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/response"
 	"github.com/jihanlugas/warehouse/utils"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"strings"
-	"time"
 )
 
 type Handler struct {
@@ -23,14 +24,14 @@ func NewHandler(usecase Usecase) Handler {
 }
 
 // Page
-// @Tags Retail
+// @Tags Transferout
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param req query request.PageRetail false "url query string"
+// @Param req query request.PageTransferout false "url query string"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /retail [get]
+// @Router /stockmovementvehicle/transfer-out [get]
 func (h Handler) Page(c echo.Context) error {
 	var err error
 
@@ -39,7 +40,7 @@ func (h Handler) Page(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
 	}
 
-	req := new(request.PageRetail)
+	req := new(request.PageTransferout)
 	if err = c.Bind(req); err != nil {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerBind, err, nil).SendJSON(c)
 	}
@@ -59,52 +60,15 @@ func (h Handler) Page(c echo.Context) error {
 	return response.Success(http.StatusOK, response.SuccessHandler, response.PayloadPagination(req, data, count)).SendJSON(c)
 }
 
-// GetById
-// @Tags Retail
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param id path string true "ID"
-// @Query preloads query string false "preloads"
-// @Success      200  {object}	response.Response
-// @Failure      500  {object}  response.Response
-// @Router /retail/{id} [get]
-func (h Handler) GetById(c echo.Context) error {
-	var err error
-
-	loginUser, err := jwt.GetUserLoginInfo(c)
-	if err != nil {
-		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
-	}
-
-	id := c.Param("id")
-	if id == "" {
-		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
-	}
-
-	preloads := c.QueryParam("preloads")
-	var preloadSlice []string
-	if preloads != "" {
-		preloadSlice = strings.Split(preloads, ",")
-	}
-
-	vRetail, err := h.usecase.GetById(loginUser, id, preloadSlice...)
-	if err != nil {
-		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
-	}
-
-	return response.Success(http.StatusOK, response.SuccessHandler, vRetail).SendJSON(c)
-}
-
 // Create
-// @Tags Retail
+// @Tags Transferout
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param req body request.CreateRetail true "json req body"
+// @Param req body request.CreateTransferout true "json req body"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /retail [post]
+// @Router /stockmovementvehicle/transfer-out [post]
 func (h Handler) Create(c echo.Context) error {
 	var err error
 
@@ -113,7 +77,7 @@ func (h Handler) Create(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
 	}
 
-	req := new(request.CreateRetail)
+	req := new(request.CreateTransferout)
 	if err = c.Bind(req); err != nil {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerBind, err, nil).SendJSON(c)
 	}
@@ -133,16 +97,53 @@ func (h Handler) Create(c echo.Context) error {
 	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
 }
 
-// Update
-// @Tags Retail
+// GetById
+// @Tags Transferout
 // @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path string true "ID"
-// @Param req body request.UpdateRetail true "json req body"
+// @Query preloads query string false "preloads"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /retail/{id} [put]
+// @Router /stockmovementvehicle/transfer-out/{id} [get]
+func (h Handler) GetById(c echo.Context) error {
+	var err error
+
+	loginUser, err := jwt.GetUserLoginInfo(c)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
+	}
+
+	preloads := c.QueryParam("preloads")
+	var preloadSlice []string
+	if preloads != "" {
+		preloadSlice = strings.Split(preloads, ",")
+	}
+
+	vStockmovementvehicle, err := h.usecase.GetById(loginUser, id, preloadSlice...)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
+	}
+
+	return response.Success(http.StatusOK, response.SuccessHandler, vStockmovementvehicle).SendJSON(c)
+}
+
+// Update
+// @Tags Transferout
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "ID"
+// @Param req body request.UpdateTransferout true "json req body"
+// @Success      200  {object}	response.Response
+// @Failure      500  {object}  response.Response
+// @Router /stockmovementvehicle/transfer-out [post]
 func (h Handler) Update(c echo.Context) error {
 	var err error
 
@@ -156,7 +157,7 @@ func (h Handler) Update(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
 	}
 
-	req := new(request.UpdateRetail)
+	req := new(request.UpdateTransferout)
 	if err = c.Bind(req); err != nil {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerBind, err, nil).SendJSON(c)
 	}
@@ -174,17 +175,18 @@ func (h Handler) Update(c echo.Context) error {
 	}
 
 	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
+
 }
 
 // Delete
-// @Tags Retail
+// @Tags Transferout
 // @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path string true "ID"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /retail/{id} [delete]
+// @Router /stockmovementvehicle/transfer-out/{id} [delete]
 func (h Handler) Delete(c echo.Context) error {
 	var err error
 
@@ -206,16 +208,16 @@ func (h Handler) Delete(c echo.Context) error {
 	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
 }
 
-// SetStatusOpen
-// @Tags Retail
+// SetInTransit
+// @Tags Transferout
 // @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path string true "ID"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /retail/{id}/set-status-open [put]
-func (h Handler) SetStatusOpen(c echo.Context) error {
+// @Router /stockmovementvehicle/transfer-out/{id}/set-in-transit [put]
+func (h Handler) SetInTransit(c echo.Context) error {
 	var err error
 
 	loginUser, err := jwt.GetUserLoginInfo(c)
@@ -228,7 +230,7 @@ func (h Handler) SetStatusOpen(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
 	}
 
-	err = h.usecase.SetStatusOpen(loginUser, id)
+	err = h.usecase.SetInTransit(loginUser, id)
 	if err != nil {
 		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
 	}
@@ -236,16 +238,16 @@ func (h Handler) SetStatusOpen(c echo.Context) error {
 	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
 }
 
-// SetStatusClose
-// @Tags Retail
+// GenerateDeliveryOrder
+// @Tags Transferout
 // @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path string true "ID"
 // @Success      200  {object}	response.Response
 // @Failure      500  {object}  response.Response
-// @Router /retail/{id}/set-status-close [put]
-func (h Handler) SetStatusClose(c echo.Context) error {
+// @Router /stockmovementvehicle/transfer-out/{id}/generate-delivery-order [get]
+func (h Handler) GenerateDeliveryOrder(c echo.Context) error {
 	var err error
 
 	loginUser, err := jwt.GetUserLoginInfo(c)
@@ -258,45 +260,14 @@ func (h Handler) SetStatusClose(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
 	}
 
-	err = h.usecase.SetStatusClose(loginUser, id)
+	pdfBytes, vStockmovementvehicle, err := h.usecase.GenerateDeliveryOrder(loginUser, id)
 	if err != nil {
 		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
 	}
 
-	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
-}
+	fmt.Print(fmt.Sprintf("Delivery Order %s %s.pdf", vStockmovementvehicle.ID, utils.DisplayDate(time.Now())))
 
-// GenerateInvoice
-// @Tags Retail
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param id path string true "ID"
-// @Query preloads query string false "preloads"
-// @Success      200  {object}	response.Response
-// @Failure      500  {object}  response.Response
-// @Router /retail/{id}/generate-invoice [get]
-func (h Handler) GenerateInvoice(c echo.Context) error {
-	var err error
-
-	loginUser, err := jwt.GetUserLoginInfo(c)
-	if err != nil {
-		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetUserInfo, err, nil).SendJSON(c)
-	}
-
-	id := c.Param("id")
-	if id == "" {
-		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
-	}
-
-	pdfBytes, vRetail, err := h.usecase.GenerateInvoice(loginUser, id)
-	if err != nil {
-		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
-	}
-
-	fmt.Print(fmt.Sprintf("Retail Invoice %s %s.pdf", vRetail.ID, utils.DisplayDate(time.Now())))
-
-	filename := fmt.Sprintf("Retail Invoice %s %s.pdf", vRetail.ID, utils.DisplayDate(time.Now()))
+	filename := fmt.Sprintf("Delivery Order %s %s.pdf", vStockmovementvehicle.ID, utils.DisplayDate(time.Now()))
 	c.Response().Header().Set("Content-Disposition", "attachment; filename="+filename)
 
 	// Kirimkan PDF sebagai respons

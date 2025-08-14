@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"html/template"
+	"os"
+
 	"github.com/jihanlugas/warehouse/app/customer"
 	"github.com/jihanlugas/warehouse/app/retailproduct"
 	"github.com/jihanlugas/warehouse/app/stock"
@@ -15,8 +18,6 @@ import (
 	"github.com/jihanlugas/warehouse/model"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/utils"
-	"html/template"
-	"os"
 )
 
 type Usecase interface {
@@ -92,12 +93,12 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateRetail) error
 	}
 
 	tRetail = model.Retail{
-		ID:         utils.GetUniqueID(),
-		CustomerID: req.CustomerID,
-		Notes:      req.Notes,
-		Status:     model.RetailStatusOpen,
-		CreateBy:   loginUser.UserID,
-		UpdateBy:   loginUser.UserID,
+		ID:           utils.GetUniqueID(),
+		CustomerID:   req.CustomerID,
+		Notes:        req.Notes,
+		RetailStatus: model.RetailStatusOpen,
+		CreateBy:     loginUser.UserID,
+		UpdateBy:     loginUser.UserID,
 	}
 
 	err = u.retailRepository.Create(tx, tRetail)
@@ -146,7 +147,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateRe
 	tRetail.UpdateBy = loginUser.UserID
 	err = u.retailRepository.Save(tx, tRetail)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to update %s: %v", u.retailRepository.Name(), err))
+		return errors.New(fmt.Sprintf("failed to save %s: %v", u.retailRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
@@ -198,11 +199,11 @@ func (u usecase) SetStatusOpen(loginUser jwt.UserLogin, id string) error {
 
 	tx := conn.Begin()
 
-	if tRetail.Status == model.RetailStatusOpen {
+	if tRetail.RetailStatus == model.RetailStatusOpen {
 		return errors.New("the retail is already open")
 	}
 
-	tRetail.Status = model.RetailStatusOpen
+	tRetail.RetailStatus = model.RetailStatusOpen
 	tRetail.UpdateBy = loginUser.UserID
 	err = u.retailRepository.Save(tx, tRetail)
 	if err != nil {
@@ -231,11 +232,11 @@ func (u usecase) SetStatusClose(loginUser jwt.UserLogin, id string) error {
 
 	tx := conn.Begin()
 
-	if tRetail.Status == model.RetailStatusClose {
+	if tRetail.RetailStatus == model.RetailStatusClose {
 		return errors.New("the retail is already open")
 	}
 
-	tRetail.Status = model.RetailStatusClose
+	tRetail.RetailStatus = model.RetailStatusClose
 	tRetail.UpdateBy = loginUser.UserID
 	err = u.retailRepository.Save(tx, tRetail)
 	if err != nil {
@@ -254,7 +255,7 @@ func (u usecase) GenerateInvoice(loginUser jwt.UserLogin, id string) (pdfBytes [
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	vRetail, err = u.retailRepository.GetViewById(conn, id, "Customer", "Stockmovementvehicles", "Stockmovementvehicles.Stockmovement", "Stockmovementvehicles.Product", "Transactions")
+	vRetail, err = u.retailRepository.GetViewById(conn, id, "Customer", "Retailproducts", "Stockmovementvehicles", "Stockmovementvehicles.Product", "Transactions")
 	if err != nil {
 		return pdfBytes, vRetail, errors.New(fmt.Sprintf("failed to get %s: %v", u.retailRepository.Name(), err))
 	}

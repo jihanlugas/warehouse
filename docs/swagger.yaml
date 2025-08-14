@@ -17,7 +17,7 @@ definitions:
     x-enum-varnames:
     - StockmovementTypeTransfer
     - StockmovementTypeIn
-    - StockmovementTypePurchaseOrder
+    - StockmovementTypePurchaseorder
     - StockmovementTypeRetail
   request.ChangePassword:
     properties:
@@ -251,7 +251,7 @@ definitions:
       phoneNumber:
         maxLength: 20
         type: string
-      purchaseOrder:
+      purchaseorder:
         type: boolean
       retail:
         type: boolean
@@ -354,11 +354,11 @@ definitions:
     type: object
   request.UpdateInbound:
     properties:
-      recivedGrossQuantity:
+      receivedGrossQuantity:
         type: number
-      recivedNetQuantity:
+      receivedNetQuantity:
         type: number
-      recivedTareQuantity:
+      receivedTareQuantity:
         type: number
     type: object
   request.UpdateOutbound:
@@ -441,7 +441,7 @@ definitions:
     type: object
   request.UpdateUserprivilege:
     properties:
-      purchaseOrder:
+      purchaseorder:
         type: boolean
       retail:
         type: boolean
@@ -753,16 +753,16 @@ paths:
         name: createName
         type: string
       - in: query
-        name: endRecivedGrossQuantity
+        name: endReceivedGrossQuantity
         type: number
       - in: query
-        name: endRecivedNetQuantity
+        name: endReceivedNetQuantity
         type: number
       - in: query
-        name: endRecivedTareQuantity
+        name: endReceivedTareQuantity
         type: number
       - in: query
-        name: endRecivedTime
+        name: endReceivedTime
         type: string
       - in: query
         name: endSentGrossQuantity
@@ -802,16 +802,16 @@ paths:
         name: sortOrder
         type: string
       - in: query
-        name: startRecivedGrossQuantity
+        name: startReceivedGrossQuantity
         type: number
       - in: query
-        name: startRecivedNetQuantity
+        name: startReceivedNetQuantity
         type: number
       - in: query
-        name: startRecivedTareQuantity
+        name: startReceivedTareQuantity
         type: number
       - in: query
-        name: startRecivedTime
+        name: startReceivedTime
         type: string
       - in: query
         name: startSentGrossQuantity
@@ -932,7 +932,7 @@ paths:
       - BearerAuth: []
       tags:
       - Inbound
-  /inbound/{id}/set-recived:
+  /inbound/{id}/set-received:
     get:
       consumes:
       - application/json
@@ -966,16 +966,16 @@ paths:
         name: createName
         type: string
       - in: query
-        name: endRecivedGrossQuantity
+        name: endReceivedGrossQuantity
         type: number
       - in: query
-        name: endRecivedNetQuantity
+        name: endReceivedNetQuantity
         type: number
       - in: query
-        name: endRecivedTareQuantity
+        name: endReceivedTareQuantity
         type: number
       - in: query
-        name: endRecivedTime
+        name: endReceivedTime
         type: string
       - in: query
         name: endSentGrossQuantity
@@ -1015,16 +1015,16 @@ paths:
         name: sortOrder
         type: string
       - in: query
-        name: startRecivedGrossQuantity
+        name: startReceivedGrossQuantity
         type: number
       - in: query
-        name: startRecivedNetQuantity
+        name: startReceivedNetQuantity
         type: number
       - in: query
-        name: startRecivedTareQuantity
+        name: startReceivedTareQuantity
         type: number
       - in: query
-        name: startRecivedTime
+        name: startReceivedTime
         type: string
       - in: query
         name: startSentGrossQuantity
@@ -2119,16 +2119,16 @@ paths:
         name: createName
         type: string
       - in: query
-        name: endRecivedGrossQuantity
+        name: endReceivedGrossQuantity
         type: number
       - in: query
-        name: endRecivedNetQuantity
+        name: endReceivedNetQuantity
         type: number
       - in: query
-        name: endRecivedTareQuantity
+        name: endReceivedTareQuantity
         type: number
       - in: query
-        name: endRecivedTime
+        name: endReceivedTime
         type: string
       - in: query
         name: endSentGrossQuantity
@@ -2171,16 +2171,16 @@ paths:
         name: sortOrder
         type: string
       - in: query
-        name: startRecivedGrossQuantity
+        name: startReceivedGrossQuantity
         type: number
       - in: query
-        name: startRecivedNetQuantity
+        name: startReceivedNetQuantity
         type: number
       - in: query
-        name: startRecivedTareQuantity
+        name: startReceivedTareQuantity
         type: number
       - in: query
-        name: startRecivedTime
+        name: startReceivedTime
         type: string
       - in: query
         name: startSentGrossQuantity
@@ -2211,7 +2211,7 @@ paths:
         x-enum-varnames:
         - StockmovementTypeTransfer
         - StockmovementTypeIn
-        - StockmovementTypePurchaseOrder
+        - StockmovementTypePurchaseorder
         - StockmovementTypeRetail
       - in: query
         name: vehicleId

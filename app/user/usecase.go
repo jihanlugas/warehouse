@@ -3,7 +3,10 @@ package user
 import (
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/jihanlugas/warehouse/app/userprivilege"
+	"github.com/jihanlugas/warehouse/app/warehouse"
 	"github.com/jihanlugas/warehouse/cryption"
 	"github.com/jihanlugas/warehouse/db"
 	"github.com/jihanlugas/warehouse/jwt"
@@ -12,7 +15,6 @@ import (
 	"github.com/jihanlugas/warehouse/response"
 	"github.com/jihanlugas/warehouse/utils"
 	"gorm.io/gorm"
-	"time"
 )
 
 type Usecase interface {
@@ -28,6 +30,7 @@ type Usecase interface {
 type usecase struct {
 	userRepository          Repository
 	userprivilegeRepository userprivilege.Repository
+	warehouseRepository     warehouse.Repository
 }
 
 func (u usecase) Page(loginUser jwt.UserLogin, req request.PageUser) (vUsers []model.UserView, count int64, err error) {
@@ -79,10 +82,16 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateUser) error {
 		return errors.New(fmt.Sprint("failed to encode password: ", err))
 	}
 
+	vWarehouse, err := u.warehouseRepository.GetViewById(tx, req.WarehouseID)
+	if err != nil {
+		return errors.New(fmt.Sprintf("failed to get %s: %v", u.warehouseRepository.Name(), err))
+	}
+
 	tUser = model.User{
 		ID:                utils.GetUniqueID(),
-		WarehouseID:       req.WarehouseID,
-		Role:              model.UserRoleOperator,
+		LocationID:        vWarehouse.LocationID,
+		WarehouseID:       vWarehouse.ID,
+		UserRole:          model.UserRoleOperator,
 		Email:             req.Email,
 		Username:          req.Username,
 		PhoneNumber:       utils.FormatPhoneTo62(req.PhoneNumber),
@@ -110,7 +119,7 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateUser) error {
 		StockIn:       req.StockIn,
 		TransferOut:   req.TransferOut,
 		TransferIn:    req.TransferIn,
-		PurchaseOrder: req.PurchaseOrder,
+		Purchaseorder: req.Purchaseorder,
 		Retail:        req.Retail,
 		CreateBy:      loginUser.UserID,
 		UpdateBy:      loginUser.UserID,
@@ -150,7 +159,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateUs
 		_, err = u.userRepository.GetByEmail(tx, req.Email)
 		if err != nil {
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("failed to update %s: %v", u.userRepository.Name(), err)
+				return fmt.Errorf("failed to get %s: %v", u.userRepository.Name(), err)
 			}
 		} else {
 			return errors.New("email already exist")
@@ -161,7 +170,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateUs
 		_, err = u.userRepository.GetByPhoneNumber(tx, utils.FormatPhoneTo62(req.PhoneNumber))
 		if err != nil {
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("failed to update %s: %v", u.userRepository.Name(), err)
+				return fmt.Errorf("failed to get %s: %v", u.userRepository.Name(), err)
 			}
 		} else {
 			return errors.New("phone number already exist")
@@ -178,7 +187,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateUs
 	tUser.UpdateBy = loginUser.UserID
 	err = u.userRepository.Save(tx, tUser)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to update %s: %v", u.userRepository.Name(), err))
+		return errors.New(fmt.Sprintf("failed to save %s: %v", u.userRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
@@ -216,11 +225,11 @@ func (u usecase) UpdateUserprivilege(loginUser jwt.UserLogin, id string, req req
 	tUserprivilege.StockIn = req.StockIn
 	tUserprivilege.TransferOut = req.TransferOut
 	tUserprivilege.TransferIn = req.TransferIn
-	tUserprivilege.PurchaseOrder = req.PurchaseOrder
+	tUserprivilege.Purchaseorder = req.Purchaseorder
 	tUserprivilege.Retail = req.Retail
 	err = u.userprivilegeRepository.Save(conn, tUserprivilege)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to update %s: %v", u.userprivilegeRepository.Name(), err))
+		return errors.New(fmt.Sprintf("failed to save %s: %v", u.userprivilegeRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
@@ -291,7 +300,7 @@ func (u usecase) Delete(loginUser jwt.UserLogin, id string) error {
 
 	err = u.userRepository.Delete(tx, tUser)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to get %s: %v", u.userRepository.Name(), err))
+		return errors.New(fmt.Sprintf("failed to delete %s: %v", u.userRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
@@ -302,9 +311,10 @@ func (u usecase) Delete(loginUser jwt.UserLogin, id string) error {
 	return err
 }
 
-func NewUsecase(userRepository Repository, userprivilegeRepository userprivilege.Repository) Usecase {
+func NewUsecase(userRepository Repository, userprivilegeRepository userprivilege.Repository, warehouseRepository warehouse.Repository) Usecase {
 	return &usecase{
 		userRepository:          userRepository,
 		userprivilegeRepository: userprivilegeRepository,
+		warehouseRepository:     warehouseRepository,
 	}
 }

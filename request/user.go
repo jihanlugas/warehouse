@@ -21,7 +21,7 @@ type CreateUser struct {
 	StockIn       bool       `json:"stockIn" form:"stockIn" query:"stockIn"`
 	TransferOut   bool       `json:"transferOut" form:"transferOut" query:"transferOut"`
 	TransferIn    bool       `json:"transferIn" form:"transferIn" query:"transferIn"`
-	PurchaseOrder bool       `json:"purchaseOrder" form:"purchaseOrder" query:"purchaseOrder"`
+	Purchaseorder bool       `json:"purchaseorder" form:"purchaseorder" query:"purchaseorder"`
 	Retail        bool       `json:"retail" form:"retail" query:"retail"`
 }
 
@@ -38,7 +38,7 @@ type UpdateUser struct {
 type PageUser struct {
 	Paging
 	WarehouseID   string     `json:"warehouseId" form:"warehouseId" query:"warehouseId"`
-	Role          string     `json:"role" form:"role" query:"role"`
+	UserRole      string     `json:"userRole" form:"userRole" query:"userRole"`
 	Fullname      string     `json:"fullname" form:"fullname" query:"fullname"`
 	Email         string     `json:"email" form:"email" query:"email"`
 	PhoneNumber   string     `json:"phoneNumber" form:"phoneNumber" query:"phoneNumber"`

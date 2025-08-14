@@ -51,7 +51,7 @@ func (u usecase) SignIn(req request.Signin) (token string, userLogin jwt.UserLog
 		return "", userLogin, errors.New("user not active")
 	}
 
-	if tUser.Role != model.UserRoleAdmin {
+	if tUser.UserRole != model.UserRoleAdmin {
 		tWarehouse, err = u.warehouseRepository.GetTableById(conn, tUser.WarehouseID)
 		if err != nil {
 			return "", userLogin, errors.New("warehouse not found : " + err.Error())
@@ -80,7 +80,7 @@ func (u usecase) SignIn(req request.Signin) (token string, userLogin jwt.UserLog
 	expiredAt := time.Now().Add(time.Minute * time.Duration(config.AuthTokenExpiredMinute))
 	userLogin.ExpiredDt = expiredAt
 	userLogin.UserID = tUser.ID
-	userLogin.Role = tUser.Role
+	userLogin.UserRole = tUser.UserRole
 	userLogin.PassVersion = tUser.PassVersion
 	userLogin.WarehouseID = tWarehouse.ID
 	token, err = jwt.CreateToken(userLogin)
@@ -111,7 +111,7 @@ func (u usecase) Init(userLogin jwt.UserLogin) (vUser model.UserView, vWarehouse
 		return vUser, vWarehouse, err
 	}
 
-	if vUser.Role == model.UserRoleOperator {
+	if vUser.UserRole == model.UserRoleOperator {
 		vWarehouse, err = u.warehouseRepository.GetViewById(conn, userLogin.WarehouseID)
 		if err != nil {
 			return vUser, vWarehouse, err

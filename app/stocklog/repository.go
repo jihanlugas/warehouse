@@ -2,10 +2,11 @@ package stocklog
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/jihanlugas/warehouse/model"
 	"github.com/jihanlugas/warehouse/request"
 	"gorm.io/gorm"
-	"strings"
 )
 
 type Repository interface {
@@ -76,8 +77,8 @@ func (r repository) Page(conn *gorm.DB, req request.PageStocklog) (vStocklogs []
 	if req.StockID != "" {
 		query = query.Where("stock_id = ?", req.StockID)
 	}
-	if req.StockmovementID != "" {
-		query = query.Where("stockmovement_id = ?", req.StockmovementID)
+	if req.StockproductID != "" {
+		query = query.Where("stockproduct_id = ?", req.StockproductID)
 	}
 	if req.StockmovementvehicleID != "" {
 		query = query.Where("stockmovementvehicle_id = ?", req.StockmovementvehicleID)

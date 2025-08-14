@@ -1,14 +1,15 @@
 package user
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/jihanlugas/warehouse/jwt"
 	"github.com/jihanlugas/warehouse/model"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/response"
 	"github.com/jihanlugas/warehouse/utils"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"strings"
 )
 
 type Handler struct {
@@ -58,7 +59,7 @@ func (h Handler) Page(c echo.Context) error {
 		}
 	}
 
-	req.Role = string(model.UserRoleOperator)
+	req.UserRole = string(model.UserRoleOperator)
 
 	data, count, err := h.usecase.Page(loginUser, *req)
 	if err != nil {

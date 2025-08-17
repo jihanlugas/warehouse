@@ -117,6 +117,9 @@ func (r repository) Page(conn *gorm.DB, req request.PageStockmovementvehicle) (v
 	if req.VehicleID != "" {
 		query = query.Where("vehicle_id = ?", req.VehicleID)
 	}
+	if req.Number != "" {
+		query = query.Where("number ILIKE ?", "%"+req.Number+"%")
+	}
 	if req.StockmovementvehicleType != "" {
 		query = query.Where("stockmovementvehicle_type = ?", req.StockmovementvehicleType)
 	}

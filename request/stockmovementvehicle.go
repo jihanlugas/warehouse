@@ -61,6 +61,7 @@ type PageStockmovementvehicle struct {
 	ProductID                  string                           `json:"productId" form:"productId" query:"productId"`
 	VehicleID                  string                           `json:"vehicleId" form:"vehicleId" query:"vehicleId"`
 	RelatedID                  string                           `json:"relatedId" form:"relatedId" query:"relatedId"`
+	Number                     string                           `json:"number" form:"number" query:"number"`
 	StockmovementvehicleType   model.StockmovementvehicleType   `json:"stockmovementvehicleType" form:"stockmovementvehicleType" query:"stockmovementvehicleType"`
 	Notes                      string                           `json:"notes" form:"notes" query:"notes"`
 	StockmovementvehicleStatus model.StockmovementvehicleStatus `json:"stockmovementvehicleStatus" form:"stockmovementvehicleStatus" query:"stockmovementvehicleStatus"`

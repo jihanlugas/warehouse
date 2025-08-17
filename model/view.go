@@ -398,6 +398,7 @@ type StocklogView struct {
 	GrossQuantity          float64        `json:"grossQuantity"`
 	TareQuantity           float64        `json:"tareQuantity"`
 	NetQuantity            float64        `json:"netQuantity"`
+	CurrentQuantity        float64        `json:"currentQuantity"`
 	CreateBy               string         `json:"createBy"`
 	CreateDt               time.Time      `json:"createDt"`
 	UpdateBy               string         `json:"updateBy"`

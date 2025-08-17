@@ -7,8 +7,7 @@ type CreateStock struct {
 }
 
 type UpdateStock struct {
-	ProductID string  `json:"productId" form:"productId" query:"productId" validate:"required"`
-	Quantity  float64 `json:"quantity" form:"quantity" query:"quantity" validate:"required"`
+	Quantity float64 `json:"quantity" form:"quantity" query:"quantity" validate:""`
 }
 
 type PageStock struct {

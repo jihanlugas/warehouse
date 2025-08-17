@@ -222,6 +222,7 @@ func (u usecase) SetComplete(loginUser jwt.UserLogin, id string) (err error) {
 		GrossQuantity:          tStockmovementvehicle.ReceivedGrossQuantity,
 		TareQuantity:           tStockmovementvehicle.ReceivedTareQuantity,
 		NetQuantity:            tStockmovementvehicle.ReceivedNetQuantity,
+		CurrentQuantity:        tStock.Quantity,
 		CreateBy:               loginUser.UserID,
 		UpdateBy:               loginUser.UserID,
 	}

@@ -35,8 +35,9 @@ const (
 )
 
 const (
-	StocklogTypeIn  StocklogType = "IN"
-	StocklogTypeOut StocklogType = "OUT"
+	StocklogTypeIn         StocklogType = "IN"
+	StocklogTypeOut        StocklogType = "OUT"
+	StocklogTypeAdjustment StocklogType = "ADJUSTMENT"
 )
 
 const (
@@ -309,6 +310,7 @@ type Stocklog struct {
 	GrossQuantity          float64        `gorm:"not null"`
 	TareQuantity           float64        `gorm:"not null"`
 	NetQuantity            float64        `gorm:"not null"`
+	CurrentQuantity        float64        `gorm:"not null"`
 	CreateBy               string         `gorm:"not null"`
 	CreateDt               time.Time      `gorm:"not null"`
 	UpdateBy               string         `gorm:"not null"`

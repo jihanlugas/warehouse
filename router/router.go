@@ -66,6 +66,7 @@ func Init() *echo.Echo {
 	userUsecase := user.NewUsecase(userRepository, userprivilegeRepository, warehouseRepository)
 	locationUsecase := location.NewUsecase(locationRepository)
 	warehouseUsecase := warehouse.NewUsecase(warehouseRepository)
+	stockUsecase := stock.NewUsecase(stockRepository, stocklogRepository)
 	transactionUsecase := transaction.NewUsecase(transactionRepository)
 	vehicleUsecase := vehicle.NewUsecase(vehicleRepository)
 	customerUsecase := customer.NewUsecase(customerRepository)
@@ -86,6 +87,7 @@ func Init() *echo.Echo {
 	userHandler := user.NewHandler(userUsecase)
 	locationHandler := location.NewHandler(locationUsecase)
 	warehouseHandler := warehouse.NewHandler(warehouseUsecase)
+	stockHandler := stock.NewHandler(stockUsecase)
 	transactionHandler := transaction.NewHandler(transactionUsecase)
 	stocklogHandler := stocklog.NewHandler(stocklogUsecase)
 	stockmovementvehicleHandler := stockmovementvehicle.NewHandler(stockmovementvehicleUsecase)
@@ -148,6 +150,10 @@ func Init() *echo.Echo {
 	routerWarehouse.GET("/:id", warehouseHandler.GetById, checkTokenMiddleware)
 	routerWarehouse.PUT("/:id", warehouseHandler.Update, checkTokenMiddlewareAdmin)
 	routerWarehouse.DELETE("/:id", warehouseHandler.Delete, checkTokenMiddlewareAdmin)
+
+	routerStock := router.Group("/stock")
+	routerStock.GET("/:id", stockHandler.GetById, checkTokenMiddleware)
+	routerStock.PUT("/:id", stockHandler.Update, checkTokenMiddlewareAdmin)
 
 	routerTransaction := router.Group("/transaction", checkTokenMiddlewareAdmin)
 	routerTransaction.GET("", transactionHandler.Page)
@@ -218,6 +224,7 @@ func Init() *echo.Echo {
 	routerStocklog := router.Group("/stocklog")
 	routerStocklog.GET("", stocklogHandler.Page, checkTokenMiddleware)
 	routerStocklog.GET("/:id", stocklogHandler.GetById, checkTokenMiddleware)
+
 	//
 	//routerStockmovementvehiclePurchaseorder := routerStockmovementvehicle.Group("/purchaseorder")
 	//routerStockmovementvehiclePurchaseorder.POST("", stockmovementvehicleHandler.CreatePurchaseorder, checkTokenMiddleware)

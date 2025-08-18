@@ -341,7 +341,7 @@ func (u usecase) GenerateDeliveryOrder(loginUser jwt.UserLogin, id string) (pdfB
 		return pdfBytes, vStockmovementvehicle, errors.New(response.ErrorHandlerIDOR)
 	}
 
-	if vStockmovementvehicle.StockmovementvehicleStatus != model.StockmovementvehicleStatusLoading {
+	if vStockmovementvehicle.StockmovementvehicleStatus == model.StockmovementvehicleStatusLoading {
 		return pdfBytes, vStockmovementvehicle, errors.New(fmt.Sprintf("unable to generate data with status %s", strings.ToLower(string(vStockmovementvehicle.StockmovementvehicleStatus))))
 	}
 

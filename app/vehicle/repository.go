@@ -84,6 +84,9 @@ func (r repository) Page(conn *gorm.DB, req request.PageVehicle) (vVehicles []mo
 		}
 	}
 
+	if req.WarehouseID != "" {
+		query = query.Where("warehouse_id = ?", req.WarehouseID)
+	}
 	if req.PlateNumber != "" {
 		query = query.Where("plate_number ILIKE ?", "%"+req.PlateNumber+"%")
 	}

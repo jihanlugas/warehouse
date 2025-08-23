@@ -50,6 +50,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateSt
 		return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockRepository.Name(), err))
 	}
 
+	currStock := tStock.Quantity
 	tx := conn.Begin()
 	tStock.Quantity = req.Quantity
 	tStock.UpdateBy = loginUser.UserID
@@ -63,7 +64,7 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateSt
 		StockID:         tStock.ID,
 		ProductID:       tStock.ProductID,
 		StocklogType:    model.StocklogTypeAdjustment,
-		NetQuantity:     tStock.Quantity,
+		NetQuantity:     req.Quantity - currStock,
 		CurrentQuantity: tStock.Quantity,
 		CreateBy:        loginUser.UserID,
 		UpdateBy:        loginUser.UserID,

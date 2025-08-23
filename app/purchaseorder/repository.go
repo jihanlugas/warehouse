@@ -2,12 +2,13 @@ package purchaseorder
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/jihanlugas/warehouse/model"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/utils"
 	"gorm.io/gorm"
-	"strings"
-	"time"
 )
 
 type Repository interface {
@@ -108,8 +109,8 @@ func (r repository) Page(conn *gorm.DB, req request.PagePurchaseorder) (vPurchas
 	if req.Number != "" {
 		query = query.Where("number ILIKE ?", "%"+req.Number+"%")
 	}
-	if req.Status != nil {
-		query = query.Where("status = ?", req.Status)
+	if req.PurchaseorderStatus != nil {
+		query = query.Where("purchaseorder_status = ?", req.PurchaseorderStatus)
 	}
 	if req.StartTotalPrice != nil {
 		query = query.Where("total_price >= ?", req.StartTotalPrice)

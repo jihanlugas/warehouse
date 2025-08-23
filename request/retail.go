@@ -46,7 +46,7 @@ type PageRetail struct {
 	CustomerID        string     `json:"customeId" form:"customeId" query:"customeId"`
 	Notes             string     `json:"notes" form:"notes" query:"notes"`
 	Number            string     `json:"number" form:"number" query:"number"`
-	Status            *string    `json:"status" form:"status" query:"status"`
+	RetailStatus      *string    `json:"retailStatus" form:"retailStatus" query:"retailStatus"`
 	CreateName        string     `json:"createName" form:"createName" query:"createName"`
 	StartTotalPrice   *float64   `json:"startTotalPrice" form:"startTotalPrice" query:"startTotalPrice"`
 	EndTotalPrice     *float64   `json:"endTotalPrice" form:"endTotalPrice" query:"endTotalPrice"`

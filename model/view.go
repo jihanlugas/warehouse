@@ -183,7 +183,7 @@ type PurchaseorderView struct {
 	Outstanding         float64             `json:"outstanding"`
 	Number              string              `json:"number"`
 	Notes               string              `json:"notes"`
-	PurchaseorderStatus PurchaseorderStatus `json:"purchaseorder_status"`
+	PurchaseorderStatus PurchaseorderStatus `json:"purchaseorderStatus"`
 	CreateBy            string              `json:"createBy"`
 	CreateDt            time.Time           `json:"createDt"`
 	UpdateBy            string              `json:"updateBy"`

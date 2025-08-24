@@ -99,6 +99,8 @@ type UserproviderView struct {
 	DeleteDt       gorm.DeletedAt `json:"deleteDt"`
 	CreateName     string         `json:"createName"`
 	UpdateName     string         `json:"updateName"`
+
+	User *UserView `json:"user,omitempty"`
 }
 
 func (UserproviderView) TableName() string {

@@ -76,12 +76,33 @@ type UserView struct {
 	UpdateName        string         `json:"updateName"`
 
 	Userprivilege *UserprivilegeView `json:"userprivilege,omitempty" gorm:"foreignKey:UserID"`
+	Userproviders []UserproviderView `json:"userproviders,omitempty" gorm:"foreignKey:UserID"`
 	Warehouse     *WarehouseView     `json:"warehouse,omitempty"`
 	Location      *LocationView      `json:"location,omitempty"`
 }
 
 func (UserView) TableName() string {
 	return VIEW_USER
+}
+
+type UserproviderView struct {
+	ID             string         `json:"id"`
+	UserID         string         `json:"userId"`
+	ProviderName   string         `json:"providerName"`
+	ProviderUserID string         `json:"providerUserId"`
+	Email          string         `json:"email"`
+	Fullname       string         `json:"fullname"`
+	CreateBy       string         `json:"createBy"`
+	CreateDt       time.Time      `json:"createDt"`
+	UpdateBy       string         `json:"updateBy"`
+	UpdateDt       time.Time      `json:"updateDt"`
+	DeleteDt       gorm.DeletedAt `json:"deleteDt"`
+	CreateName     string         `json:"createName"`
+	UpdateName     string         `json:"updateName"`
+}
+
+func (UserproviderView) TableName() string {
+	return VIEW_USERPROVIDER
 }
 
 type UserprivilegeView struct {

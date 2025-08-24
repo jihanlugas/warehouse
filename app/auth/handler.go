@@ -1,14 +1,20 @@
 package auth
 
 import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 
+	"github.com/jihanlugas/warehouse/config"
 	"github.com/jihanlugas/warehouse/jwt"
 	"github.com/jihanlugas/warehouse/model"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/response"
 	"github.com/jihanlugas/warehouse/utils"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/oauth2"
 )
 
 type Handler struct {
@@ -127,4 +133,42 @@ func (h Handler) Init(c echo.Context) error {
 	}
 
 	return response.Success(http.StatusOK, response.SuccessHandler, res).SendJSON(c)
+}
+
+func (h Handler) GoogleSignIn(c echo.Context) (err error) {
+	// bisa tambahkan state random untuk CSRF protection
+	state := config.OauthKey
+
+	url := googleOAuthConfig.AuthCodeURL(state, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+	return c.Redirect(http.StatusFound, url)
+}
+
+func (h Handler) GoogleCallback(c echo.Context) (err error) {
+	code := c.QueryParam("code")
+	if code == "" {
+		return response.Error(http.StatusBadRequest, "missing code", errors.New("missing code"), nil).SendJSON(c)
+	}
+
+	token, err := googleOAuthConfig.Exchange(context.Background(), code)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, "token exchange failed: ", err, nil).SendJSON(c)
+	}
+
+	req, _ := http.NewRequest("GET", "https://www.googleapis.com/oauth2/v3/userinfo", nil)
+	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, "fetch userinfo failed", err, nil).SendJSON(c)
+	}
+	defer resp.Body.Close()
+
+	var user map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&user)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, "decode userinfo failed", err, nil).SendJSON(c)
+	}
+
+	// STEP 4: Redirect balik ke FE dengan token
+	redirectURL := fmt.Sprintf("http://localhost:3000/callback?token=%s&role=ADMIN", "asdjn23asd")
+	return c.Redirect(http.StatusFound, redirectURL)
 }

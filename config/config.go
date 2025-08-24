@@ -3,11 +3,12 @@ package config
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"github.com/joho/godotenv"
-	"github.com/labstack/gommon/log"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/joho/godotenv"
+	"github.com/labstack/gommon/log"
 )
 
 type database struct {
@@ -24,12 +25,18 @@ type server struct {
 	BaseUrl string
 }
 
+type oauth2 struct {
+	ClientID     string
+	ClientSecret string
+}
+
 var (
 	Debug                        bool
 	Server                       server
 	Database                     database
 	CryptoKey                    string
 	JwtSecretKey                 string
+	OauthKey                     string
 	DefaultDataPerPage           int
 	AuthTokenExpiredMinute       int
 	FileBaseUrl                  string
@@ -38,6 +45,7 @@ var (
 	PhotoincRunningLimit         int64
 	PhotoUploadMaxSizeByte       int64
 	PhotoUploadAllowedExtensions []string
+	GoogleOauth                  oauth2
 )
 
 func init() {
@@ -75,6 +83,9 @@ func init() {
 	hasher.Write([]byte(os.Getenv("JWT_SECRET_KEY")))
 	JwtSecretKey = hex.EncodeToString(hasher.Sum(nil))
 
+	hasher.Write([]byte(os.Getenv("OAUTH_KEY")))
+	OauthKey = hex.EncodeToString(hasher.Sum(nil))
+
 	DefaultDataPerPage, err = strconv.Atoi(os.Getenv("DEFAULT_DATA_PER_PAGE"))
 	if err != nil {
 		log.Info("Failed parse DEFAULT_DATA_PER_PAGE Err: " + err.Error())
@@ -104,5 +115,10 @@ func init() {
 	}
 
 	PhotoUploadAllowedExtensions = strings.Split(os.Getenv("PHOTO_UPLOAD_ALLOWED_EXTENSIONS"), ",")
+
+	GoogleOauth = oauth2{
+		ClientID:     os.Getenv("OAUTH_GOOGLE_CLIENT_ID"),
+		ClientSecret: os.Getenv("OAUTH_GOOGLE_CLIENT_SECRET"),
+	}
 
 }

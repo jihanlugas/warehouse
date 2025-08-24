@@ -118,6 +118,8 @@ func Init() *echo.Echo {
 	routerAuth.GET("/sign-out", authHandler.SignOut)
 	routerAuth.GET("/init", authHandler.Init, checkTokenMiddleware)
 	routerAuth.GET("/refresh-token", authHandler.RefreshToken, checkTokenMiddleware)
+	routerAuth.GET("/google/login", authHandler.GoogleSignIn)
+	routerAuth.GET("/google/callback", authHandler.GoogleCallback)
 
 	routerLocation := router.Group("/location", checkTokenMiddlewareAdmin)
 	routerLocation.GET("", locationHandler.Page)

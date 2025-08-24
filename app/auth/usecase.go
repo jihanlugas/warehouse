@@ -2,6 +2,8 @@ package auth
 
 import (
 	"errors"
+	"time"
+
 	"github.com/jihanlugas/warehouse/app/user"
 	"github.com/jihanlugas/warehouse/app/warehouse"
 	"github.com/jihanlugas/warehouse/config"
@@ -11,7 +13,6 @@ import (
 	"github.com/jihanlugas/warehouse/model"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/utils"
-	"time"
 )
 
 type Usecase interface {
@@ -106,7 +107,7 @@ func (u usecase) Init(userLogin jwt.UserLogin) (vUser model.UserView, vWarehouse
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
-	vUser, err = u.userRepository.GetViewById(conn, userLogin.UserID, "Userprivilege")
+	vUser, err = u.userRepository.GetViewById(conn, userLogin.UserID, "Userprivilege", "Userproviders")
 	if err != nil {
 		return vUser, vWarehouse, err
 	}

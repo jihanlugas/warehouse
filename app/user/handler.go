@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/jihanlugas/warehouse/jwt"
-	"github.com/jihanlugas/warehouse/model"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/response"
 	"github.com/jihanlugas/warehouse/utils"
@@ -58,8 +57,6 @@ func (h Handler) Page(c echo.Context) error {
 			return response.Error(http.StatusBadRequest, response.ErrorHandlerIDOR, err, nil).SendJSON(c)
 		}
 	}
-
-	req.UserRole = string(model.UserRoleOperator)
 
 	data, count, err := h.usecase.Page(loginUser, *req)
 	if err != nil {

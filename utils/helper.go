@@ -2,10 +2,11 @@ package utils
 
 import (
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/jihanlugas/warehouse/config"
 	"math/rand"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/jihanlugas/warehouse/config"
 )
 
 func GetUniqueID() string {

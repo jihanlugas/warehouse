@@ -91,7 +91,7 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateUser) error {
 		ID:                utils.GetUniqueID(),
 		LocationID:        vWarehouse.LocationID,
 		WarehouseID:       vWarehouse.ID,
-		UserRole:          model.UserRoleOperator,
+		UserRole:          model.UserRole(req.UserRole),
 		Email:             req.Email,
 		Username:          req.Username,
 		PhoneNumber:       utils.FormatPhoneTo62(req.PhoneNumber),
@@ -114,19 +114,21 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateUser) error {
 		return errors.New(fmt.Sprintf("failed to create %s: %v", u.userRepository.Name(), err))
 	}
 
-	tUserprivilege = model.Userprivilege{
-		UserID:        tUser.ID,
-		StockIn:       req.StockIn,
-		TransferOut:   req.TransferOut,
-		TransferIn:    req.TransferIn,
-		Purchaseorder: req.Purchaseorder,
-		Retail:        req.Retail,
-		CreateBy:      loginUser.UserID,
-		UpdateBy:      loginUser.UserID,
-	}
-	err = u.userprivilegeRepository.Create(tx, tUserprivilege)
-	if err != nil {
-		return errors.New(fmt.Sprintf("failed to create %s: %v", u.userprivilegeRepository.Name(), err))
+	if model.UserRole(req.UserRole) == model.UserRoleOperator {
+		tUserprivilege = model.Userprivilege{
+			UserID:        tUser.ID,
+			StockIn:       req.StockIn,
+			TransferOut:   req.TransferOut,
+			TransferIn:    req.TransferIn,
+			Purchaseorder: req.Purchaseorder,
+			Retail:        req.Retail,
+			CreateBy:      loginUser.UserID,
+			UpdateBy:      loginUser.UserID,
+		}
+		err = u.userprivilegeRepository.Create(tx, tUserprivilege)
+		if err != nil {
+			return errors.New(fmt.Sprintf("failed to create %s: %v", u.userprivilegeRepository.Name(), err))
+		}
 	}
 
 	err = tx.Commit().Error

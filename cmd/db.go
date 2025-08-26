@@ -580,6 +580,7 @@ func dbSeed() {
 	spurwakarta1 := "4a770500-4797-488f-af06-ea77c42110d5"
 
 	admin := "7aee971f-4e84-4636-aaa2-8dc5fbde2d6b"
+	viewer := "c861d618-688a-4b3a-9b00-e6223f2de4fb"
 	oprkaltim1 := "5c777011-3f7f-478b-93ed-2d9ecd804c46"
 	oprkaltim2 := "44427418-9e89-48e4-8ae9-2dabcb56fd84"
 	oprkaltim3 := "0db5826f-9640-4324-95ef-5036043ec92a"
@@ -605,6 +606,7 @@ func dbSeed() {
 
 	users := []model.User{
 		{ID: admin, LocationID: "", WarehouseID: "", UserRole: model.UserRoleAdmin, Email: "admin@gmail.com", Username: "admin", PhoneNumber: utils.FormatPhoneTo62("6287770333043"), Fullname: "Admin", Address: "Jl. Gunung Sahari No. 10, Jakarta Pusat", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
+		{ID: viewer, LocationID: "", WarehouseID: "", UserRole: model.UserRoleAdmin, Email: "viewer@gmail.com", Username: "viewer", PhoneNumber: utils.FormatPhoneTo62("6287770333044"), Fullname: "Viewer", Address: "Jl. Gunung Sahari No. 10, Jakarta Pusat", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
 		{ID: oprkaltim1, LocationID: locationkaltim, WarehouseID: rkaltim1, UserRole: model.UserRoleOperator, Email: "oprkaltim1@gmail.com", Username: "oprkaltim1", PhoneNumber: "", Fullname: "OP rkaltim1", Address: "", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
 		{ID: oprkaltim2, LocationID: locationkaltim, WarehouseID: rkaltim2, UserRole: model.UserRoleOperator, Email: "oprkaltim2@gmail.com", Username: "oprkaltim2", PhoneNumber: "", Fullname: "OP rkaltim2", Address: "", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
 		{ID: oprkaltim3, LocationID: locationkaltim, WarehouseID: rkaltim3, UserRole: model.UserRoleOperator, Email: "oprkaltim3@gmail.com", Username: "oprkaltim3", PhoneNumber: "", Fullname: "OP rkaltim3", Address: "", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},

@@ -594,6 +594,13 @@ func dbSeed() {
 	opsmarunda1 := "80e8e449-a724-432f-84c6-d4d345dac46c"
 	opspurwakarta1 := "3c8fe8ac-684c-46bf-bf9a-54c9d078383d"
 
+	// Customer
+	customerPtSemen := "d895ccbc-9023-4a58-9afa-5b79a8bc1a74"
+	customerPtSendal := "d293e92e-9233-4afd-adb6-6857d5b1f67a"
+	customerPtBatray := "6192cb84-d539-464b-8a4b-450210ac5466"
+	customerBudiSanjaya := "4239e8e0-8d71-45ec-8f88-8969f97d1af3"
+	customerAgungNugroho := "a59eca41-6b22-4510-a12a-0d2588c3c20b"
+
 	password, err := cryption.EncryptAES64("123456")
 	if err != nil {
 		panic(err)
@@ -606,7 +613,7 @@ func dbSeed() {
 
 	users := []model.User{
 		{ID: admin, LocationID: "", WarehouseID: "", UserRole: model.UserRoleAdmin, Email: "admin@gmail.com", Username: "admin", PhoneNumber: utils.FormatPhoneTo62("6287770333043"), Fullname: "Admin", Address: "Jl. Gunung Sahari No. 10, Jakarta Pusat", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
-		{ID: viewer, LocationID: "", WarehouseID: "", UserRole: model.UserRoleAdmin, Email: "viewer@gmail.com", Username: "viewer", PhoneNumber: utils.FormatPhoneTo62("6287770333044"), Fullname: "Viewer", Address: "Jl. Gunung Sahari No. 10, Jakarta Pusat", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
+		{ID: viewer, LocationID: "", WarehouseID: "", UserRole: model.UserRoleViewer, Email: "viewer@gmail.com", Username: "viewer", PhoneNumber: utils.FormatPhoneTo62("6287770333044"), Fullname: "Viewer", Address: "Jl. Gunung Sahari No. 10, Jakarta Pusat", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
 		{ID: oprkaltim1, LocationID: locationkaltim, WarehouseID: rkaltim1, UserRole: model.UserRoleOperator, Email: "oprkaltim1@gmail.com", Username: "oprkaltim1", PhoneNumber: "", Fullname: "OP rkaltim1", Address: "", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
 		{ID: oprkaltim2, LocationID: locationkaltim, WarehouseID: rkaltim2, UserRole: model.UserRoleOperator, Email: "oprkaltim2@gmail.com", Username: "oprkaltim2", PhoneNumber: "", Fullname: "OP rkaltim2", Address: "", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
 		{ID: oprkaltim3, LocationID: locationkaltim, WarehouseID: rkaltim3, UserRole: model.UserRoleOperator, Email: "oprkaltim3@gmail.com", Username: "oprkaltim3", PhoneNumber: "", Fullname: "OP rkaltim3", Address: "", Passwd: password, PassVersion: 1, IsActive: true, AccountVerifiedDt: &now},
@@ -693,6 +700,15 @@ func dbSeed() {
 		{LocationID: locationpurwakarta, WarehouseID: spurwakarta1, ProductID: batubara, Quantity: 0},
 	}
 	tx.Create(&stocks)
+
+	customers := []model.Customer{
+		{ID: customerPtSemen, Name: "PT. Semen", Email: "ptsemen@gmail.com", PhoneNumber: utils.FormatPhoneTo62("081231235465")},
+		{ID: customerPtSendal, Name: "PT. Sendal", Email: "ptsendal@gmail.com", PhoneNumber: utils.FormatPhoneTo62("081231235455")},
+		{ID: customerPtBatray, Name: "PT. Batray", Email: "ptbatray@gmail.com", PhoneNumber: utils.FormatPhoneTo62("081231238755")},
+		{ID: customerBudiSanjaya, Name: "Budi Sanjaya", Email: "budisanjaya@gmail.com", PhoneNumber: utils.FormatPhoneTo62("081231298755")},
+		{ID: customerAgungNugroho, Name: "Agung Nugroho", Email: "agungnugroho@gmail.com", PhoneNumber: utils.FormatPhoneTo62("081265485465")},
+	}
+	tx.Create(&customers)
 
 	err = tx.Commit().Error
 	if err != nil {

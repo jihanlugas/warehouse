@@ -52,7 +52,7 @@ func (u usecase) SignIn(req request.Signin) (token string, userLogin jwt.UserLog
 		return "", userLogin, errors.New("user not active")
 	}
 
-	if tUser.UserRole != model.UserRoleAdmin {
+	if tUser.UserRole == model.UserRoleOperator {
 		tWarehouse, err = u.warehouseRepository.GetTableById(conn, tUser.WarehouseID)
 		if err != nil {
 			return "", userLogin, errors.New("warehouse not found : " + err.Error())

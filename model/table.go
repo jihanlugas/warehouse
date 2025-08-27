@@ -25,6 +25,7 @@ const (
 const (
 	UserRoleAdmin    UserRole = "ADMIN"
 	UserRoleOperator UserRole = "OPERATOR"
+	UserRoleViewer   UserRole = "VIEWER"
 )
 
 const (

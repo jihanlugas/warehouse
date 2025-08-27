@@ -82,39 +82,39 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateUser) error {
 		return errors.New(fmt.Sprint("failed to encode password: ", err))
 	}
 
-	vWarehouse, err := u.warehouseRepository.GetViewById(tx, req.WarehouseID)
-	if err != nil {
-		return errors.New(fmt.Sprintf("failed to get %s: %v", u.warehouseRepository.Name(), err))
-	}
-
-	tUser = model.User{
-		ID:                utils.GetUniqueID(),
-		LocationID:        vWarehouse.LocationID,
-		WarehouseID:       vWarehouse.ID,
-		UserRole:          model.UserRole(req.UserRole),
-		Email:             req.Email,
-		Username:          req.Username,
-		PhoneNumber:       utils.FormatPhoneTo62(req.PhoneNumber),
-		Address:           req.Address,
-		Fullname:          req.Fullname,
-		Passwd:            encodePasswd,
-		PassVersion:       1,
-		IsActive:          true,
-		PhotoID:           "",
-		LastLoginDt:       nil,
-		BirthDt:           req.BirthDt,
-		BirthPlace:        req.BirthPlace,
-		AccountVerifiedDt: &now,
-		CreateBy:          loginUser.UserID,
-		UpdateBy:          loginUser.UserID,
-	}
-
-	err = u.userRepository.Create(tx, tUser)
-	if err != nil {
-		return errors.New(fmt.Sprintf("failed to create %s: %v", u.userRepository.Name(), err))
-	}
-
 	if model.UserRole(req.UserRole) == model.UserRoleOperator {
+		vWarehouse, err := u.warehouseRepository.GetViewById(tx, req.WarehouseID)
+		if err != nil {
+			return errors.New(fmt.Sprintf("failed to get %s: %v", u.warehouseRepository.Name(), err))
+		}
+
+		tUser = model.User{
+			ID:                utils.GetUniqueID(),
+			LocationID:        vWarehouse.LocationID,
+			WarehouseID:       vWarehouse.ID,
+			UserRole:          model.UserRole(req.UserRole),
+			Email:             req.Email,
+			Username:          req.Username,
+			PhoneNumber:       utils.FormatPhoneTo62(req.PhoneNumber),
+			Address:           req.Address,
+			Fullname:          req.Fullname,
+			Passwd:            encodePasswd,
+			PassVersion:       1,
+			IsActive:          true,
+			PhotoID:           "",
+			LastLoginDt:       nil,
+			BirthDt:           req.BirthDt,
+			BirthPlace:        req.BirthPlace,
+			AccountVerifiedDt: &now,
+			CreateBy:          loginUser.UserID,
+			UpdateBy:          loginUser.UserID,
+		}
+
+		err = u.userRepository.Create(tx, tUser)
+		if err != nil {
+			return errors.New(fmt.Sprintf("failed to create %s: %v", u.userRepository.Name(), err))
+		}
+
 		tUserprivilege = model.Userprivilege{
 			UserID:        tUser.ID,
 			StockIn:       req.StockIn,
@@ -129,6 +129,33 @@ func (u usecase) Create(loginUser jwt.UserLogin, req request.CreateUser) error {
 		if err != nil {
 			return errors.New(fmt.Sprintf("failed to create %s: %v", u.userprivilegeRepository.Name(), err))
 		}
+	} else if model.UserRole(req.UserRole) == model.UserRoleViewer {
+		tUser = model.User{
+			ID:                utils.GetUniqueID(),
+			UserRole:          model.UserRole(req.UserRole),
+			Email:             req.Email,
+			Username:          req.Username,
+			PhoneNumber:       utils.FormatPhoneTo62(req.PhoneNumber),
+			Address:           req.Address,
+			Fullname:          req.Fullname,
+			Passwd:            encodePasswd,
+			PassVersion:       1,
+			IsActive:          true,
+			PhotoID:           "",
+			LastLoginDt:       nil,
+			BirthDt:           req.BirthDt,
+			BirthPlace:        req.BirthPlace,
+			AccountVerifiedDt: &now,
+			CreateBy:          loginUser.UserID,
+			UpdateBy:          loginUser.UserID,
+		}
+
+		err = u.userRepository.Create(tx, tUser)
+		if err != nil {
+			return errors.New(fmt.Sprintf("failed to create %s: %v", u.userRepository.Name(), err))
+		}
+	} else {
+		return errors.New("invalid user role")
 	}
 
 	err = tx.Commit().Error

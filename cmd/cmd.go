@@ -2,8 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
@@ -22,6 +23,12 @@ var dbCmd = &cobra.Command{
 	Use:   "db",
 	Short: "Database operations",
 	Long:  "Commands for managing the database (up, down, seed).",
+	Run: func(cmd *cobra.Command, args []string) {
+		err := cmd.Help()
+		if err != nil {
+			return
+		}
+	},
 }
 
 // upCmd - db up

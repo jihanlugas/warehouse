@@ -73,6 +73,7 @@ type PageStockmovementvehicle struct {
 	StartReceivedTareQuantity  *float64                         `json:"startReceivedTareQuantity" form:"startReceivedTareQuantity" query:"startReceivedTareQuantity"`
 	StartReceivedNetQuantity   *float64                         `json:"startReceivedNetQuantity" form:"startReceivedNetQuantity" query:"startReceivedNetQuantity"`
 	StartReceivedTime          *time.Time                       `json:"startReceivedTime" form:"startReceivedTime" query:"startReceivedTime"`
+	StartShrinkage             *float64                         `json:"startShrinkage" form:"startShrinkage" query:"startShrinkage"`
 	EndSentGrossQuantity       *float64                         `json:"endSentGrossQuantity" form:"endSentGrossQuantity" query:"endSentGrossQuantity"`
 	EndSentTareQuantity        *float64                         `json:"endSentTareQuantity" form:"endSentTareQuantity" query:"endSentTareQuantity"`
 	EndSentNetQuantity         *float64                         `json:"endSentNetQuantity" form:"endSentNetQuantity" query:"endSentNetQuantity"`
@@ -81,6 +82,7 @@ type PageStockmovementvehicle struct {
 	EndReceivedTareQuantity    *float64                         `json:"endReceivedTareQuantity" form:"endReceivedTareQuantity" query:"endReceivedTareQuantity"`
 	EndReceivedNetQuantity     *float64                         `json:"endReceivedNetQuantity" form:"endReceivedNetQuantity" query:"endReceivedNetQuantity"`
 	EndReceivedTime            *time.Time                       `json:"endReceivedTime" form:"endReceivedTime" query:"endReceivedTime"`
+	EndShrinkage               *float64                         `json:"endShrinkage" form:"endShrinkage" query:"endShrinkage"`
 	CreateName                 string                           `json:"createName" form:"createName" query:"createName"`
 	StartCreateDt              *time.Time                       `json:"startCreateDt" form:"startCreateDt" query:"startCreateDt"`
 	EndCreateDt                *time.Time                       `json:"endCreateDt" form:"endCreateDt" query:"endCreateDt"`

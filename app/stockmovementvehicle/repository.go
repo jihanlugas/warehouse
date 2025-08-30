@@ -147,6 +147,9 @@ func (r repository) Page(conn *gorm.DB, req request.PageStockmovementvehicle) (v
 	if req.StartReceivedNetQuantity != nil {
 		query = query.Where("received_net_quantity >= ?", req.StartReceivedNetQuantity)
 	}
+	if req.StartShrinkage != nil {
+		query = query.Where("shrinkage >= ?", req.StartShrinkage)
+	}
 	if req.StartReceivedTime != nil {
 		query = query.Where("received_time >= ?", req.StartReceivedTime)
 	}
@@ -170,6 +173,9 @@ func (r repository) Page(conn *gorm.DB, req request.PageStockmovementvehicle) (v
 	}
 	if req.EndReceivedNetQuantity != nil {
 		query = query.Where("received_net_quantity <= ?", req.EndReceivedNetQuantity)
+	}
+	if req.EndShrinkage != nil {
+		query = query.Where("shrinkage <= ?", req.EndShrinkage)
 	}
 	if req.EndReceivedTime != nil {
 		query = query.Where("received_time <= ?", req.EndReceivedTime)

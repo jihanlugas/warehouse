@@ -43,7 +43,7 @@ type UpdatePurchaseorderStockmomentvehicle struct {
 
 type PagePurchaseorder struct {
 	Paging
-	CustomerID          string     `json:"customeId" form:"customeId" query:"customeId"`
+	CustomerID          string     `json:"customerId" form:"customerId" query:"customerId"`
 	Notes               string     `json:"notes" form:"notes" query:"notes"`
 	Number              string     `json:"number" form:"number" query:"number"`
 	PurchaseorderStatus *string    `json:"purchaseorderStatus" form:"purchaseorderStatus" query:"purchaseorderStatus"`

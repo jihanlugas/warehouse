@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/jihanlugas/warehouse/app/auditlog"
 	"github.com/jihanlugas/warehouse/config"
 	"github.com/jihanlugas/warehouse/jwt"
 	"github.com/jihanlugas/warehouse/model"
@@ -18,12 +19,14 @@ import (
 )
 
 type Handler struct {
-	usecase Usecase
+	usecase         Usecase
+	auditlogUsecase auditlog.Usecase
 }
 
-func NewHandler(usecase Usecase) Handler {
+func NewHandler(usecase Usecase, auditlogUsecase auditlog.Usecase) Handler {
 	return Handler{
-		usecase: usecase,
+		usecase:         usecase,
+		auditlogUsecase: auditlogUsecase,
 	}
 }
 
@@ -52,8 +55,14 @@ func (h Handler) SignIn(c echo.Context) error {
 
 	token, userLogin, err := h.usecase.SignIn(*req)
 	if err != nil {
+		//go h.auditlogUsecase.CreateAuditlogFailed(userLogin, "Login", err.Error(), req, nil)
 		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
 	}
+
+	go h.auditlogUsecase.CreateAuditlogSuccess(userLogin, "Login", "", req, response.Payload{
+		"token":     token,
+		"userLogin": userLogin,
+	})
 
 	return response.Success(http.StatusOK, response.SuccessHandler, response.Payload{
 		"token":     token,

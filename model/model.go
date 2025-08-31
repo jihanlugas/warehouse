@@ -5,6 +5,7 @@ import "time"
 const (
 	VIEW_PHOTO                     = "photos_view"
 	VIEW_PHOTOINC                  = "photoincs_view"
+	VIEW_AUDITLOG                  = "auditlogs_view"
 	VIEW_USER                      = "users_view"
 	VIEW_USERPROVIDER              = "userproviders_view"
 	VIEW_USERPRIVILEGE             = "userprivileges_view"

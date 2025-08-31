@@ -83,6 +83,7 @@ func (u usecase) SignIn(req request.Signin) (token string, userLogin jwt.UserLog
 	userLogin.UserID = tUser.ID
 	userLogin.UserRole = tUser.UserRole
 	userLogin.PassVersion = tUser.PassVersion
+	userLogin.LocationID = tWarehouse.LocationID
 	userLogin.WarehouseID = tWarehouse.ID
 	token, err = jwt.CreateToken(userLogin)
 	if err != nil {

@@ -48,6 +48,28 @@ func (PhotoincView) TableName() string {
 	return VIEW_PHOTOINC
 }
 
+type AuditlogView struct {
+	ID           string         `json:"id"`
+	LocationID   string         `json:"locationId"`
+	WarehouseID  string         `json:"warehouseId"`
+	AuditlogType AuditlogType   `json:"auditlogType"`
+	Title        string         `json:"title"`
+	Description  string         `json:"description"`
+	Request      string         `json:"request"`
+	Response     string         `json:"response"`
+	CreateBy     string         `json:"createBy"`
+	CreateDt     time.Time      `json:"createDt"`
+	UpdateBy     string         `json:"updateBy"`
+	UpdateDt     time.Time      `json:"updateDt"`
+	DeleteDt     gorm.DeletedAt `json:"deleteDt"`
+	CreateName   string         `json:"createName"`
+	UpdateName   string         `json:"updateName"`
+}
+
+func (AuditlogView) TableName() string {
+	return VIEW_AUDITLOG
+}
+
 type UserView struct {
 	ID                string         `json:"id"`
 	LocationID        string         `json:"locationId"`

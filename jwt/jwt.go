@@ -20,6 +20,7 @@ type UserLogin struct {
 	ExpiredDt   time.Time      `json:"expiredDt"`
 	UserID      string         `json:"userId"`
 	PassVersion int            `json:"passVersion"`
+	LocationID  string         `json:"locationId"`
 	WarehouseID string         `json:"warehouseId"`
 	UserRole    model.UserRole `json:"userRole"`
 }
@@ -37,7 +38,7 @@ func CreateToken(userLogin UserLogin) (string, error) {
 
 	now := time.Now()
 	expiredUnix := userLogin.ExpiredDt.Unix()
-	subject := fmt.Sprintf("%d$$%s$$%d$$%s$$%s", expiredUnix, userLogin.UserID, userLogin.PassVersion, userLogin.WarehouseID, userLogin.UserRole)
+	subject := fmt.Sprintf("%d$$%s$$%d$$%s$$%s$$%s", expiredUnix, userLogin.UserID, userLogin.PassVersion, userLogin.LocationID, userLogin.WarehouseID, userLogin.UserRole)
 	jwtKey := []byte(config.JwtSecretKey)
 	claims := jwt.MapClaims{
 		"iss": "Services",
@@ -94,8 +95,9 @@ func ExtractClaims(header string) (UserLogin, error) {
 		ExpiredDt:   expiredAt,
 		UserID:      contentData[1],
 		PassVersion: passVersion,
-		WarehouseID: contentData[3],
-		UserRole:    model.UserRole(contentData[4]),
+		LocationID:  contentData[3],
+		WarehouseID: contentData[4],
+		UserRole:    model.UserRole(contentData[5]),
 	}
 
 	return userlogin, err

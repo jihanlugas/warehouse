@@ -31,6 +31,10 @@ func dbUpTable() {
 	if err != nil {
 		panic(err)
 	}
+	err = conn.Migrator().AutoMigrate(&model.Auditlog{})
+	if err != nil {
+		panic(err)
+	}
 	err = conn.Migrator().AutoMigrate(&model.User{})
 	if err != nil {
 		panic(err)
@@ -138,6 +142,22 @@ func dbUpView() {
 	err = conn.Migrator().CreateView(model.VIEW_PHOTOINC, gorm.ViewOption{
 		Replace: true,
 		Query:   vPhotoinc,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	err = conn.Migrator().DropView(model.VIEW_AUDITLOG)
+	if err != nil {
+		panic(err)
+	}
+	vAuditlog := conn.Model(&model.Auditlog{}).Unscoped().
+		Select("auditlogs.*, u1.fullname as create_name, u2.fullname as update_name").
+		Joins("left join users u1 on u1.id = auditlogs.create_by").
+		Joins("left join users u2 on u2.id = auditlogs.update_by")
+	err = conn.Migrator().CreateView(model.VIEW_AUDITLOG, gorm.ViewOption{
+		Replace: true,
+		Query:   vAuditlog,
 	})
 	if err != nil {
 		panic(err)

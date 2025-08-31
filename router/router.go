@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jihanlugas/warehouse/app/auditlog"
 	"github.com/jihanlugas/warehouse/app/auth"
 	"github.com/jihanlugas/warehouse/app/customer"
 	"github.com/jihanlugas/warehouse/app/location"
@@ -43,6 +44,7 @@ import (
 
 func Init() *echo.Echo {
 	//// repositories
+	auditlogRepository := auditlog.NewRepository()
 	userRepository := user.NewRepository()
 	userprivilegeRepository := userprivilege.NewRepository()
 	locationRepository := location.NewRepository()
@@ -62,6 +64,7 @@ func Init() *echo.Echo {
 	photoRepository := photo.NewRepository()
 
 	// usecases
+	auditlogUsecase := auditlog.NewUsecase(auditlogRepository)
 	authUsecase := auth.NewUsecase(userRepository, warehouseRepository)
 	userUsecase := user.NewUsecase(userRepository, userprivilegeRepository, warehouseRepository)
 	locationUsecase := location.NewUsecase(locationRepository)
@@ -83,7 +86,7 @@ func Init() *echo.Echo {
 	purchaseorderUsecase := purchaseorder.NewUsecase(purchaseorderRepository, purchaseorderproductRepository, stockRepository, stocklogRepository, customerRepository, warehouseRepository, vehicleRepository)
 
 	// handlers
-	authHandler := auth.NewHandler(authUsecase)
+	authHandler := auth.NewHandler(authUsecase, auditlogUsecase)
 	userHandler := user.NewHandler(userUsecase)
 	locationHandler := location.NewHandler(locationUsecase)
 	warehouseHandler := warehouse.NewHandler(warehouseUsecase)

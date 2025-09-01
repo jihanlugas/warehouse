@@ -15,8 +15,7 @@ import (
 type Usecase interface {
 	Page(loginUser jwt.UserLogin, req request.PageAuditlog) (vAuditlogs []model.AuditlogView, count int64, err error)
 	GetById(loginUser jwt.UserLogin, id string, preloads ...string) (vAuditlog model.AuditlogView, err error)
-	CreateAuditlogSuccess(loginUser jwt.UserLogin, title, description string, dataRequest, dataResponse interface{}) error
-	CreateAuditlogFailed(loginUser jwt.UserLogin, title, description string, dataRequest, dataResponse interface{}) error
+	CreateAuditlog(loginUser jwt.UserLogin, auditlogtype model.AuditlogType, req request.CreateAuditlog) error
 }
 
 type usecase struct {
@@ -47,7 +46,7 @@ func (u usecase) GetById(loginUser jwt.UserLogin, id string, preloads ...string)
 	return vAuditlog, err
 }
 
-func (u usecase) CreateAuditlogSuccess(loginUser jwt.UserLogin, title, description string, dataRequest, dataResponse interface{}) error {
+func (u usecase) CreateAuditlog(loginUser jwt.UserLogin, auditlogtype model.AuditlogType, req request.CreateAuditlog) error {
 	var err error
 	var tAuditlog model.Auditlog
 
@@ -56,58 +55,21 @@ func (u usecase) CreateAuditlogSuccess(loginUser jwt.UserLogin, title, descripti
 
 	tx := conn.Begin()
 
-	bytesRequest, _ := json.Marshal(dataRequest)
-	bytesResponse, _ := json.Marshal(dataResponse)
+	bytesRequest, _ := json.Marshal(req.Request)
+	bytesResponse, _ := json.Marshal(req.Response)
 
 	tAuditlog = model.Auditlog{
-		ID:           utils.GetUniqueID(),
-		LocationID:   loginUser.LocationID,
-		WarehouseID:  loginUser.WarehouseID,
-		AuditlogType: model.AuditlogTypeSuccess,
-		Title:        title,
-		Description:  description,
-		Request:      string(bytesRequest),
-		Response:     string(bytesResponse),
-		CreateBy:     loginUser.UserID,
-		UpdateBy:     loginUser.UserID,
-	}
-
-	err = u.auditlogRepository.Create(tx, tAuditlog)
-	if err != nil {
-		return errors.New(fmt.Sprintf("failed to create %s: %v", u.auditlogRepository.Name(), err))
-	}
-
-	err = tx.Commit().Error
-	if err != nil {
-		return err
-	}
-
-	return err
-}
-
-func (u usecase) CreateAuditlogFailed(loginUser jwt.UserLogin, title, description string, dataRequest, dataResponse interface{}) error {
-	var err error
-	var tAuditlog model.Auditlog
-
-	conn, closeConn := db.GetConnection()
-	defer closeConn()
-
-	tx := conn.Begin()
-
-	bytesRequest, _ := json.Marshal(dataRequest)
-	bytesResponse, _ := json.Marshal(dataResponse)
-
-	tAuditlog = model.Auditlog{
-		ID:           utils.GetUniqueID(),
-		LocationID:   loginUser.LocationID,
-		WarehouseID:  loginUser.WarehouseID,
-		AuditlogType: model.AuditlogTypeFailed,
-		Title:        title,
-		Description:  description,
-		Request:      string(bytesRequest),
-		Response:     string(bytesResponse),
-		CreateBy:     loginUser.UserID,
-		UpdateBy:     loginUser.UserID,
+		ID:                     utils.GetUniqueID(),
+		StockmovementvehicleID: req.StockmovementvehicleID,
+		LocationID:             loginUser.LocationID,
+		WarehouseID:            loginUser.WarehouseID,
+		AuditlogType:           auditlogtype,
+		Title:                  req.Title,
+		Description:            req.Description,
+		Request:                string(bytesRequest),
+		Response:               string(bytesResponse),
+		CreateBy:               loginUser.UserID,
+		UpdateBy:               loginUser.UserID,
 	}
 
 	err = u.auditlogRepository.Create(tx, tAuditlog)

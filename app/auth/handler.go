@@ -59,9 +59,15 @@ func (h Handler) SignIn(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
 	}
 
-	go h.auditlogUsecase.CreateAuditlogSuccess(userLogin, "Login", "", req, response.Payload{
-		"token":     token,
-		"userLogin": userLogin,
+	go h.auditlogUsecase.CreateAuditlog(userLogin, model.AuditlogTypeSuccess, request.CreateAuditlog{
+		StockmovementvehicleID: "",
+		Title:                  fmt.Sprintf("Login"),
+		Description:            "",
+		Request:                nil,
+		Response: response.Payload{
+			"token":     token,
+			"userLogin": userLogin,
+		},
 	})
 
 	return response.Success(http.StatusOK, response.SuccessHandler, response.Payload{

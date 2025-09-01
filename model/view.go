@@ -49,21 +49,24 @@ func (PhotoincView) TableName() string {
 }
 
 type AuditlogView struct {
-	ID           string         `json:"id"`
-	LocationID   string         `json:"locationId"`
-	WarehouseID  string         `json:"warehouseId"`
-	AuditlogType AuditlogType   `json:"auditlogType"`
-	Title        string         `json:"title"`
-	Description  string         `json:"description"`
-	Request      string         `json:"request"`
-	Response     string         `json:"response"`
-	CreateBy     string         `json:"createBy"`
-	CreateDt     time.Time      `json:"createDt"`
-	UpdateBy     string         `json:"updateBy"`
-	UpdateDt     time.Time      `json:"updateDt"`
-	DeleteDt     gorm.DeletedAt `json:"deleteDt"`
-	CreateName   string         `json:"createName"`
-	UpdateName   string         `json:"updateName"`
+	ID                     string         `json:"id"`
+	LocationID             string         `json:"locationId"`
+	WarehouseID            string         `json:"warehouseId"`
+	StockmovementvehicleID string         `json:"stockmovementvehicleId"`
+	AuditlogType           AuditlogType   `json:"auditlogType"`
+	Title                  string         `json:"title"`
+	Description            string         `json:"description"`
+	Request                string         `json:"request"`
+	Response               string         `json:"response"`
+	CreateBy               string         `json:"createBy"`
+	CreateDt               time.Time      `json:"createDt"`
+	UpdateBy               string         `json:"updateBy"`
+	UpdateDt               time.Time      `json:"updateDt"`
+	DeleteDt               gorm.DeletedAt `json:"deleteDt"`
+	CreateName             string         `json:"createName"`
+	UpdateName             string         `json:"updateName"`
+
+	Stockmovementvehicle *StockmovementvehicleView `json:"stockmovementvehicle,omitempty"`
 }
 
 func (AuditlogView) TableName() string {

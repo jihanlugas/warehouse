@@ -3,11 +3,11 @@ package request
 import "time"
 
 type CreateAuditlog struct {
-	LocationID   string `json:"locationId" form:"locationId" query:"locationId" validate:"required"`
-	WarehouseID  string `json:"warehouseId" form:"warehouseId" query:"warehouseId" validate:"required"`
-	AuditlogType string `json:"auditlogType" form:"auditlogType" query:"auditlogType" validate:"required"`
-	Title        string `json:"title" form:"title" query:"title" validate:"required"`
-	Description  string `json:"description" form:"description" query:"description" validate:""`
+	StockmovementvehicleID string      `json:"stockmovementvehicleId" form:"stockmovementvehicleId" query:"stockmovementvehicleId" validate:""`
+	Title                  string      `json:"title" form:"title" query:"title" validate:""`
+	Description            string      `json:"description" form:"description" query:"description" validate:""`
+	Request                interface{} `json:"request" form:"request" query:"request" validate:""`
+	Response               interface{} `json:"response" form:"response" query:"response" validate:""`
 }
 
 type PageAuditlog struct {

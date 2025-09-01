@@ -6,7 +6,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jihanlugas/warehouse/app/auditlog"
 	"github.com/jihanlugas/warehouse/jwt"
+	"github.com/jihanlugas/warehouse/model"
 	"github.com/jihanlugas/warehouse/request"
 	"github.com/jihanlugas/warehouse/response"
 	"github.com/jihanlugas/warehouse/utils"
@@ -14,12 +16,14 @@ import (
 )
 
 type Handler struct {
-	usecase Usecase
+	usecase         Usecase
+	auditlogUsecase auditlog.Usecase
 }
 
-func NewHandler(usecase Usecase) Handler {
+func NewHandler(usecase Usecase, auditlogUsecase auditlog.Usecase) Handler {
 	return Handler{
-		usecase: usecase,
+		usecase:         usecase,
+		auditlogUsecase: auditlogUsecase,
 	}
 }
 
@@ -132,10 +136,25 @@ func (h Handler) Update(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerFailedValidation, err, response.ValidationError(err)).SendJSON(c)
 	}
 
-	err = h.usecase.Update(loginUser, id, *req)
+	vStockmovementvehicle, err := h.usecase.Update(loginUser, id, *req)
 	if err != nil {
+		go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeFailed, request.CreateAuditlog{
+			StockmovementvehicleID: vStockmovementvehicle.ID,
+			Title:                  fmt.Sprintf("Edit Unloading Pengiriman Masuk %s", vStockmovementvehicle.Number),
+			Description:            err.Error(),
+			Request:                req,
+			Response:               nil,
+		})
 		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
 	}
+
+	go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeSuccess, request.CreateAuditlog{
+		StockmovementvehicleID: vStockmovementvehicle.ID,
+		Title:                  fmt.Sprintf("Edit Unloading Pengiriman Masuk %s", vStockmovementvehicle.Number),
+		Description:            "",
+		Request:                req,
+		Response:               nil,
+	})
 
 	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
 
@@ -163,10 +182,25 @@ func (h Handler) SetUnloading(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
 	}
 
-	err = h.usecase.SetUnloading(loginUser, id)
+	vStockmovementvehicle, err := h.usecase.SetUnloading(loginUser, id)
 	if err != nil {
+		go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeFailed, request.CreateAuditlog{
+			StockmovementvehicleID: vStockmovementvehicle.ID,
+			Title:                  fmt.Sprintf("Set Unloading Pengiriman Masuk %s", vStockmovementvehicle.Number),
+			Description:            err.Error(),
+			Request:                nil,
+			Response:               nil,
+		})
 		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
 	}
+
+	go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeSuccess, request.CreateAuditlog{
+		StockmovementvehicleID: vStockmovementvehicle.ID,
+		Title:                  fmt.Sprintf("Set Unloading Pengiriman Masuk %s", vStockmovementvehicle.Number),
+		Description:            "",
+		Request:                nil,
+		Response:               nil,
+	})
 
 	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
 }
@@ -193,10 +227,25 @@ func (h Handler) SetComplete(c echo.Context) error {
 		return response.Error(http.StatusBadRequest, response.ErrorHandlerGetParam, err, nil).SendJSON(c)
 	}
 
-	err = h.usecase.SetComplete(loginUser, id)
+	vStockmovementvehicle, err := h.usecase.SetComplete(loginUser, id)
 	if err != nil {
+		go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeFailed, request.CreateAuditlog{
+			StockmovementvehicleID: vStockmovementvehicle.ID,
+			Title:                  fmt.Sprintf("Set Completed Pengiriman Masuk %s", vStockmovementvehicle.Number),
+			Description:            err.Error(),
+			Request:                nil,
+			Response:               nil,
+		})
 		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
 	}
+
+	go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeSuccess, request.CreateAuditlog{
+		StockmovementvehicleID: vStockmovementvehicle.ID,
+		Title:                  fmt.Sprintf("Set Completed Pengiriman Masuk %s", vStockmovementvehicle.Number),
+		Description:            "",
+		Request:                nil,
+		Response:               nil,
+	})
 
 	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
 }
@@ -225,8 +274,24 @@ func (h Handler) GenerateDeliveryRecipt(c echo.Context) error {
 
 	pdfBytes, vStockmovementvehicle, err := h.usecase.GenerateDeliveryRecipt(loginUser, id)
 	if err != nil {
+		go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeFailed, request.CreateAuditlog{
+			StockmovementvehicleID: vStockmovementvehicle.ID,
+			Title:                  fmt.Sprintf("Generate Tanda Terima %s", vStockmovementvehicle.Number),
+			Description:            "",
+			Request:                nil,
+			Response:               nil,
+		})
+
 		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
 	}
+
+	go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeSuccess, request.CreateAuditlog{
+		StockmovementvehicleID: vStockmovementvehicle.ID,
+		Title:                  fmt.Sprintf("Generate Tanda Terima %s", vStockmovementvehicle.Number),
+		Description:            "",
+		Request:                nil,
+		Response:               nil,
+	})
 
 	fmt.Print(fmt.Sprintf("Delivery Recipt %s %s.pdf", vStockmovementvehicle.ID, utils.DisplayDate(time.Now())))
 

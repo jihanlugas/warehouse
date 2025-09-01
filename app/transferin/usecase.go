@@ -26,9 +26,9 @@ import (
 type Usecase interface {
 	Page(loginUser jwt.UserLogin, req request.PageTransferin) (vStockmovementvehicles []model.StockmovementvehicleView, count int64, err error)
 	GetById(loginUser jwt.UserLogin, id string, preloads ...string) (vStockmovementvehicle model.StockmovementvehicleView, err error)
-	Update(loginUser jwt.UserLogin, id string, req request.UpdateTransferin) (err error)
-	SetUnloading(loginUser jwt.UserLogin, id string) (err error)
-	SetComplete(loginUser jwt.UserLogin, id string) (err error)
+	Update(loginUser jwt.UserLogin, id string, req request.UpdateTransferin) (vStockmovementvehicle model.StockmovementvehicleView, err error)
+	SetUnloading(loginUser jwt.UserLogin, id string) (vStockmovementvehicle model.StockmovementvehicleView, err error)
+	SetComplete(loginUser jwt.UserLogin, id string) (vStockmovementvehicle model.StockmovementvehicleView, err error)
 	GenerateDeliveryRecipt(loginUser jwt.UserLogin, id string) (pdfBytes []byte, vStockmovementvehicle model.StockmovementvehicleView, err error)
 }
 
@@ -89,23 +89,28 @@ func (u usecase) GetById(loginUser jwt.UserLogin, id string, preloads ...string)
 	return vStockmovementvehicle, err
 }
 
-func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateTransferin) (err error) {
+func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateTransferin) (vStockmovementvehicle model.StockmovementvehicleView, err error) {
 	var tStockmovementvehicle model.Stockmovementvehicle
 
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
+	vStockmovementvehicle, err = u.stockmovementvehicleRepository.GetViewById(conn, id)
+	if err != nil {
+		return vStockmovementvehicle, err
+	}
+
 	tStockmovementvehicle, err = u.stockmovementvehicleRepository.GetTableById(conn, id)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementvehicleRepository.Name(), err))
+		return vStockmovementvehicle, errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
 	if jwt.IsSaveWarehouseIDOR(loginUser, tStockmovementvehicle.ToWarehouseID) {
-		return errors.New(response.ErrorHandlerIDOR)
+		return vStockmovementvehicle, errors.New(response.ErrorHandlerIDOR)
 	}
 
 	if tStockmovementvehicle.StockmovementvehicleStatus != model.StockmovementvehicleStatusUnloading {
-		return errors.New(fmt.Sprintf("unable to update data with status %s", strings.ToLower(string(tStockmovementvehicle.StockmovementvehicleStatus))))
+		return vStockmovementvehicle, errors.New(fmt.Sprintf("unable to update data with status %s", strings.ToLower(string(tStockmovementvehicle.StockmovementvehicleStatus))))
 	}
 
 	tx := conn.Begin()
@@ -115,34 +120,39 @@ func (u usecase) Update(loginUser jwt.UserLogin, id string, req request.UpdateTr
 	tStockmovementvehicle.ReceivedNetQuantity = req.ReceivedNetQuantity
 	err = u.stockmovementvehicleRepository.Save(tx, tStockmovementvehicle)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to save %s: %v", u.stockmovementvehicleRepository.Name(), err))
+		return vStockmovementvehicle, errors.New(fmt.Sprintf("failed to save %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
 	if err != nil {
-		return err
+		return vStockmovementvehicle, err
 	}
 
-	return err
+	return vStockmovementvehicle, err
 }
 
-func (u usecase) SetUnloading(loginUser jwt.UserLogin, id string) (err error) {
+func (u usecase) SetUnloading(loginUser jwt.UserLogin, id string) (vStockmovementvehicle model.StockmovementvehicleView, err error) {
 	var tStockmovementvehicle model.Stockmovementvehicle
 
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
+	vStockmovementvehicle, err = u.stockmovementvehicleRepository.GetViewById(conn, id)
+	if err != nil {
+		return vStockmovementvehicle, err
+	}
+
 	tStockmovementvehicle, err = u.stockmovementvehicleRepository.GetTableById(conn, id)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementvehicleRepository.Name(), err))
+		return vStockmovementvehicle, errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
 	if jwt.IsSaveWarehouseIDOR(loginUser, tStockmovementvehicle.ToWarehouseID) {
-		return errors.New(response.ErrorHandlerIDOR)
+		return vStockmovementvehicle, errors.New(response.ErrorHandlerIDOR)
 	}
 
 	if tStockmovementvehicle.StockmovementvehicleStatus != model.StockmovementvehicleStatusInTransit {
-		return errors.New(fmt.Sprintf("unable to update data with status %s", strings.ToLower(string(tStockmovementvehicle.StockmovementvehicleStatus))))
+		return vStockmovementvehicle, errors.New(fmt.Sprintf("unable to update data with status %s", strings.ToLower(string(tStockmovementvehicle.StockmovementvehicleStatus))))
 	}
 
 	now := time.Now()
@@ -152,18 +162,18 @@ func (u usecase) SetUnloading(loginUser jwt.UserLogin, id string) (err error) {
 	tStockmovementvehicle.ReceivedTime = &now
 	err = u.stockmovementvehicleRepository.Save(tx, tStockmovementvehicle)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to save %s: %v", u.stockmovementvehicleRepository.Name(), err))
+		return vStockmovementvehicle, errors.New(fmt.Sprintf("failed to save %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
 	if err != nil {
-		return err
+		return vStockmovementvehicle, err
 	}
 
-	return err
+	return vStockmovementvehicle, err
 }
 
-func (u usecase) SetComplete(loginUser jwt.UserLogin, id string) (err error) {
+func (u usecase) SetComplete(loginUser jwt.UserLogin, id string) (vStockmovementvehicle model.StockmovementvehicleView, err error) {
 	var tStockmovementvehicle model.Stockmovementvehicle
 	var tStock model.Stock
 	var tStocklog model.Stocklog
@@ -171,17 +181,22 @@ func (u usecase) SetComplete(loginUser jwt.UserLogin, id string) (err error) {
 	conn, closeConn := db.GetConnection()
 	defer closeConn()
 
+	vStockmovementvehicle, err = u.stockmovementvehicleRepository.GetViewById(conn, id)
+	if err != nil {
+		return vStockmovementvehicle, err
+	}
+
 	tStockmovementvehicle, err = u.stockmovementvehicleRepository.GetTableById(conn, id)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementvehicleRepository.Name(), err))
+		return vStockmovementvehicle, errors.New(fmt.Sprintf("failed to get %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
 	if jwt.IsSaveWarehouseIDOR(loginUser, tStockmovementvehicle.ToWarehouseID) {
-		return errors.New(response.ErrorHandlerIDOR)
+		return vStockmovementvehicle, errors.New(response.ErrorHandlerIDOR)
 	}
 
 	if tStockmovementvehicle.StockmovementvehicleStatus != model.StockmovementvehicleStatusUnloading {
-		return errors.New(fmt.Sprintf("unable to update data with status %s", strings.ToLower(string(tStockmovementvehicle.StockmovementvehicleStatus))))
+		return vStockmovementvehicle, errors.New(fmt.Sprintf("unable to update data with status %s", strings.ToLower(string(tStockmovementvehicle.StockmovementvehicleStatus))))
 	}
 
 	tx := conn.Begin()
@@ -189,7 +204,7 @@ func (u usecase) SetComplete(loginUser jwt.UserLogin, id string) (err error) {
 	tStock, err = u.stockRepository.GetTableByWarehouseIdAndProductId(tx, tStockmovementvehicle.ToWarehouseID, tStockmovementvehicle.ProductID)
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New(fmt.Sprintf("failed to get %s: %v", u.stockRepository.Name(), err))
+			return vStockmovementvehicle, errors.New(fmt.Sprintf("failed to get %s: %v", u.stockRepository.Name(), err))
 		}
 		tStock = model.Stock{
 			ID:          utils.GetUniqueID(),
@@ -201,21 +216,21 @@ func (u usecase) SetComplete(loginUser jwt.UserLogin, id string) (err error) {
 		}
 		err = u.stockRepository.Create(tx, tStock)
 		if err != nil {
-			return errors.New(fmt.Sprintf("failed to create %s: %v", u.stockRepository.Name(), err))
+			return vStockmovementvehicle, errors.New(fmt.Sprintf("failed to create %s: %v", u.stockRepository.Name(), err))
 		}
 	}
 
 	tStock.Quantity = tStock.Quantity + tStockmovementvehicle.ReceivedNetQuantity
 	err = u.stockRepository.Save(tx, tStock)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to save %s: %v", u.stockRepository.Name(), err))
+		return vStockmovementvehicle, errors.New(fmt.Sprintf("failed to save %s: %v", u.stockRepository.Name(), err))
 	}
 
 	tStockmovementvehicle.Shrinkage = tStockmovementvehicle.SentNetQuantity - tStockmovementvehicle.ReceivedNetQuantity
 	tStockmovementvehicle.StockmovementvehicleStatus = model.StockmovementvehicleStatusCompleted
 	err = u.stockmovementvehicleRepository.Save(tx, tStockmovementvehicle)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to save %s: %v", u.stockmovementvehicleRepository.Name(), err))
+		return vStockmovementvehicle, errors.New(fmt.Sprintf("failed to save %s: %v", u.stockmovementvehicleRepository.Name(), err))
 	}
 
 	tStocklog = model.Stocklog{
@@ -234,15 +249,15 @@ func (u usecase) SetComplete(loginUser jwt.UserLogin, id string) (err error) {
 	}
 	err = u.stocklogRepository.Create(tx, tStocklog)
 	if err != nil {
-		return errors.New(fmt.Sprintf("failed to create %s: %v", u.stocklogRepository.Name(), err))
+		return vStockmovementvehicle, errors.New(fmt.Sprintf("failed to create %s: %v", u.stocklogRepository.Name(), err))
 	}
 
 	err = tx.Commit().Error
 	if err != nil {
-		return err
+		return vStockmovementvehicle, err
 	}
 
-	return err
+	return vStockmovementvehicle, err
 }
 
 func (u usecase) GenerateDeliveryRecipt(loginUser jwt.UserLogin, id string) (pdfBytes []byte, vStockmovementvehicle model.StockmovementvehicleView, err error) {

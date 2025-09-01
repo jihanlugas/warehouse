@@ -104,19 +104,20 @@ type Photoinc struct {
 }
 
 type Auditlog struct {
-	ID           string         `gorm:"primaryKey"`
-	LocationID   string         `gorm:"not null"`
-	WarehouseID  string         `gorm:"not null"`
-	AuditlogType AuditlogType   `gorm:"not null"`
-	Title        string         `gorm:"not null"`
-	Description  string         `gorm:"not null"`
-	Request      string         `gorm:"not null"`
-	Response     string         `gorm:"not null"`
-	CreateBy     string         `gorm:"not null"`
-	CreateDt     time.Time      `gorm:"not null"`
-	UpdateBy     string         `gorm:"not null"`
-	UpdateDt     time.Time      `gorm:"not null"`
-	DeleteDt     gorm.DeletedAt `gorm:"null"`
+	ID                     string         `gorm:"primaryKey"`
+	LocationID             string         `gorm:"not null"`
+	WarehouseID            string         `gorm:"not null"`
+	StockmovementvehicleID string         `json:"stockmovementvehicleId"`
+	AuditlogType           AuditlogType   `gorm:"not null"`
+	Title                  string         `gorm:"not null"`
+	Description            string         `gorm:"not null"`
+	Request                string         `gorm:"not null"`
+	Response               string         `gorm:"not null"`
+	CreateBy               string         `gorm:"not null"`
+	CreateDt               time.Time      `gorm:"not null"`
+	UpdateBy               string         `gorm:"not null"`
+	UpdateDt               time.Time      `gorm:"not null"`
+	DeleteDt               gorm.DeletedAt `gorm:"null"`
 }
 
 type User struct {

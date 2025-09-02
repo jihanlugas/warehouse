@@ -66,6 +66,8 @@ type AuditlogView struct {
 	CreateName             string         `json:"createName"`
 	UpdateName             string         `json:"updateName"`
 
+	Location             *LocationView             `json:"location,omitempty"`
+	Warehouse            *WarehouseView            `json:"warehouse,omitempty"`
 	Stockmovementvehicle *StockmovementvehicleView `json:"stockmovementvehicle,omitempty"`
 }
 

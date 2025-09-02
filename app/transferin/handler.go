@@ -140,8 +140,8 @@ func (h Handler) Update(c echo.Context) error {
 	if err != nil {
 		go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeFailed, request.CreateAuditlog{
 			StockmovementvehicleID: vStockmovementvehicle.ID,
-			Title:                  fmt.Sprintf("Edit Unloading Pengiriman Masuk %s", vStockmovementvehicle.Number),
-			Description:            err.Error(),
+			Title:                  fmt.Sprintf("Edit Unloading Pengiriman Masuk"),
+			Description:            strings.TrimSpace(fmt.Sprintf("%s %s", vStockmovementvehicle.Number, err.Error())),
 			Request:                req,
 			Response:               nil,
 		})
@@ -150,8 +150,8 @@ func (h Handler) Update(c echo.Context) error {
 
 	go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeSuccess, request.CreateAuditlog{
 		StockmovementvehicleID: vStockmovementvehicle.ID,
-		Title:                  fmt.Sprintf("Edit Unloading Pengiriman Masuk %s", vStockmovementvehicle.Number),
-		Description:            "",
+		Title:                  fmt.Sprintf("Edit Unloading Pengiriman Masuk"),
+		Description:            fmt.Sprintf("Edit Unloading Pengiriman Masuk %s", vStockmovementvehicle.Number),
 		Request:                req,
 		Response:               nil,
 	})
@@ -186,8 +186,8 @@ func (h Handler) SetUnloading(c echo.Context) error {
 	if err != nil {
 		go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeFailed, request.CreateAuditlog{
 			StockmovementvehicleID: vStockmovementvehicle.ID,
-			Title:                  fmt.Sprintf("Set Unloading Pengiriman Masuk %s", vStockmovementvehicle.Number),
-			Description:            err.Error(),
+			Title:                  fmt.Sprintf("Set Unloading Pengiriman Masuk"),
+			Description:            strings.TrimSpace(fmt.Sprintf("%s %s", vStockmovementvehicle.Number, err.Error())),
 			Request:                nil,
 			Response:               nil,
 		})
@@ -196,8 +196,8 @@ func (h Handler) SetUnloading(c echo.Context) error {
 
 	go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeSuccess, request.CreateAuditlog{
 		StockmovementvehicleID: vStockmovementvehicle.ID,
-		Title:                  fmt.Sprintf("Set Unloading Pengiriman Masuk %s", vStockmovementvehicle.Number),
-		Description:            "",
+		Title:                  fmt.Sprintf("Set Unloading Pengiriman Masuk"),
+		Description:            fmt.Sprintf("Set Unloading Pengiriman Masuk %s", vStockmovementvehicle.Number),
 		Request:                nil,
 		Response:               nil,
 	})
@@ -231,8 +231,8 @@ func (h Handler) SetComplete(c echo.Context) error {
 	if err != nil {
 		go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeFailed, request.CreateAuditlog{
 			StockmovementvehicleID: vStockmovementvehicle.ID,
-			Title:                  fmt.Sprintf("Set Completed Pengiriman Masuk %s", vStockmovementvehicle.Number),
-			Description:            err.Error(),
+			Title:                  fmt.Sprintf("Set Completed Pengiriman Masuk"),
+			Description:            strings.TrimSpace(fmt.Sprintf("%s %s", vStockmovementvehicle.Number, err.Error())),
 			Request:                nil,
 			Response:               nil,
 		})
@@ -241,8 +241,8 @@ func (h Handler) SetComplete(c echo.Context) error {
 
 	go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeSuccess, request.CreateAuditlog{
 		StockmovementvehicleID: vStockmovementvehicle.ID,
-		Title:                  fmt.Sprintf("Set Completed Pengiriman Masuk %s", vStockmovementvehicle.Number),
-		Description:            "",
+		Title:                  fmt.Sprintf("Set Completed Pengiriman Masuk"),
+		Description:            fmt.Sprintf("Set Completed Pengiriman Masuk %s", vStockmovementvehicle.Number),
 		Request:                nil,
 		Response:               nil,
 	})
@@ -276,8 +276,8 @@ func (h Handler) GenerateDeliveryRecipt(c echo.Context) error {
 	if err != nil {
 		go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeFailed, request.CreateAuditlog{
 			StockmovementvehicleID: vStockmovementvehicle.ID,
-			Title:                  fmt.Sprintf("Generate Tanda Terima %s", vStockmovementvehicle.Number),
-			Description:            "",
+			Title:                  fmt.Sprintf("Generate Tanda Terima"),
+			Description:            strings.TrimSpace(fmt.Sprintf("%s %s", vStockmovementvehicle.Number, err.Error())),
 			Request:                nil,
 			Response:               nil,
 		})
@@ -287,8 +287,8 @@ func (h Handler) GenerateDeliveryRecipt(c echo.Context) error {
 
 	go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeSuccess, request.CreateAuditlog{
 		StockmovementvehicleID: vStockmovementvehicle.ID,
-		Title:                  fmt.Sprintf("Generate Tanda Terima %s", vStockmovementvehicle.Number),
-		Description:            "",
+		Title:                  fmt.Sprintf("Generate Tanda Terima"),
+		Description:            fmt.Sprintf("Generate Tanda Terima %s", vStockmovementvehicle.Number),
 		Request:                nil,
 		Response:               nil,
 	})

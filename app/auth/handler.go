@@ -62,7 +62,7 @@ func (h Handler) SignIn(c echo.Context) error {
 	go h.auditlogUsecase.CreateAuditlog(userLogin, model.AuditlogTypeSuccess, request.CreateAuditlog{
 		StockmovementvehicleID: "",
 		Title:                  fmt.Sprintf("Login"),
-		Description:            "",
+		Description:            fmt.Sprintf("%s Success login", userLogin.Fullname),
 		Request:                nil,
 		Response: response.Payload{
 			"token":     token,

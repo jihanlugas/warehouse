@@ -96,8 +96,8 @@ func (h Handler) Create(c echo.Context) error {
 	if err != nil {
 		go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeFailed, request.CreateAuditlog{
 			StockmovementvehicleID: vStockmovementvehicle.ID,
-			Title:                  fmt.Sprintf("Buat Stock Masuk %s", vStockmovementvehicle.Number),
-			Description:            err.Error(),
+			Title:                  fmt.Sprintf("Buat Stock Masuk"),
+			Description:            strings.TrimSpace(fmt.Sprintf("%s %s", vStockmovementvehicle.Number, err.Error())),
 			Request:                req,
 			Response:               nil,
 		})
@@ -106,8 +106,8 @@ func (h Handler) Create(c echo.Context) error {
 
 	go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeSuccess, request.CreateAuditlog{
 		StockmovementvehicleID: vStockmovementvehicle.ID,
-		Title:                  fmt.Sprintf("Buat Stock Masuk %s", vStockmovementvehicle.Number),
-		Description:            "",
+		Title:                  fmt.Sprintf("Buat Stock Masuk"),
+		Description:            fmt.Sprintf("Buat Stock Masuk %s", vStockmovementvehicle.Number),
 		Request:                req,
 		Response:               nil,
 	})
@@ -178,8 +178,8 @@ func (h Handler) Delete(c echo.Context) error {
 	if err != nil {
 		go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeFailed, request.CreateAuditlog{
 			StockmovementvehicleID: vStockmovementvehicle.ID,
-			Title:                  fmt.Sprintf("Hapus Stock Masuk %s", vStockmovementvehicle.Number),
-			Description:            err.Error(),
+			Title:                  fmt.Sprintf("Hapus Stock Masuk"),
+			Description:            strings.TrimSpace(fmt.Sprintf("%s %s", vStockmovementvehicle.Number, err.Error())),
 			Request:                nil,
 			Response:               nil,
 		})
@@ -187,8 +187,8 @@ func (h Handler) Delete(c echo.Context) error {
 	}
 	go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeSuccess, request.CreateAuditlog{
 		StockmovementvehicleID: vStockmovementvehicle.ID,
-		Title:                  fmt.Sprintf("Hapus Stock Masuk %s", vStockmovementvehicle.Number),
-		Description:            "",
+		Title:                  fmt.Sprintf("Hapus Stock Masuk"),
+		Description:            fmt.Sprintf("Hapus Stock Masuk %s", vStockmovementvehicle.Number),
 		Request:                nil,
 		Response:               nil,
 	})
@@ -221,8 +221,8 @@ func (h Handler) SetComplete(c echo.Context) error {
 	if err != nil {
 		go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeFailed, request.CreateAuditlog{
 			StockmovementvehicleID: vStockmovementvehicle.ID,
-			Title:                  fmt.Sprintf("Set Complete Stock Masuk %s", vStockmovementvehicle.Number),
-			Description:            err.Error(),
+			Title:                  fmt.Sprintf("Set Complete Stock Masuk"),
+			Description:            strings.TrimSpace(fmt.Sprintf("%s %s", vStockmovementvehicle.Number, err.Error())),
 			Request:                nil,
 			Response:               nil,
 		})
@@ -230,8 +230,8 @@ func (h Handler) SetComplete(c echo.Context) error {
 	}
 	go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeSuccess, request.CreateAuditlog{
 		StockmovementvehicleID: vStockmovementvehicle.ID,
-		Title:                  fmt.Sprintf("Set Complete Stock Masuk %s", vStockmovementvehicle.Number),
-		Description:            "",
+		Title:                  fmt.Sprintf("Set Complete Stock Masuk"),
+		Description:            fmt.Sprintf("Set Complete Stock Masuk %s", vStockmovementvehicle.Number),
 		Request:                nil,
 		Response:               nil,
 	})

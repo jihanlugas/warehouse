@@ -79,6 +79,7 @@ func (u usecase) SignIn(req request.Signin) (token string, userLogin jwt.UserLog
 	}
 
 	expiredAt := time.Now().Add(time.Minute * time.Duration(config.AuthTokenExpiredMinute))
+	userLogin.Fullname = tUser.Fullname
 	userLogin.ExpiredDt = expiredAt
 	userLogin.UserID = tUser.ID
 	userLogin.UserRole = tUser.UserRole

@@ -87,6 +87,7 @@ func Init() *echo.Echo {
 
 	// handlers
 	authHandler := auth.NewHandler(authUsecase, auditlogUsecase)
+	auditlogHandler := auditlog.NewHandler(auditlogUsecase)
 	userHandler := user.NewHandler(userUsecase)
 	locationHandler := location.NewHandler(locationUsecase)
 	warehouseHandler := warehouse.NewHandler(warehouseUsecase)
@@ -123,6 +124,9 @@ func Init() *echo.Echo {
 	routerAuth.GET("/refresh-token", authHandler.RefreshToken, checkTokenMiddleware)
 	routerAuth.GET("/google/login", authHandler.GoogleSignIn)
 	routerAuth.GET("/google/callback", authHandler.GoogleCallback)
+
+	routerAuditlog := router.Group("/auditlog", checkTokenMiddleware)
+	routerAuditlog.GET("", auditlogHandler.Page)
 
 	routerLocation := router.Group("/location", checkTokenMiddlewareAdmin)
 	routerLocation.GET("", locationHandler.Page)

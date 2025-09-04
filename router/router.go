@@ -26,6 +26,7 @@ import (
 	"github.com/jihanlugas/warehouse/app/transferout"
 	"github.com/jihanlugas/warehouse/app/user"
 	"github.com/jihanlugas/warehouse/app/userprivilege"
+	"github.com/jihanlugas/warehouse/app/userprovider"
 	"github.com/jihanlugas/warehouse/app/vehicle"
 	"github.com/jihanlugas/warehouse/app/warehouse"
 	"github.com/jihanlugas/warehouse/config"
@@ -46,6 +47,7 @@ func Init() *echo.Echo {
 	//// repositories
 	auditlogRepository := auditlog.NewRepository()
 	userRepository := user.NewRepository()
+	userproviderRepository := userprovider.NewRepository()
 	userprivilegeRepository := userprivilege.NewRepository()
 	locationRepository := location.NewRepository()
 	warehouseRepository := warehouse.NewRepository()
@@ -65,7 +67,7 @@ func Init() *echo.Echo {
 
 	// usecases
 	auditlogUsecase := auditlog.NewUsecase(auditlogRepository)
-	authUsecase := auth.NewUsecase(userRepository, warehouseRepository)
+	authUsecase := auth.NewUsecase(userRepository, warehouseRepository, userproviderRepository)
 	userUsecase := user.NewUsecase(userRepository, userprivilegeRepository, warehouseRepository)
 	locationUsecase := location.NewUsecase(locationRepository)
 	warehouseUsecase := warehouse.NewUsecase(warehouseRepository)
@@ -123,7 +125,9 @@ func Init() *echo.Echo {
 	routerAuth.GET("/init", authHandler.Init, checkTokenMiddleware)
 	routerAuth.GET("/refresh-token", authHandler.RefreshToken, checkTokenMiddleware)
 	routerAuth.GET("/google/login", authHandler.GoogleSignIn)
+	routerAuth.GET("/google/link", authHandler.GoogleLink, checkTokenMiddlewareQuery)
 	routerAuth.GET("/google/callback", authHandler.GoogleCallback)
+	routerAuth.GET("/google/unlink", authHandler.GoogleUnlink, checkTokenMiddleware)
 
 	routerAuditlog := router.Group("/auditlog", checkTokenMiddleware)
 	routerAuditlog.GET("", auditlogHandler.Page)
@@ -305,6 +309,35 @@ func httpErrorHandler(err error, c echo.Context) {
 	} else {
 		b := []byte("{status: false, code: 500, message: \"unresolved error\"}")
 		_ = c.Blob(code, echo.MIMEApplicationJSON, b)
+	}
+}
+
+func checkTokenMiddlewareQuery(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var err error
+
+		token := c.QueryParam("token")
+
+		userLogin, err := jwt.ExtractClaimsQuery(token)
+		if err != nil {
+			return response.ErrorForce(http.StatusUnauthorized, err.Error()).SendJSON(c)
+		}
+
+		conn, closeConn := db.GetConnection()
+		defer closeConn()
+
+		var tUser model.User
+		err = conn.Where("id = ? ", userLogin.UserID).First(&tUser).Error
+		if err != nil {
+			return response.ErrorForce(http.StatusUnauthorized, response.ErrorMiddlewareUserNotFound).SendJSON(c)
+		}
+
+		if tUser.PassVersion != userLogin.PassVersion {
+			return response.ErrorForce(http.StatusUnauthorized, response.ErrorMiddlewarePassVersion).SendJSON(c)
+		}
+
+		c.Set(constant.TokenUserContext, userLogin)
+		return next(c)
 	}
 }
 

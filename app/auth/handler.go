@@ -2,8 +2,8 @@ package auth
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -151,39 +151,136 @@ func (h Handler) Init(c echo.Context) error {
 }
 
 func (h Handler) GoogleSignIn(c echo.Context) (err error) {
-	// bisa tambahkan state random untuk CSRF protection
-	state := config.OauthKey
+	url := googleOAuthConfig.AuthCodeURL("", oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+	return c.Redirect(http.StatusFound, url)
+}
+
+func (h Handler) GoogleCallback(c echo.Context) (err error) {
+	rawState := c.QueryParam("state")
+	if rawState == "" {
+		return h.googleSigninCallback(c)
+	} else {
+		return h.googleLinkCallback(c)
+	}
+}
+
+func (h Handler) GoogleUnlink(c echo.Context) (err error) {
+	loginUser, err := jwt.GetUserLoginInfo(c)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerBind, err, nil).SendJSON(c)
+	}
+
+	err = h.usecase.GoogleUnlink(loginUser)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, err.Error(), err, nil).SendJSON(c)
+	}
+
+	return response.Success(http.StatusOK, response.SuccessHandler, nil).SendJSON(c)
+}
+
+func (h Handler) GoogleLink(c echo.Context) (err error) {
+	loginUser, err := jwt.GetUserLoginInfo(c)
+	if err != nil {
+		return response.Error(http.StatusBadRequest, response.ErrorHandlerBind, err, nil).SendJSON(c)
+	}
+
+	stateJSON, _ := json.Marshal(loginUser)
+	state := base64.URLEncoding.EncodeToString(stateJSON)
 
 	url := googleOAuthConfig.AuthCodeURL(state, oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	return c.Redirect(http.StatusFound, url)
 }
 
-func (h Handler) GoogleCallback(c echo.Context) (err error) {
+func (h Handler) googleSigninCallback(c echo.Context) (err error) {
+	var redirectURL string
 	code := c.QueryParam("code")
 	if code == "" {
-		return response.Error(http.StatusBadRequest, "missing code", errors.New("missing code"), nil).SendJSON(c)
+		redirectURL = fmt.Sprintf("%s/callback?state=%s&status=failed&message=%s", config.OauthFeCallback, "sign-in", err.Error())
+		return c.Redirect(http.StatusFound, redirectURL)
 	}
 
-	token, err := googleOAuthConfig.Exchange(context.Background(), code)
+	providerToken, err := googleOAuthConfig.Exchange(context.Background(), code)
 	if err != nil {
-		return response.Error(http.StatusBadRequest, "token exchange failed: ", err, nil).SendJSON(c)
+		redirectURL = fmt.Sprintf("%s/callback?state=%s&status=failed&message=%s", config.OauthFeCallback, "sign-in", err.Error())
+		return c.Redirect(http.StatusFound, redirectURL)
 	}
 
 	req, _ := http.NewRequest("GET", "https://www.googleapis.com/oauth2/v3/userinfo", nil)
-	req.Header.Set("Authorization", "Bearer "+token.AccessToken)
+	req.Header.Set("Authorization", "Bearer "+providerToken.AccessToken)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return response.Error(http.StatusBadRequest, "fetch userinfo failed", err, nil).SendJSON(c)
+		redirectURL = fmt.Sprintf("%s/callback?state=%s&status=failed&message=%s", config.OauthFeCallback, "sign-in", err.Error())
+		return c.Redirect(http.StatusFound, redirectURL)
 	}
 	defer resp.Body.Close()
 
-	var user map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&user)
+	var callback response.GoogleCallback
+	err = json.NewDecoder(resp.Body).Decode(&callback)
 	if err != nil {
-		return response.Error(http.StatusBadRequest, "decode userinfo failed", err, nil).SendJSON(c)
+		redirectURL = fmt.Sprintf("%s/callback?state=%s&status=failed&message=%s", config.OauthFeCallback, "sign-in", err.Error())
+		return c.Redirect(http.StatusFound, redirectURL)
 	}
 
-	// STEP 4: Redirect balik ke FE dengan token
-	redirectURL := fmt.Sprintf("http://localhost:3000/callback?token=%s&role=ADMIN", "asdjn23asd")
+	token, loginUser, err := h.usecase.GoogleCallback(callback)
+	if err != nil {
+		redirectURL = fmt.Sprintf("%s/callback?state=%s&status=failed&message=%s", config.OauthFeCallback, "sign-in", err.Error())
+		return c.Redirect(http.StatusFound, redirectURL)
+	}
+
+	redirectURL = fmt.Sprintf("%s/callback?state=%s&status=success&token=%s&role=%s", config.OauthFeCallback, "sign-in", token, loginUser.UserRole)
+	return c.Redirect(http.StatusFound, redirectURL)
+}
+
+func (h Handler) googleLinkCallback(c echo.Context) (err error) {
+	var redirectURL string
+	code := c.QueryParam("code")
+	if code == "" {
+		redirectURL = fmt.Sprintf("%s/callback?state=%s&status=failed&message=%s", config.OauthFeCallback, "link", err.Error())
+		return c.Redirect(http.StatusFound, redirectURL)
+	}
+
+	providerToken, err := googleOAuthConfig.Exchange(context.Background(), code)
+	if err != nil {
+		redirectURL = fmt.Sprintf("%s/callback?state=%s&status=failed&message=%s", config.OauthFeCallback, "link", err.Error())
+		return c.Redirect(http.StatusFound, redirectURL)
+	}
+
+	req, _ := http.NewRequest("GET", "https://www.googleapis.com/oauth2/v3/userinfo", nil)
+	req.Header.Set("Authorization", "Bearer "+providerToken.AccessToken)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		redirectURL = fmt.Sprintf("%s/callback?state=%s&status=failed&message=%s", config.OauthFeCallback, "link", err.Error())
+		return c.Redirect(http.StatusFound, redirectURL)
+	}
+	defer resp.Body.Close()
+
+	var callback response.GoogleCallback
+	err = json.NewDecoder(resp.Body).Decode(&callback)
+	if err != nil {
+		redirectURL = fmt.Sprintf("%s/callback?state=%s&status=failed&message=%s", config.OauthFeCallback, "link", err.Error())
+		return c.Redirect(http.StatusFound, redirectURL)
+	}
+
+	rawState := c.QueryParam("state")
+
+	decoded, err := base64.URLEncoding.DecodeString(rawState)
+	if err != nil {
+		redirectURL = fmt.Sprintf("%s/callback?state=%s&status=failed&message=%s", config.OauthFeCallback, "link", err.Error())
+		return c.Redirect(http.StatusFound, redirectURL)
+	}
+	var loginUser jwt.UserLogin
+	err = json.Unmarshal(decoded, &loginUser)
+	if err != nil {
+		redirectURL = fmt.Sprintf("%s/callback?state=%s&status=failed&message=%s", config.OauthFeCallback, "link", err.Error())
+		return c.Redirect(http.StatusFound, redirectURL)
+	}
+
+	err = h.usecase.GoogleLinkCallback(loginUser, callback)
+	if err != nil {
+		redirectURL = fmt.Sprintf("%s/callback?state=%s&status=failed&message=%s", config.OauthFeCallback, "link", err.Error())
+		return c.Redirect(http.StatusFound, redirectURL)
+	}
+
+	redirectURL = fmt.Sprintf("%s/callback?state=%s&status=success&message=%s", config.OauthFeCallback, "link", "success link")
 	return c.Redirect(http.StatusFound, redirectURL)
 }

@@ -45,6 +45,7 @@ var (
 	PhotoincRunningLimit         int64
 	PhotoUploadMaxSizeByte       int64
 	PhotoUploadAllowedExtensions []string
+	OauthFeCallback              string
 	GoogleOauth                  oauth2
 )
 
@@ -115,6 +116,8 @@ func init() {
 	}
 
 	PhotoUploadAllowedExtensions = strings.Split(os.Getenv("PHOTO_UPLOAD_ALLOWED_EXTENSIONS"), ",")
+
+	OauthFeCallback = os.Getenv("OAUTH_FE_CALLBACK_URL")
 
 	GoogleOauth = oauth2{
 		ClientID:     os.Getenv("OAUTH_GOOGLE_CLIENT_ID"),

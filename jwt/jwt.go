@@ -54,6 +54,50 @@ func CreateToken(userLogin UserLogin) (string, error) {
 	return token, nil
 }
 
+func ExtractClaimsQuery(token string) (UserLogin, error) {
+	var err error
+	var userlogin UserLogin
+
+	claims, err := parseToken(token)
+	if err != nil {
+		return userlogin, err
+	}
+
+	content := claims["sub"].(string)
+	contentData := strings.Split(content, "$$")
+	if len(contentData) != constant.TokenContentLen {
+		err = errors.New("unauthorized!")
+		return userlogin, err
+	}
+
+	expiredUnix, err := strconv.ParseInt(contentData[0], 10, 64)
+	if err != nil {
+		return userlogin, err
+	}
+
+	passVersion, err := strconv.Atoi(contentData[2])
+	if err != nil {
+		return userlogin, err
+	}
+
+	expiredAt := time.Unix(expiredUnix, 0)
+	now := time.Now()
+	if now.After(expiredAt) {
+		err = errors.New("token expired")
+		return userlogin, err
+	}
+	userlogin = UserLogin{
+		ExpiredDt:   expiredAt,
+		UserID:      contentData[1],
+		PassVersion: passVersion,
+		LocationID:  contentData[3],
+		WarehouseID: contentData[4],
+		UserRole:    model.UserRole(contentData[5]),
+	}
+
+	return userlogin, err
+}
+
 func ExtractClaims(header string) (UserLogin, error) {
 	var err error
 	var userlogin UserLogin

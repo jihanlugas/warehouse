@@ -11,4 +11,5 @@ const (
 	FormatDatetimeLayout = "02 January 2006 15:04"
 	BearerSchema         = "Bearer"
 	AuthHeaderKey        = "Authorization"
+	OauthProviderGoogle  = "google"
 )

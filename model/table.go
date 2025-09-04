@@ -160,6 +160,8 @@ type Userprovider struct {
 	UpdateBy       string         `gorm:"not null"`
 	UpdateDt       time.Time      `gorm:"not null"`
 	DeleteDt       gorm.DeletedAt `gorm:"null"`
+
+	User *User `gorm:"not null"`
 }
 
 type Userprivilege struct {

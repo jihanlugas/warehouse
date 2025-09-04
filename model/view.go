@@ -507,6 +507,7 @@ type StockmovementvehicleView struct {
 	Retail                     *RetailView                     `json:"retail,omitempty" gorm:"foreignKey:RelatedID;references:ID"`
 	Purchaseorder              *PurchaseorderView              `json:"purchaseorder,omitempty" gorm:"foreignKey:RelatedID;references:ID"`
 	Stockmovementvehiclephotos []StockmovementvehiclephotoView `json:"stockmovementvehiclephotos,omitempty" gorm:"foreignKey:StockmovementvehicleID"`
+	Auditlogs                  []AuditlogView                  `json:"auditlogs,omitempty" gorm:"foreignKey:StockmovementvehicleID"`
 }
 
 func (StockmovementvehicleView) TableName() string {

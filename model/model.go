@@ -1,7 +1,5 @@
 package model
 
-import "time"
-
 const (
 	VIEW_PHOTO                     = "photos_view"
 	VIEW_PHOTOINC                  = "photoincs_view"
@@ -25,11 +23,3 @@ const (
 	VIEW_STOCKMOVEMENTVEHICLE      = "stockmovementvehicles_view"
 	VIEW_STOCKMOVEMENTVEHICLEPHOTO = "stockmovementvehiclephotos_view"
 )
-
-type UserLogin struct {
-	ExpiredDt   time.Time `json:"expiredDt"`
-	UserID      string    `json:"userId"`
-	PassVersion int       `json:"passVersion"`
-	WarehouseID string    `json:"warehouseId"`
-	Role        string    `json:"role"`
-}

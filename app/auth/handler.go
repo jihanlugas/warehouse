@@ -62,7 +62,7 @@ func (h Handler) SignIn(c echo.Context) error {
 	go h.auditlogUsecase.CreateAuditlog(userLogin, model.AuditlogTypeSuccess, request.CreateAuditlog{
 		StockmovementvehicleID: "",
 		Title:                  fmt.Sprintf("Login"),
-		Description:            fmt.Sprintf("%s Success login", userLogin.Fullname),
+		Description:            fmt.Sprintf("Success login"),
 		Request:                nil,
 		Response: response.Payload{
 			"token":     token,
@@ -227,6 +227,17 @@ func (h Handler) googleSigninCallback(c echo.Context) (err error) {
 		return c.Redirect(http.StatusFound, redirectURL)
 	}
 
+	go h.auditlogUsecase.CreateAuditlog(loginUser, model.AuditlogTypeSuccess, request.CreateAuditlog{
+		StockmovementvehicleID: "",
+		Title:                  fmt.Sprintf("Login"),
+		Description:            fmt.Sprintf("Success login with SSO"),
+		Request:                nil,
+		Response: response.Payload{
+			"token":     token,
+			"userLogin": loginUser,
+		},
+	})
+
 	redirectURL = fmt.Sprintf("%s/callback?state=%s&status=success&token=%s&role=%s", config.OauthFeCallback, "sign-in", token, loginUser.UserRole)
 	return c.Redirect(http.StatusFound, redirectURL)
 }
@@ -281,6 +292,6 @@ func (h Handler) googleLinkCallback(c echo.Context) (err error) {
 		return c.Redirect(http.StatusFound, redirectURL)
 	}
 
-	redirectURL = fmt.Sprintf("%s/callback?state=%s&status=success&message=%s", config.OauthFeCallback, "link", "success link")
+	redirectURL = fmt.Sprintf("%s/callback?state=%s&status=success&message=%s", config.OauthFeCallback, "link", "success link akun")
 	return c.Redirect(http.StatusFound, redirectURL)
 }

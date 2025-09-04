@@ -87,7 +87,6 @@ func (u usecase) SignIn(req request.Signin) (token string, userLogin jwt.UserLog
 	}
 
 	expiredAt := time.Now().Add(time.Minute * time.Duration(config.AuthTokenExpiredMinute))
-	userLogin.Fullname = tUser.Fullname
 	userLogin.ExpiredDt = expiredAt
 	userLogin.UserID = tUser.ID
 	userLogin.UserRole = tUser.UserRole
@@ -141,12 +140,12 @@ func (u usecase) GoogleCallback(callback response.GoogleCallback) (token string,
 
 	tUserprovider, err = u.userproviderRepository.GetTableByProviderNameAndEmail(conn, constant.OauthProviderGoogle, callback.Email, "User")
 	if err != nil {
-		err = errors.New("email not registered")
+		err = errors.New("akun tidak terdaftar")
 		return token, userLogin, err
 	}
 
 	if tUserprovider.User == nil {
-		err = errors.New("invalid user")
+		err = errors.New("akun tidak valid")
 		return token, userLogin, err
 	}
 
@@ -176,7 +175,6 @@ func (u usecase) GoogleCallback(callback response.GoogleCallback) (token string,
 	}
 
 	expiredAt := time.Now().Add(time.Minute * time.Duration(config.AuthTokenExpiredMinute))
-	userLogin.Fullname = tUserprovider.User.Fullname
 	userLogin.ExpiredDt = expiredAt
 	userLogin.UserID = tUserprovider.User.ID
 	userLogin.UserRole = tUserprovider.User.UserRole

@@ -17,7 +17,6 @@ import (
 )
 
 type UserLogin struct {
-	Fullname    string         `json:"fullname"`
 	ExpiredDt   time.Time      `json:"expiredDt"`
 	UserID      string         `json:"userId"`
 	PassVersion int            `json:"passVersion"`

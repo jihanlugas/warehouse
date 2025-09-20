@@ -3,13 +3,14 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/jihanlugas/warehouse/config"
-	"github.com/jihanlugas/warehouse/db"
-	"github.com/jihanlugas/warehouse/router"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/jihanlugas/warehouse/config"
+	"github.com/jihanlugas/warehouse/db"
+	"github.com/jihanlugas/warehouse/router"
 )
 
 func runServer() {
@@ -19,10 +20,6 @@ func runServer() {
 
 	_, closeConn := db.GetConnection()
 	defer closeConn()
-
-	if err != nil {
-		r.Logger.Fatal(err)
-	}
 
 	// Start server
 	go func() {

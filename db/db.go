@@ -3,23 +3,15 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"os"
+	"time"
+
 	"github.com/jihanlugas/warehouse/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"log"
-	"os"
-	"time"
 )
-
-type DB struct {
-	username string
-	password string
-	host     string
-	port     string
-	name     string
-	Client   *gorm.DB
-}
 
 type CloseConn func()
 

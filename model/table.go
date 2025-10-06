@@ -107,7 +107,7 @@ type Auditlog struct {
 	ID                     string         `gorm:"primaryKey"`
 	LocationID             string         `gorm:"not null"`
 	WarehouseID            string         `gorm:"not null"`
-	StockmovementvehicleID string         `json:"stockmovementvehicleId"`
+	StockmovementvehicleID string         `gorm:"not null"`
 	AuditlogType           AuditlogType   `gorm:"not null"`
 	Title                  string         `gorm:"not null"`
 	Description            string         `gorm:"not null"`

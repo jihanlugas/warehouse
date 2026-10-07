@@ -314,87 +314,50 @@ func httpErrorHandler(err error, c echo.Context) {
 
 func checkTokenMiddlewareQuery(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var err error
-
-		token := c.QueryParam("token")
-
-		userLogin, err := jwt.ExtractClaimsQuery(token)
-		if err != nil {
-			return response.ErrorForce(http.StatusUnauthorized, err.Error()).SendJSON(c)
-		}
-
-		conn, closeConn := db.GetConnection()
-		defer closeConn()
-
-		var tUser model.User
-		err = conn.Where("id = ? ", userLogin.UserID).First(&tUser).Error
-		if err != nil {
-			return response.ErrorForce(http.StatusUnauthorized, response.ErrorMiddlewareUserNotFound).SendJSON(c)
-		}
-
-		if tUser.PassVersion != userLogin.PassVersion {
-			return response.ErrorForce(http.StatusUnauthorized, response.ErrorMiddlewarePassVersion).SendJSON(c)
-		}
-
-		c.Set(constant.TokenUserContext, userLogin)
-		return next(c)
+		return validateTokenMiddleware(c, next, func(c echo.Context) (jwt.UserLogin, error) {
+			return jwt.ExtractClaimsQuery(c.QueryParam("token"))
+		}, false)
 	}
 }
 
 func checkTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var err error
-
-		userLogin, err := jwt.ExtractClaims(c.Request().Header.Get(constant.AuthHeaderKey))
-		if err != nil {
-			return response.ErrorForce(http.StatusUnauthorized, err.Error()).SendJSON(c)
-		}
-
-		conn, closeConn := db.GetConnection()
-		defer closeConn()
-
-		var tUser model.User
-		err = conn.Where("id = ? ", userLogin.UserID).First(&tUser).Error
-		if err != nil {
-			return response.ErrorForce(http.StatusUnauthorized, response.ErrorMiddlewareUserNotFound).SendJSON(c)
-		}
-
-		if tUser.PassVersion != userLogin.PassVersion {
-			return response.ErrorForce(http.StatusUnauthorized, response.ErrorMiddlewarePassVersion).SendJSON(c)
-		}
-
-		c.Set(constant.TokenUserContext, userLogin)
-		return next(c)
+		return validateTokenMiddleware(c, next, func(c echo.Context) (jwt.UserLogin, error) {
+			return jwt.ExtractClaims(c.Request().Header.Get(constant.AuthHeaderKey))
+		}, false)
 	}
 }
 
 func checkTokenMiddlewareAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var err error
-
-		userLogin, err := jwt.ExtractClaims(c.Request().Header.Get(constant.AuthHeaderKey))
-		if err != nil {
-			return response.ErrorForce(http.StatusUnauthorized, err.Error()).SendJSON(c)
-		}
-
-		conn, closeConn := db.GetConnection()
-		defer closeConn()
-
-		var tUser model.User
-		err = conn.Where("id = ? ", userLogin.UserID).First(&tUser).Error
-		if err != nil {
-			return response.ErrorForce(http.StatusUnauthorized, response.ErrorMiddlewareUserNotFound).SendJSON(c)
-		}
-
-		if tUser.PassVersion != userLogin.PassVersion {
-			return response.ErrorForce(http.StatusUnauthorized, response.ErrorMiddlewarePassVersion).SendJSON(c)
-		}
-
-		if tUser.UserRole == model.UserRoleOperator {
-			return response.ErrorForce(http.StatusUnauthorized, response.ErrorRoleNotAllowed).SendJSON(c)
-		}
-
-		c.Set(constant.TokenUserContext, userLogin)
-		return next(c)
+		return validateTokenMiddleware(c, next, func(c echo.Context) (jwt.UserLogin, error) {
+			return jwt.ExtractClaims(c.Request().Header.Get(constant.AuthHeaderKey))
+		}, true)
 	}
+}
+
+func validateTokenMiddleware(c echo.Context, next echo.HandlerFunc, extractor func(echo.Context) (jwt.UserLogin, error), requireAdmin bool) error {
+	userLogin, err := extractor(c)
+	if err != nil {
+		return response.ErrorForce(http.StatusUnauthorized, err.Error()).SendJSON(c)
+	}
+
+	conn, closeConn := db.GetConnection()
+	defer closeConn()
+
+	var tUser model.User
+	if err = conn.Where("id = ?", userLogin.UserID).First(&tUser).Error; err != nil {
+		return response.ErrorForce(http.StatusUnauthorized, response.ErrorMiddlewareUserNotFound).SendJSON(c)
+	}
+
+	if tUser.PassVersion != userLogin.PassVersion {
+		return response.ErrorForce(http.StatusUnauthorized, response.ErrorMiddlewarePassVersion).SendJSON(c)
+	}
+
+	if requireAdmin && tUser.UserRole == model.UserRoleOperator {
+		return response.ErrorForce(http.StatusUnauthorized, response.ErrorRoleNotAllowed).SendJSON(c)
+	}
+
+	c.Set(constant.TokenUserContext, userLogin)
+	return next(c)
 }
